@@ -75,7 +75,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-center">Our Technology</h2>
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6">
               {cards.map(({ title, desc, icon }, i) => (
-              <div key={title} className="bg-white rounded-lg p-6 shadow-sm flex items-start space-x-4 enter-up pop" style={{ ['--i']: i }}>
+              <div key={title} className="bg-white rounded-lg p-6 shadow-sm flex items-start space-x-4 enter-up pop" style={{ '--i': i }}>
                 <div className="w-16 h-16 flex-shrink-0 rounded-[58px] border border-black bg-[#D6D6D6] flex items-center justify-center text-gray-500 overflow-hidden">{icon ? <img src={icon} alt={`${title} icon`} className="w-60 h-60 object-contain" style={{ filter: "drop-shadow(0 8px 8px rgba(0,0,0,0.50))" }} /> : <span className="w-8 h-8 block" aria-hidden="true" />}</div>
 
                 <div className="flex-1 text-left">
@@ -120,7 +120,7 @@ export default function Home() {
           </div>
 
           <div className="space-y-4">
-            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ ['--i']: 0 }}>
+            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ '--i': 0 }}>
               <div className="w-12 h-12 rounded-lg bg-[#F1F7FB] flex items-center justify-center text-[#0471AB]"><i className="fas fa-check-circle icon-tilt"></i></div>
               <div className="flex-1">
                 <p className="font-semibold text-black">Fewer false rejects</p>
@@ -128,7 +128,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ ['--i']: 1 }}>
+            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ '--i': 1 }}>
               <div className="w-12 h-12 rounded-lg bg-[#F1F7FB] flex items-center justify-center text-[#0471AB]"><i className="fas fa-stopwatch icon-tilt"></i></div>
               <div className="flex-1">
                 <p className="font-semibold text-black">Faster setup and changeover</p>
@@ -136,7 +136,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ ['--i']: 2 }}>
+            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ '--i': 2 }}>
               <div className="w-12 h-12 rounded-lg bg-[#F1F7FB] flex items-center justify-center text-[#0471AB]"><i className="fas fa-shield-alt icon-tilt"></i></div>
               <div className="flex-1">
                 <p className="font-semibold text-black">Long-term reliability as products and materials change</p>
