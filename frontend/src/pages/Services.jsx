@@ -63,7 +63,7 @@ export default function Services() {
           <h2 className="text-3xl font-bold text-center">Services</h2>
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6">
               {cards.map(({title, desc, icon}, i) => (
-                <div key={title} className="bg-white rounded-lg p-6 shadow-sm flex items-start space-x-4 enter-up pop" style={{ '--i': i }}>
+                <div key={title} className="bg-white rounded-lg p-6 shadow-sm flex items-start space-x-4 enter-up pop" style={{ ['--i']: i }}>
                   <div className="w-16 h-16 flex-shrink-0 rounded-[58px] border border-black bg-[#D6D6D6] flex items-center justify-center text-gray-500 overflow-hidden">
                     {title === 'Long-Term Partnership & Support' ? (
                       <i className="fas fa-handshake text-white text-3xl icon-tilt" aria-hidden="true" style={{filter: 'drop-shadow(0 8px 8px rgba(0,0,0,0.50))'}}></i>
@@ -113,7 +113,7 @@ export default function Services() {
           </div>
 
           <div className="space-y-4">
-            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ '--i': 0 }}>
+            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ ['--i']: 0 }}>
               <div className="w-12 h-12 rounded-lg bg-[#F1F7FB] flex items-center justify-center text-[#0471AB]"><i className="fas fa-rocket icon-tilt"></i></div>
               <div>
                 <div className="flex-1">
@@ -123,7 +123,7 @@ export default function Services() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ '--i': 1 }}>
+            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ ['--i']: 1 }}>
               <div className="w-12 h-12 rounded-lg bg-[#F1F7FB] flex items-center justify-center text-[#0471AB]"><i className="fas fa-server icon-tilt"></i></div>
               <div>
                 <div className="flex-1">
@@ -133,7 +133,7 @@ export default function Services() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ '--i': 2 }}>
+            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ ['--i']: 2 }}>
               <div className="w-12 h-12 rounded-lg bg-[#F1F7FB] flex items-center justify-center text-[#0471AB]"><i className="fas fa-headset icon-tilt"></i></div>
               <div>
                 <div className="flex-1">
