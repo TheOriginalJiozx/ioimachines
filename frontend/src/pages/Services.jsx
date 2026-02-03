@@ -1,42 +1,45 @@
-import { useEffect, useState } from 'react';
-import ContactCase from '../components/ContactCase';
+import { useEffect, useState } from "react";
+import ContactCase from "../components/ContactCase";
 
 export default function Services() {
   const cards = [
-    { title: 'Long-Term Partnership & Support', desc: 'We focus on building long-term partnerships with our customers, ensuring continuous support and close...' },
-    { title: 'System Maintenance & Upgrades', desc: 'We provide ongoing system maintenance and upgrades to ensure optimal performance, even under unpredictable...' },
-    { title: 'IP Core Licensing', desc: 'For customers seeking full ownership, we offer our IP core in encrypted form, enabling seamless integration while...' },
-    { title: 'Training & Knowledge Transfer', desc: 'We conduct comprehensive training sessions to equip customer personnel with the skills needed to operate and maintain...' },
+    { title: "Long-Term Partnership & Support", desc: "We focus on building long-term partnerships with our customers, ensuring continuous support and close..." },
+    { title: "System Maintenance & Upgrades", desc: "We provide ongoing system maintenance and upgrades to ensure optimal performance, even under unpredictable..." },
+    { title: "IP Core Licensing", desc: "For customers seeking full ownership, we offer our IP core in encrypted form, enabling seamless integration while..." },
+    { title: "Training & Knowledge Transfer", desc: "We conduct comprehensive training sessions to equip customer personnel with the skills needed to operate and maintain..." },
   ];
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalTitle, setModalTitle] = useState('');
-  const [modalBody, setModalBody] = useState('');
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalBody, setModalBody] = useState("");
 
   const modalTexts = {
-    'Long-Term Partnership & Support': `We focus on building long-term partnerships with our customers, ensuring continuous support and close collaboration throughout the system’s lifecycle to maximize value and satisfaction.`,
-    'System Maintenance & Upgrades': `We provide ongoing system maintenance and upgrades to ensure optimal performance, even under unpredictable product variations and changing environmental conditions.`,
-    'IP Core Licensing': `For customers seeking full ownership, we offer our IP core in encrypted form, enabling seamless integration while protecting intellectual property.`,
-    'Training & Knowledge Transfer': `We conduct comprehensive training sessions to equip customer personnel with the skills needed to operate and maintain the system using in-house competencies.`,
+    "Long-Term Partnership & Support": `We focus on building long-term partnerships with our customers, ensuring continuous support and close collaboration throughout the system’s lifecycle to maximize value and satisfaction.`,
+    "System Maintenance & Upgrades": `We provide ongoing system maintenance and upgrades to ensure optimal performance, even under unpredictable product variations and changing environmental conditions.`,
+    "IP Core Licensing": `For customers seeking full ownership, we offer our IP core in encrypted form, enabling seamless integration while protecting intellectual property.`,
+    "Training & Knowledge Transfer": `We conduct comprehensive training sessions to equip customer personnel with the skills needed to operate and maintain the system using in-house competencies.`,
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && typeof window.setPageTitle === 'function') {
-      window.setPageTitle('Services');
+    if (typeof window !== "undefined" && typeof window.setPageTitle === "function") {
+      window.setPageTitle("Services");
     }
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (typeof window === "undefined" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) entry.target.classList.add('in-view');
-      });
-    }, { threshold: 0.18 });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add("in-view");
+        });
+      },
+      { threshold: 0.18 },
+    );
 
-    const els = Array.from(document.querySelectorAll('.enter-up'));
-    els.forEach(el => observer.observe(el));
+    const els = Array.from(document.querySelectorAll(".enter-up"));
+    els.forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
   }, []);
@@ -50,7 +53,9 @@ export default function Services() {
         <div className="absolute inset-0 flex items-center">
           <div className="max-w-6xl mx-auto px-6 w-full flex items-center">
             <div className="lg:pl-0 -mt-80">
-              <h1 className="lg:text-[38px] font-extrabold text-white uppercase" style={{filter: 'drop-shadow(0 8px 8px rgba(0,0,0,0.50))'}}>Services Offered</h1>
+              <h1 className="lg:text-[38px] font-extrabold text-white uppercase" style={{ filter: "drop-shadow(0 8px 8px rgba(0,0,0,0.50))" }}>
+                Services Offered
+              </h1>
             </div>
           </div>
         </div>
@@ -62,35 +67,39 @@ export default function Services() {
         <div className="max-w-6xl mx-auto px-6 py-16">
           <h2 className="text-3xl font-bold text-center">Services</h2>
           <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6">
-              {cards.map(({title, desc, icon}, i) => (
-                <div key={title} className="bg-white rounded-lg p-6 shadow-sm flex items-start space-x-4 enter-up pop" style={{ '--i': i }}>
-                  <div className="w-16 h-16 flex-shrink-0 rounded-[58px] border border-black bg-[#D6D6D6] flex items-center justify-center text-gray-500 overflow-hidden">
-                    {title === 'Long-Term Partnership & Support' ? (
-                      <i className="fas fa-handshake text-white text-3xl icon-tilt" aria-hidden="true" style={{filter: 'drop-shadow(0 8px 8px rgba(0,0,0,0.50))'}}></i>
-                    ) : title === 'System Maintenance & Upgrades' ? (
-                      <i className="fas fa-tools text-white text-3xl icon-tilt" aria-hidden="true" style={{filter: 'drop-shadow(0 8px 8px rgba(0,0,0,0.50))'}}></i>
-                    ) : title === 'IP Core Licensing' ? (
-                      <i className="fas fa-lock text-white text-3xl icon-tilt" aria-hidden="true" style={{filter: 'drop-shadow(0 8px 8px rgba(0,0,0,0.50))'}}></i>
-                    ) : title === 'Training & Knowledge Transfer' ? (
-                      <i className="fas fa-user-graduate text-white text-3xl icon-tilt" aria-hidden="true" style={{filter: 'drop-shadow(0 8px 8px rgba(0,0,0,0.50))'}}></i>
-                    ) : (
-                      <span className="w-8 h-8 block" aria-hidden="true" />
-                    )}
-                  </div>
-
-                  <div className="flex-1 text-left">
-                    <h3 className="font-semibold">{title}</h3>
-                    <p className="mt-2 text-sm text-[#606060] whitespace-pre-line">{desc}</p>
-                    <button
-                      type="button"
-                      onClick={() => { setModalTitle(title); setModalBody(modalTexts[title] || desc); setModalOpen(true); }}
-                      className="mt-3 inline-block text-sm text-[#606060] hover:underline"
-                    >
-                      Read more
-                    </button>
-                  </div>
+            {cards.map(({ title, desc, icon }, i) => (
+              <div key={title} className="bg-white rounded-lg p-6 shadow-sm flex items-start space-x-4 enter-up pop" style={{ "--i": i }}>
+                <div className="w-16 h-16 flex-shrink-0 rounded-[58px] border border-black bg-[#D6D6D6] flex items-center justify-center text-gray-500 overflow-hidden">
+                  {title === "Long-Term Partnership & Support" ? (
+                    <i className="fas fa-handshake text-white text-3xl icon-tilt" aria-hidden="true" style={{ filter: "drop-shadow(0 8px 8px rgba(0,0,0,0.50))" }}></i>
+                  ) : title === "System Maintenance & Upgrades" ? (
+                    <i className="fas fa-tools text-white text-3xl icon-tilt" aria-hidden="true" style={{ filter: "drop-shadow(0 8px 8px rgba(0,0,0,0.50))" }}></i>
+                  ) : title === "IP Core Licensing" ? (
+                    <i className="fas fa-lock text-white text-3xl icon-tilt" aria-hidden="true" style={{ filter: "drop-shadow(0 8px 8px rgba(0,0,0,0.50))" }}></i>
+                  ) : title === "Training & Knowledge Transfer" ? (
+                    <i className="fas fa-user-graduate text-white text-3xl icon-tilt" aria-hidden="true" style={{ filter: "drop-shadow(0 8px 8px rgba(0,0,0,0.50))" }}></i>
+                  ) : (
+                    <span className="w-8 h-8 block" aria-hidden="true" />
+                  )}
                 </div>
-              ))}
+
+                <div className="flex-1 text-left">
+                  <h3 className="font-semibold">{title}</h3>
+                  <p className="mt-2 text-sm text-[#606060] whitespace-pre-line">{desc}</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModalTitle(title);
+                      setModalBody(modalTexts[title] || desc);
+                      setModalOpen(true);
+                    }}
+                    className="mt-3 inline-block text-sm text-[#606060] hover:underline"
+                  >
+                    Read more
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -105,40 +114,52 @@ export default function Services() {
               <p className="text-white">We design and implement custom machine vision solutions powered by AI, tailored to the specific requirements of each application and production environment.</p>
               <p className="mt-4 font-semibold">Our solutions are built to adapt to:</p>
               <ul className="mt-3 space-y-2 text-white text-sm list-inside pl-4">
-                <li className="flex items-start"><i className="fas fa-box mr-3 mt-1 text-white"></i>Product and surface variations</li>
-                <li className="flex items-start"><i className="fas fa-bug mr-3 mt-1 text-white"></i>New defect types</li>
-                <li className="flex items-start"><i className="fas fa-sync-alt mr-3 mt-1 text-white"></i>Changing production conditions</li>
+                <li className="flex items-start">
+                  <i className="fas fa-box mr-3 mt-1 text-white"></i>Product and surface variations
+                </li>
+                <li className="flex items-start">
+                  <i className="fas fa-bug mr-3 mt-1 text-white"></i>New defect types
+                </li>
+                <li className="flex items-start">
+                  <i className="fas fa-sync-alt mr-3 mt-1 text-white"></i>Changing production conditions
+                </li>
               </ul>
             </div>
           </div>
 
           <div className="space-y-4">
-            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ '--i': 0 }}>
-              <div className="w-12 h-12 rounded-lg bg-[#F1F7FB] flex items-center justify-center text-[#0471AB]"><i className="fas fa-rocket icon-tilt"></i></div>
+            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ "--i": 0 }}>
+              <div className="w-12 h-12 rounded-lg bg-[#F1F7FB] flex items-center justify-center text-[#0471AB]">
+                <i className="fas fa-rocket icon-tilt"></i>
+              </div>
               <div>
                 <div className="flex-1">
-                    <p className="font-semibold text-black">Faster Deployment</p>
-                    <p className="text-sm text-black mt-1">Quick, low-friction deployment so you start inspecting sooner.</p>
+                  <p className="font-semibold text-black">Faster Deployment</p>
+                  <p className="text-sm text-black mt-1">Quick, low-friction deployment so you start inspecting sooner.</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ '--i': 1 }}>
-              <div className="w-12 h-12 rounded-lg bg-[#F1F7FB] flex items-center justify-center text-[#0471AB]"><i className="fas fa-server icon-tilt"></i></div>
+            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ "--i": 1 }}>
+              <div className="w-12 h-12 rounded-lg bg-[#F1F7FB] flex items-center justify-center text-[#0471AB]">
+                <i className="fas fa-server icon-tilt"></i>
+              </div>
               <div>
                 <div className="flex-1">
-                    <p className="font-semibold text-black">Scalable Performance</p>
-                    <p className="text-sm text-black mt-1">From single stations to high-throughput lines — performance scales with you.</p>
+                  <p className="font-semibold text-black">Scalable Performance</p>
+                  <p className="text-sm text-black mt-1">From single stations to high-throughput lines — performance scales with you.</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ '--i': 2 }}>
-              <div className="w-12 h-12 rounded-lg bg-[#F1F7FB] flex items-center justify-center text-[#0471AB]"><i className="fas fa-headset icon-tilt"></i></div>
+            <div className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up" style={{ "--i": 2 }}>
+              <div className="w-12 h-12 rounded-lg bg-[#F1F7FB] flex items-center justify-center text-[#0471AB]">
+                <i className="fas fa-headset icon-tilt"></i>
+              </div>
               <div>
                 <div className="flex-1">
-                    <p className="font-semibold text-black">Continuous Support</p>
-                    <p className="text-sm text-black mt-1">Ongoing service and expertise to keep your inspection running.</p>
+                  <p className="font-semibold text-black">Continuous Support</p>
+                  <p className="text-sm text-black mt-1">Ongoing service and expertise to keep your inspection running.</p>
                 </div>
               </div>
             </div>
@@ -151,7 +172,10 @@ export default function Services() {
       <section className="max-w-6xl mx-auto px-6 py-12">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div className="max-w-xl">
-            <h3 className="text-2xl font-bold text-[#444444]">System Maintenance and<br /> Continuous Optimization</h3>
+            <h3 className="text-2xl font-bold text-[#444444]">
+              System Maintenance and
+              <br /> Continuous Optimization
+            </h3>
             <p className="mt-4 text-gray-600">IOIMACHINES provides ongoing hardware and software maintenance services directly at the factory floor.</p>
 
             <div className="mt-6">
@@ -188,27 +212,23 @@ export default function Services() {
       <section className="max-w-6xl mx-auto px-6 py-16">
         <h3 className="text-[36px] font-bold text-center text-[#606060]">GET ADVICE</h3>
         <h4 className="text-[14px] font-bold text-center text-[#606060]">How can we help you?</h4>
-        <p className="text-center text-[#606060] mt-4">We perform a free evaluation of our solution on your specific<br /> inspection problem. We test our algorithm on the received images<br /> and run a live demo of the solution. You have the following options:</p>
+        <p className="text-center text-[#606060] mt-4">
+          We perform a free evaluation of our solution on your specific
+          <br /> inspection problem. We test our algorithm on the received images
+          <br /> and run a live demo of the solution. You have the following options:
+        </p>
 
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6 items-stretch">
-          {["Send Us Sample Images","On-Site Image Capture by Our Experts","Live Algorithm Evaluation","Review Results & Next"].map((text,i)=> (
+          {["Send Us Sample Images", "On-Site Image Capture by Our Experts", "Live Algorithm Evaluation", "Review Results & Next"].map((text, i) => (
             <div key={text} className="p-6 border rounded text-left h-full flex items-start">
               <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 bg-black text-white rounded flex items-center justify-center font-bold flex-shrink-0">{i+1}</div>
+                <div className="w-10 h-10 bg-black text-white rounded flex items-center justify-center font-bold flex-shrink-0">{i + 1}</div>
                 <div className="flex-1">
                   <h4 className="font-semibold text-[#606060]">{text}</h4>
-                  {text === "Send Us Sample Images" && (
-                    <p className="text-sm text-[#606060] mt-2">Send us a number of images representing good and bad objects including corner samples.</p>
-                  )}
-                  {text === "On-Site Image Capture by Our Experts" && (
-                    <p className="text-sm text-[#606060] mt-2">Alternatively, we visit you on-site and take pictures ourselves of the test samples.</p>
-                  )}
-                  {text === "Live Algorithm Evaluation" && (
-                    <p className="text-sm text-[#606060] mt-2">Or send representative samples to our laboratories.</p>
-                  )}
-                  {text === "Review Results & Next" && (
-                    <p className="text-sm text-[#606060] mt-2">Get a free evaluation license of our IP core on your windows based computer. Run your own tests on your samples at your convenience.</p>
-                  )}
+                  {text === "Send Us Sample Images" && <p className="text-sm text-[#606060] mt-2">Send us a number of images representing good and bad objects including corner samples.</p>}
+                  {text === "On-Site Image Capture by Our Experts" && <p className="text-sm text-[#606060] mt-2">Alternatively, we visit you on-site and take pictures ourselves of the test samples.</p>}
+                  {text === "Live Algorithm Evaluation" && <p className="text-sm text-[#606060] mt-2">Or send representative samples to our laboratories.</p>}
+                  {text === "Review Results & Next" && <p className="text-sm text-[#606060] mt-2">Get a free evaluation license of our IP core on your windows based computer. Run your own tests on your samples at your convenience.</p>}
                 </div>
               </div>
             </div>
@@ -252,21 +272,25 @@ export default function Services() {
 
       <div class="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
 
-          {modalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center">
-              <div className="absolute inset-0 bg-black/50" onClick={()=>setModalOpen(false)} />
-              <div className="relative bg-white rounded-lg max-w-2xl w-full mx-4 p-6 shadow-lg">
-                <div className="flex items-start justify-between">
-                  <h3 className="text-lg font-semibold text-gray-800">{modalTitle}</h3>
-                  <button onClick={()=>setModalOpen(false)} className="text-gray-500 hover:text-gray-700">✕</button>
-                </div>
-                <div className="mt-4 text-sm text-gray-700 whitespace-pre-line">{modalBody}</div>
-                <div className="mt-6 text-right">
-                  <button onClick={()=>setModalOpen(false)} className="bg-[#444444] text-white px-4 py-2 rounded">Close</button>
-                </div>
-              </div>
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setModalOpen(false)} />
+          <div className="relative bg-white rounded-lg max-w-2xl w-full mx-4 p-6 shadow-lg">
+            <div className="flex items-start justify-between">
+              <h3 className="text-lg font-semibold text-gray-800">{modalTitle}</h3>
+              <button onClick={() => setModalOpen(false)} className="text-gray-500 hover:text-gray-700">
+                ✕
+              </button>
             </div>
-          )}
+            <div className="mt-4 text-sm text-gray-700 whitespace-pre-line">{modalBody}</div>
+            <div className="mt-6 text-right">
+              <button onClick={() => setModalOpen(false)} className="bg-[#444444] text-white px-4 py-2 rounded">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }
