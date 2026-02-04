@@ -1,9 +1,9 @@
 com\ioimachines\backend\controller\AdminsController$LoginRequest.class
+com\ioimachines\backend\controller\AdminsController$ChangeEmail.class
+com\ioimachines\backend\model\Admins.class
 com\ioimachines\backend\controller\AdminsController$LoginResponse.class
 com\ioimachines\backend\security\JwtUtil.class
 com\ioimachines\backend\Application.class
 com\ioimachines\backend\controller\AdminsController$ChangePassword.class
-com\ioimachines\backend\controller\AdminsController$ChangeEmail.class
 com\ioimachines\backend\repository\AdminRepository.class
 com\ioimachines\backend\controller\AdminsController.class
-com\ioimachines\backend\model\Admins.class

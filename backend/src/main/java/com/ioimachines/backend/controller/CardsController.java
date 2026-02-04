@@ -1,6 +1,5 @@
 package com.ioimachines.backend.controller;
 
-import com.ioimachines.backend.model.Card;
 import com.ioimachines.backend.repository.CardRepository;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
