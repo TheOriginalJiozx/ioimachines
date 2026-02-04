@@ -21,7 +21,7 @@ export default function Home() {
         if (count.includes('application/json')) {
           const json = await res.json()
           if (!mounted) return
-          setCards(json.map(card => ({ id: card.id, title: card.title, desc: card.desc || card.description, icon: card.icon })))
+          setCards(json.map(card => ({ id: card.id, title: card.title, desc: card.desc, icon: card.icon })))
         } else {
           const text = await res.text().catch(() => '')
           alert(`/api/cards returned unexpected content-type: ${count}\n\n${text.slice ? text.slice(0,300) : text}`)
@@ -52,9 +52,9 @@ export default function Home() {
         if (content.includes('application/json')) {
           const json = await res.json()
           if (!mounted) return
-          const map = {}
-          json.forEach(map => { if (map.card_id) map[map.card_id] = map.content })
-          setModalTexts(map)
+          const modal = {}
+          json.forEach(item => { if (item.card_id) modal[String(item.card_id)] = item.content })
+          setModalTexts(modal)
         }
       } catch (error) {
         alert(error.message || error.toString());
@@ -136,10 +136,10 @@ export default function Home() {
     return () => observer.disconnect();
   }, [cards]);
 
-  const techCard = cards.find(card => card.title && card.title.toLowerCase() === 'our technology')
+  const techCard = cards && cards.length > 0 ? cards[0] : null
   const techTitle = techCard?.title || ''
   const techIntro = techCard?.desc || ''
-  const visibleCards = cards.filter(card => !(card.title && card.title.toLowerCase() === 'our technology'))
+  const visibleCards = cards && cards.length > 1 ? cards.slice(1, 5) : []
 
   return (
     <div className="min-h-screen bg-white text-[#444444] font-sans">
@@ -155,7 +155,7 @@ export default function Home() {
         </div>
         <div className="flex justify-center md:justify-end mt-4 md:mt-0">
             <div className="w-full max-w-2xl h-56 sm:h-64 md:h-96 bg-gray-100 overflow-hidden flex items-center justify-center rounded">
-            <img src={hero && hero.image_url ? hero.image_url : ''} alt="hero" className="object-cover w-full h-full" />
+            <img src={hero && hero.image_url ? hero.image_url : ''} className="object-cover w-full h-full" />
           </div>
         </div>
       </section>
@@ -171,7 +171,7 @@ export default function Home() {
               <div key={id ?? title} className="bg-white rounded-lg p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4 enter-up pop" style={{ '--i': i }}>
                 <div className="w-16 h-16 flex-shrink-0 rounded-full border border-black bg-[#D6D6D6] flex items-center justify-center text-gray-500 overflow-hidden">
                   {icon ? (
-                    <img src={icon} alt={`${title} icon`} className="w-10 h-10 object-contain" style={{ filter: 'drop-shadow(0 8px 8px rgba(0,0,0,0.50))' }} />
+                    <img src={icon} className="w-10 h-10 object-contain" style={{ filter: 'drop-shadow(0 8px 8px rgba(0,0,0,0.50))' }} />
                   ) : (
                     <span className="w-8 h-8 block" aria-hidden="true" />
                   )}
@@ -184,7 +184,7 @@ export default function Home() {
                     type="button"
                     onClick={() => {
                       setModalTitle(title);
-                      setModalBody(modalTexts[id] || desc);
+                      setModalBody((modalTexts && (modalTexts[String(id)] || modalTexts[id])) || desc);
                       setModalOpen(true);
                     }}
                     className="mt-3 inline-block text-sm text-[#606060] hover:underline"
