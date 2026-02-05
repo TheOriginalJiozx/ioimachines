@@ -32,7 +32,17 @@ export default function Contact() {
     }
     setSending(true);
     try {
-      const res = await fetch("/api/consultation", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email, message }) });
+      const res = await fetch("/api/consultation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          message,
+        }),
+      });
       if (!res.ok) throw new Error(await res.text());
       setStatus("Message sent — we will contact you shortly.");
       setName("");
@@ -94,12 +104,20 @@ export default function Contact() {
             </div>
             <div>
               <h2 className="text-[40px] font-semibold text-[#222222]">Get in Touch</h2>
-              <p className="mt-4 text-[#444444] text-[15px]">Thank you for showing interest — let us get in touch. <br /> Fill the consultation form below and we'll contact you <br /> shortly to discuss your requirements.</p>
+              <p className="mt-4 text-[#444444] text-[15px]">
+                Thank you for showing interest — let us get in touch. <br /> Fill the consultation form below and we'll contact you <br /> shortly to discuss your requirements.
+              </p>
 
               <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h3 className="text-2xl font-semibold text-[#444444]">Address</h3>
-                  <p className="mt-3 text-[#444444] text-[14px]">Hvidovrevej 44<br />2610 Rødovre<br />Denmark</p>
+                  <p className="mt-3 text-[#444444] text-[14px]">
+                    Hvidovrevej 44
+                    <br />
+                    2610 Rødovre
+                    <br />
+                    Denmark
+                  </p>
 
                   <h3 className="mt-6 text-2xl font-semibold text-[#444444]">E-mail</h3>
                   <p className="mt-3 text-[#444444] text-[14px]">mc@ioimachines.com</p>
@@ -107,7 +125,13 @@ export default function Contact() {
 
                 <div>
                   <h3 className="text-2xl font-semibold text-[#444444]">Timing</h3>
-                  <p className="mt-3 text-[#444444] text-[14px]">Monday - Friday: 8 AM - 10 PM<br />Saturday: 8 AM - 12 PM<br />Sunday: 8 AM - 12 PM</p>
+                  <p className="mt-3 text-[#444444] text-[14px]">
+                    Monday - Friday: 8 AM - 10 PM
+                    <br />
+                    Saturday: 8 AM - 12 PM
+                    <br />
+                    Sunday: 8 AM - 12 PM
+                  </p>
 
                   <h3 className="mt-6 text-2xl font-semibold text-[#444444]">Phone</h3>
                   <p className="mt-3 text-[#444444] text-[14px]">(+45) 30 32 89 64</p>
