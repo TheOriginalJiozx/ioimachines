@@ -16,7 +16,8 @@ export default function ContactCase() {
     }
     setSending(true);
     try {
-      const res = await fetch('/api/contact', {
+      const API_BASE = 'https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api';
+      const res = await fetch(`${API_BASE}/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, message }),

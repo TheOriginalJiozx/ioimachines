@@ -19,7 +19,8 @@ export default function AdminLogin() {
     }
     setLoading(true);
     try {
-      const res = await fetch('/api/admins/login', {
+      const API_BASE = 'https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api';
+      const res = await fetch(`${API_BASE}/admins/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

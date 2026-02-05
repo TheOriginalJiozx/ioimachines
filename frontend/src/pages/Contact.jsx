@@ -32,7 +32,8 @@ export default function Contact() {
     }
     setSending(true);
     try {
-      const res = await fetch("/api/consultation", {
+      const API_BASE = 'https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api';
+      const res = await fetch(`${API_BASE}/consultation`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -10,7 +10,8 @@ export default function Footer() {
     if (!email || !email.includes('@')) { setStatus('Please enter a valid email'); return }
     setLoading(true);
     try{
-      const res = await fetch('/api/newsletter', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
+      const API_BASE = 'https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api';
+      const res = await fetch(`${API_BASE}/newsletter`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
       const text = await res.text();
       let json = {};
       try { json = text ? JSON.parse(text) : {}; } catch (err) { /* ignore parse errors */ }
