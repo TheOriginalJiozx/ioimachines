@@ -17,7 +17,7 @@ export default function Nav() {
       const index = navLinks.findIndex((nav) => nav.toLowerCase().includes(path.toLowerCase()));
       setActive(index >= 0 ? index : 0);
     } catch (error) {
-      console.error(error);
+      alert("Navigation error: " + error.message);
     }
   }, [location]);
 

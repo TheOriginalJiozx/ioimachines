@@ -13,7 +13,11 @@ public class AdminSessionStore {
     private static class Session {
         long adminId;
         long expiresAt;
-        Session(long adminId, long expiresAt) { this.adminId = adminId; this.expiresAt = expiresAt; }
+
+        Session(long adminId, long expiresAt) {
+            this.adminId = adminId;
+            this.expiresAt = expiresAt;
+        }
     }
 
     private final Map<String, Session> sessions = new ConcurrentHashMap<>();
@@ -30,9 +34,11 @@ public class AdminSessionStore {
     }
 
     public Long validate(String token) {
-        if (token == null) return null;
+        if (token == null)
+            return null;
         Session s = sessions.get(token);
-        if (s == null) return null;
+        if (s == null)
+            return null;
         if (Instant.now().getEpochSecond() > s.expiresAt) {
             sessions.remove(token);
             return null;
@@ -41,7 +47,8 @@ public class AdminSessionStore {
     }
 
     public void revoke(String token) {
-        if (token == null) return;
+        if (token == null)
+            return;
         sessions.remove(token);
     }
 }

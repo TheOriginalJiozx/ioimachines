@@ -9,8 +9,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.ioimachines.backend.util.AdminSessionStore;
 
-import java.net.URI;
-
 @RestController
 @RequestMapping("/api/admins")
 @CrossOrigin
@@ -45,12 +43,15 @@ public class AdminsController {
 
     @GetMapping("/me")
     public ResponseEntity<?> me(@RequestHeader(name = "Authorization", required = false) String auth,
-                                @RequestHeader(name = "X-ADMIN-TOKEN", required = false) String headerToken) {
+            @RequestHeader(name = "X-ADMIN-TOKEN", required = false) String headerToken) {
         String token = null;
-        if (auth != null && auth.startsWith("Bearer ")) token = auth.substring(7);
-        if (token == null) token = headerToken;
+        if (auth != null && auth.startsWith("Bearer "))
+            token = auth.substring(7);
+        if (token == null)
+            token = headerToken;
         Long adminId = sessionStore.validate(token);
-        if (adminId == null) return ResponseEntity.status(401).body("invalid token");
+        if (adminId == null)
+            return ResponseEntity.status(401).body("invalid token");
         return adminRepository.findById(adminId).map(admin -> {
             admin.password = null;
 
@@ -64,13 +65,16 @@ public class AdminsController {
 
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestHeader(name = "Authorization", required = false) String auth,
-                                            @RequestHeader(name = "X-ADMIN-TOKEN", required = false) String headerToken,
-                                            @RequestBody ChangePassword req) {
+            @RequestHeader(name = "X-ADMIN-TOKEN", required = false) String headerToken,
+            @RequestBody ChangePassword req) {
         String token = null;
-        if (auth != null && auth.startsWith("Bearer ")) token = auth.substring(7);
-        if (token == null) token = headerToken;
+        if (auth != null && auth.startsWith("Bearer "))
+            token = auth.substring(7);
+        if (token == null)
+            token = headerToken;
         Long adminId = sessionStore.validate(token);
-        if (adminId == null) return ResponseEntity.status(401).body("invalid token");
+        if (adminId == null)
+            return ResponseEntity.status(401).body("invalid token");
         return adminRepository.findById(adminId).map(admin -> {
             if (admin.password == null || !passwordEncoder.matches(req.currentPassword, admin.password)) {
                 return ResponseEntity.status(400).body("current password incorrect");
@@ -86,15 +90,19 @@ public class AdminsController {
 
     @PostMapping("/change-email")
     public ResponseEntity<?> changeEmail(@RequestHeader(name = "Authorization", required = false) String auth,
-                                         @RequestHeader(name = "X-ADMIN-TOKEN", required = false) String headerToken,
-                                         @RequestBody ChangeEmail req) {
+            @RequestHeader(name = "X-ADMIN-TOKEN", required = false) String headerToken,
+            @RequestBody ChangeEmail req) {
         String token = null;
-        if (auth != null && auth.startsWith("Bearer ")) token = auth.substring(7);
-        if (token == null) token = headerToken;
+        if (auth != null && auth.startsWith("Bearer "))
+            token = auth.substring(7);
+        if (token == null)
+            token = headerToken;
         Long adminId = sessionStore.validate(token);
-        if (adminId == null) return ResponseEntity.status(401).body("invalid token");
+        if (adminId == null)
+            return ResponseEntity.status(401).body("invalid token");
         return adminRepository.findById(adminId).map(admin -> {
-            if (req.newEmail == null || !req.newEmail.contains("@")) return ResponseEntity.status(400).body("invalid email");
+            if (req.newEmail == null || !req.newEmail.contains("@"))
+                return ResponseEntity.status(400).body("invalid email");
             admin.email = req.newEmail;
             adminRepository.save(admin);
             return ResponseEntity.ok().build();
@@ -109,7 +117,11 @@ public class AdminsController {
     public static class LoginResponse {
         public String token;
         public Admins admin;
-        public LoginResponse(String token, Admins admin) { this.token = token; this.admin = admin; }
+
+        public LoginResponse(String token, Admins admin) {
+            this.token = token;
+            this.admin = admin;
+        }
     }
 
     public static class ChangePassword {

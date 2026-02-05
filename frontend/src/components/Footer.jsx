@@ -1,4 +1,24 @@
+import { useState } from "react";
+
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState('');
+
+  async function handleSubscribe(){
+    setStatus('');
+    if (!email || !email.includes('@')) { setStatus('Please enter a valid email'); return }
+    setLoading(true);
+    try{
+      const res = await fetch('/api/newsletter', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Failed');
+      setStatus('Subscribed — thank you!'); setEmail('');
+    }catch(e){
+      setStatus(e.message || 'Error subscribing');
+    }finally{ setLoading(false) }
+  }
+
   return (
     <footer className="bg-[#F7F6F6] font-source-sans-pro">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
@@ -23,10 +43,11 @@ export default function Footer() {
 
           <div className="w-full sm:w-auto">
             <label htmlFor="newsletter-email" className="text-sm text-[#929292] font-medium block sm:inline">Get the Newsletter</label>
-            <form className="flex items-center mt-2 sm:mt-0" onSubmit={(e)=>e.preventDefault()}>
-              <input id="newsletter-email" type="email" aria-label="email" placeholder="Your email address" className="px-3 py-2 border border-gray-300 rounded-l-md w-full sm:w-56 focus:outline-none text-sm" />
-              <button className="bg-[#444444] text-white px-3 py-2 font-semi-bold rounded-r-md text-sm">Subscribe</button>
+            <form className="flex items-center mt-2 sm:mt-0" onSubmit={async (e)=>{e.preventDefault(); await handleSubscribe();}}>
+              <input id="newsletter-email" type="email" aria-label="email" placeholder="Your email address" value={email} onChange={e=>setEmail(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-l-md w-full sm:w-56 focus:outline-none text-sm" />
+              <button disabled={loading} className="bg-[#444444] text-white px-3 py-2 font-semi-bold rounded-r-md text-sm">{loading ? 'Sending...' : 'Subscribe'}</button>
             </form>
+            {status && <div className="mt-2 text-sm text-[#444444]">{status}</div>}
           </div>
         </div>
 

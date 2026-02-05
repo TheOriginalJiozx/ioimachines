@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import ContactCase from "../components/ContactCase";
+import Features from "../components/Features";
+import GetAdvice from "../components/GetAdvice";
 
 export default function Home() {
   const cards = [
@@ -187,62 +189,11 @@ export default function Home() {
 
       <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
 
-      <section className="max-w-6xl mx-auto px-6 py-16">
-        <h3 className="text-[36px] font-bold text-center text-[#606060]">GET ADVICE</h3>
-        <h4 className="text-[14px] font-bold text-center text-[#606060]">How can we help you?</h4>
-        <p className="text-center text-[#606060] mt-4">
-          We perform a free evaluation of our solution on your specific
-          <br /> inspection problem. We test our algorithm on the received images
-          <br /> and run a live demo of the solution. You have the following options:
-        </p>
-
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6 items-stretch">
-          {["Send Us Sample Images", "On-Site Image Capture by Our Experts", "Live Algorithm Evaluation", "Review Results & Next"].map((text, i) => (
-            <div key={text} className="p-6 border rounded text-left h-full flex items-start">
-              <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 bg-black text-white rounded flex items-center justify-center font-bold flex-shrink-0">{i + 1}</div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-[#606060]">{text}</h4>
-                  {text === "Send Us Sample Images" && <p className="text-sm text-[#606060] mt-2">Send us a number of images representing good and bad objects including corner samples.</p>}
-                  {text === "On-Site Image Capture by Our Experts" && <p className="text-sm text-[#606060] mt-2">Alternatively, we visit you on-site and take pictures ourselves of the test samples.</p>}
-                  {text === "Live Algorithm Evaluation" && <p className="text-sm text-[#606060] mt-2">Or send representative samples to our laboratories.</p>}
-                  {text === "Review Results & Next" && <p className="text-sm text-[#606060] mt-2">Get a free evaluation license of our IP core on your windows based computer. Run your own tests on your samples at your convenience.</p>}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <GetAdvice />
 
       <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
 
-      <section className="bg-[#F7F6F6]">
-        <div className="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-8 text-center">
-          <div>
-            <div className="w-14 h-14 mx-auto rounded-xl bg-white flex items-center justify-center text-[#444444] mb-4 shadow-sm">
-              <i className="fas fa-balance-scale text-2xl text-[#444444]" aria-hidden="true"></i>
-            </div>
-            <p className="mt-4 font-semibold text-[#444444]">Fast Feasibility, No Commitment</p>
-            <p className="mt-2 text-sm text-[#444444">Quickly understand whether your inspection task can be automated.</p>
-          </div>
-
-          <div>
-            <div className="w-14 h-14 mx-auto rounded-xl bg-white flex items-center justify-center text-[#444444] mb-4 shadow-sm">
-              <i className="fas fa-bullseye text-2xl text-[#444444]" aria-hidden="true"></i>
-            </div>
-            <p className="mt-4 font-semibold text-[#444444]">Proven Accuracy on Your Real Products</p>
-            <p className="mt-2 text-sm text-[#444444]">We test using your actual samples and edge cases to ensure reliable performance.</p>
-          </div>
-
-          <div>
-            <div className="w-14 h-14 mx-auto rounded-xl bg-white flex items-center justify-center text-[#444444] mb-4 shadow-sm">
-              <i className="fas fa-user-cog text-2xl text-[#444444]" aria-hidden="true"></i>
-            </div>
-            <p className="mt-4 font-semibold text-[#444444]">Expert Guidance from Vision Specialists</p>
-            <p className="mt-2 text-sm text-[#444444]">Our engineers analyze your application and recommend the optimal vision setup.</p>
-          </div>
-        </div>
-      </section>
+      <Features />
 
       <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
 
