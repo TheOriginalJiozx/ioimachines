@@ -9,12 +9,17 @@ async function loadConfig() {
   try {
     const resp = await fetch('/api/config');
     if (resp.ok) {
-      const json = await resp.json();
-      window.__APP_CONFIG__ = json || {};
-      return;
+      const content = resp.headers.get('content-type') || '';
+      if (content.includes('application/json')) {
+        const json = await resp.json();
+        window.__APP_CONFIG__ = json || {};
+        return;
+      } else {
+        console.warn('Config endpoint returned non-JSON content-type:', content);
+      }
     }
   } catch (error) {
-    alert("Error loading config: " + error.message);
+    console.warn('Error loading config:', error.message);
   }
   window.__APP_CONFIG__ = {};
 }
