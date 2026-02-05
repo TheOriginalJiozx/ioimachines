@@ -1,14 +1,64 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ContactCase from "../components/ContactCase";
 import Features from "../components/Features";
 import GetAdvice from "../components/GetAdvice";
 
 export default function CaseStudies() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [caseData, setCaseData] = useState(null);
+
   useEffect(() => {
     if (typeof window !== "undefined" && typeof window.setPageTitle === "function") {
       window.setPageTitle("Case Studies");
     }
+
+    async function load() {
+      setLoading(true);
+      setError("");
+      try {
+      const API_BASE = process.env.REACT_APP_API_BASE || 'https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api';
+        const res = await fetch(`${API_BASE}/case-studies/vision-inspection-rotors`);
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        const json = await res.json();
+        let content = json.content || json.contentJson || "";
+        try { content = typeof content === 'string' ? JSON.parse(content) : content; } catch (e) { }
+        setCaseData({ title: json.title, heroImage: json.heroImage, content });
+      } catch (e) {
+        setError("Failed to load case study: " + e.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
   }, []);
+
+  function renderBlock(block, idx) {
+    if (!block) return null;
+    switch (block.type) {
+      case 'paragraph':
+        return <p key={idx} className="text-sm text-[#606060] mb-4">{block.text}</p>;
+      case 'heading':
+        if (block.level === 2) return <h2 key={idx} className="text-2xl font-bold mb-3">{block.text}</h2>;
+        if (block.level === 3) return <h3 key={idx} className="text-xl font-semibold mb-2">{block.text}</h3>;
+        return <h4 key={idx} className="font-semibold mb-2">{block.text}</h4>;
+      case 'image':
+        return (
+          <div key={idx} className="w-full max-w-xs md:max-w-sm mb-4">
+            <img src={block.src} alt={block.alt || ''} className="object-contain w-full h-auto" />
+          </div>
+        );
+      case 'list':
+        return (
+          <ul key={idx} className={`list-${block.style || 'disc'} pl-5 text-sm text-[#606060] mb-4`}>
+            {(block.items || []).map((it, i) => <li key={i}>{it}</li>)}
+          </ul>
+        );
+      default:
+        return <div key={idx} dangerouslySetInnerHTML={{ __html: block.html || '' }} />;
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white text-[#444444] font-sans">
@@ -36,41 +86,14 @@ export default function CaseStudies() {
       <section className="max-w-6xl mx-auto px-6 py-16">
         <div className="grid md:grid-cols-3 gap-8 items-start">
           <div className="md:col-span-2">
-            <h2 className="text-3xl font-bold mb-4">Vision Inspection of Rotors for rotary screw air compressors</h2>
-
-            <div className="flex flex-col items-start gap-8 mb-6">
-              <div className="w-full max-w-xs md:max-w-sm flex-shrink-0 self-start">
-                <img src="/rotorsCompressor-e1566565817235.png" alt="case" className="object-contain w-full h-auto" />
+            {loading && <div>Loading...</div>}
+            {error && <div className="text-red-600">{error}</div>}
+            {!loading && caseData && (
+              <div>
+                {caseData.title && <h2 className="text-3xl font-bold mb-6">{caseData.title}</h2>}
+                {(Array.isArray(caseData.content) ? caseData.content : [caseData.content]).map((blk, i) => renderBlock(blk, i))}
               </div>
-              <div className="flex-1 text-sm text-[#606060] whitespace-pre-line">
-                Rotors of rotary screw type air compressors have complex geometry. When they come out of grinding machines, various pores happen to appear on the surface.
-                <br />
-                Some of these pores are big enough to consider as defects. These pores have arbitrary shapes and geometries and present a challenge to detect using conventional machine vision systems if they lie in shadowed areas caused by the geometry or at edges.
-                <br />
-                IOIMACHINES demonstrated a solution for this problem. The solution is based on
-                <br />
-                advanced feature detection combined with powerful machine learning techniques.
-                <br />
-                The solution is tested on a collection of images of both good and bad rotors of different sizes and geometries. Test results show that we can achieve 100% accuracy in detecting all types of defects over a predefined size.
-                <br />
-                The solution distinguishes between types of defects and the system learned to distinguish real defects from oil films and droplets as well as air bubbles in dirty oil, shades and shavings.
-                <br />
-                In the solution, new types of defects and artifacts are learned quickly with minor intervention from qualified operators.
-                <br />
-                Main advantages seen by the customer are:
-              </div>
-            </div>
-
-            <ul className="list-disc pl-5 text-sm text-[#606060] mb-6">
-              <li>No reprogramming or re-engineering is required</li>
-              <li>Zero downtime</li>
-              <li>Zero escapements</li>
-              <li>Seamless solution for different rotors of different shapes and sizes</li>
-            </ul>
-
-            <div className="text-sm text-[#606060] mb-6">
-              The solution is provided for all types of grinded objects.
-            </div>
+            )}
           </div>
 
           <aside className="md:col-span-1">
