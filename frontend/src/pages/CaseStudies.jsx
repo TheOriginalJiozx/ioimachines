@@ -31,13 +31,6 @@ export default function CaseStudies() {
         <div className="w-full h-80 sm:h-96 md:h-[34rem] bg-[#404D56] overflow-hidden flex items-center justify-center">
           <img src="/cases-1.png" className="object-contain h-3/4 w-auto" alt="heroTwo" />
         </div>
-        <div className="absolute inset-0 flex items-center">
-          <div className="max-w-6xl mx-auto px-6 w-full flex items-center">
-            <div className="lg:pl-0 -mt-80">
-              <h1 className="lg:text-[38px] font-extrabold text-white uppercase" style={{ filter: "drop-shadow(0 8px 8px rgba(0,0,0,0.50))" }}></h1>
-            </div>
-          </div>
-        </div>
       </section>
 
       <section className="max-w-6xl mx-auto px-6 py-16">
