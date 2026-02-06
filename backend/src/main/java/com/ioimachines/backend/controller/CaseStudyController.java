@@ -12,7 +12,6 @@ import java.net.URI;
 import java.text.Normalizer;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/case-studies")
@@ -79,33 +78,32 @@ public class CaseStudyController {
         Long adminId = sessionStore.validate(token);
         if (adminId == null) return ResponseEntity.status(401).body(Map.of("error", "invalid token"));
 
-        return repo.findBySlug(slug).map(cs -> {
+        return repo.findBySlug(slug).map(caseStudy -> {
             String title = (String) payload.get("title");
             Object content = payload.getOrDefault("content", payload.get("content_json"));
-            String contentJson = content instanceof String ? (String) content : (content == null ? cs.getContentJson() : content.toString());
+            String contentJson = content instanceof String ? (String) content : (content == null ? caseStudy.getContentJson() : content.toString());
             String solutionTitle = (String) payload.getOrDefault("solution_title", payload.get("solutionTitle"));
             Object solutionContent = payload.getOrDefault("solution_content_json", payload.get("solutionContentJson"));
-            String solutionContentJson = solutionContent instanceof String ? (String) solutionContent : (solutionContent == null ? cs.getSolutionContentJson() : solutionContent.toString());
+            String solutionContentJson = solutionContent instanceof String ? (String) solutionContent : (solutionContent == null ? caseStudy.getSolutionContentJson() : solutionContent.toString());
 
-            // If title changed, compute new slug and ensure uniqueness
-            if (title != null && !title.equals(cs.getTitle())) {
+            if (title != null && !title.equals(caseStudy.getTitle())) {
                 String newSlug = slugify(title);
-                if (!newSlug.equals(cs.getSlug())) {
+                if (!newSlug.equals(caseStudy.getSlug())) {
                     java.util.Optional<CaseStudy> existing = repo.findBySlug(newSlug);
                     if (existing.isPresent()) {
                         return ResponseEntity.status(409).body(Map.of("error", "slug already exists"));
                     }
-                    cs.setSlug(newSlug);
+                    caseStudy.setSlug(newSlug);
                 }
-                cs.setTitle(title);
+                caseStudy.setTitle(title);
             }
 
-            if (contentJson != null) cs.setContentJson(contentJson);
-            if (solutionTitle != null) cs.setSolutionTitle(solutionTitle);
-            if (solutionContentJson != null) cs.setSolutionContentJson(solutionContentJson);
+            if (contentJson != null) caseStudy.setContentJson(contentJson);
+            if (solutionTitle != null) caseStudy.setSolutionTitle(solutionTitle);
+            if (solutionContentJson != null) caseStudy.setSolutionContentJson(solutionContentJson);
 
-            repo.save(cs);
-            return ResponseEntity.ok(Map.of("ok", true, "slug", cs.getSlug()));
+            repo.save(caseStudy);
+            return ResponseEntity.ok(Map.of("ok", true, "slug", caseStudy.getSlug()));
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -113,13 +111,9 @@ public class CaseStudyController {
         if (input == null) return "";
         String nowhitespace = input.trim().toLowerCase();
         String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
-        // remove diacritics
         normalized = normalized.replaceAll("\\p{M}", "");
-        // replace non-alphanumeric with hyphens
         normalized = normalized.replaceAll("[^a-z0-9]+", "-");
-        // collapse multiple hyphens
         normalized = normalized.replaceAll("-+", "-");
-        // trim hyphens
         normalized = normalized.replaceAll("^-|-$", "");
         return normalized.isEmpty() ? "n-a" : normalized;
     }
@@ -134,8 +128,8 @@ public class CaseStudyController {
         Long adminId = sessionStore.validate(token);
         if (adminId == null) return ResponseEntity.status(401).body(Map.of("error", "invalid token"));
 
-        return repo.findBySlug(slug).map(cs -> {
-            repo.delete(cs);
+        return repo.findBySlug(slug).map(caseStudy -> {
+            repo.delete(caseStudy);
             return ResponseEntity.ok(Map.of("ok", true));
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
