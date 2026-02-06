@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import ContactCase from "../components/ContactCase";
 import Features from "../components/Features";
 import GetAdvice from "../components/GetAdvice";
