@@ -5,12 +5,10 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.beans.factory.annotation.Value;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    @Value("${file.upload-dir:uploads}")
+    @Value("${file.upload-dir}")
     private String uploadDirectory;
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -23,19 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String resolved = uploadDirectory;
-        Path candidate = Paths.get(uploadDirectory);
-        if (!candidate.isAbsolute()) {
-            String home = System.getenv("HOME");
-            if (home != null && !home.isBlank()) {
-                resolved = Paths.get(home, uploadDirectory).toAbsolutePath().toString();
-            } else {
-                resolved = candidate.toAbsolutePath().toString();
-            }
-        } else {
-            resolved = candidate.toAbsolutePath().toString();
-        }
-        String path = "file:" + (resolved.endsWith("/") ? resolved : resolved + "/");
-        registry.addResourceHandler("/uploads/**").addResourceLocations(path);
+        String path = "file:" + (uploadDirectory.endsWith("/") ? uploadDirectory : uploadDirectory + "/");
+        registry.addResourceHandler("../frontend/public/uploads/**").addResourceLocations(path);
     }
 }

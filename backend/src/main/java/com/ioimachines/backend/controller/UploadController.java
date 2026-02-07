@@ -21,7 +21,7 @@ import java.util.UUID;
 @RequestMapping("/api")
 public class UploadController {
 
-    @Value("${file.upload-dir:uploads}")
+    @Value("${file.upload-dir}")
     private String uploadDir;
 
     @PostMapping("/uploads")
@@ -34,7 +34,26 @@ public class UploadController {
             if (idx >= 0) ext = original.substring(idx);
             String name = UUID.randomUUID().toString() + ext;
 
-            Path dirPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+            Path dirPath = Paths.get(uploadDir);
+            if (!dirPath.isAbsolute()) {
+                Path cwd = Paths.get("").toAbsolutePath();
+                Path candidate = cwd;
+                Path resolved = null;
+                try {
+                    while (candidate != null) {
+                        if (Files.exists(candidate.resolve("frontend"))) {
+                            resolved = candidate.resolve(uploadDir).normalize();
+                            break;
+                        }
+                        candidate = candidate.getParent();
+                    }
+                } catch (Exception ignored) {}
+                if (resolved != null) dirPath = resolved;
+                else dirPath = cwd.resolve(uploadDir).normalize();
+            } else {
+                dirPath = dirPath.toAbsolutePath().normalize();
+            }
+
             Files.createDirectories(dirPath);
             Path target = dirPath.resolve(name);
             Files.copy(file.getInputStream(), target);
