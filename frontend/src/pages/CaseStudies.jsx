@@ -18,6 +18,7 @@ export default function CaseStudies() {
   const [solutionTitleEditor, setSolutionTitleEditor] = useState("");
   const [saving, setSaving] = useState(false);
   const [adminToken, setAdminToken] = useState(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   function normalizeEntry(entry) {
     const title = entry.title || "";
@@ -83,6 +84,34 @@ export default function CaseStudies() {
       setCaseData(caseList[index]);
     }
   }, [selectedIndex, caseList]);
+
+  useEffect(() => {
+    if (!titleEditor) return;
+    if (editingBlocks && Array.isArray(editingBlocks)) {
+      const copy = editingBlocks.slice();
+      let changed = false;
+      for (let i = 0; i < copy.length; i++) {
+        const b = copy[i];
+        if (b && b.type === 'image' && b._autoAlt) {
+          copy[i] = { ...b, alt: `${titleEditor} image` };
+          changed = true;
+        }
+      }
+      if (changed) setEditingBlocks(copy);
+    }
+    if (editingSolutionBlocks && Array.isArray(editingSolutionBlocks)) {
+      const copy2 = editingSolutionBlocks.slice();
+      let changed2 = false;
+      for (let i = 0; i < copy2.length; i++) {
+        const b = copy2[i];
+        if (b && b.type === 'image' && b._autoAlt) {
+          copy2[i] = { ...b, alt: `${titleEditor} image` };
+          changed2 = true;
+        }
+      }
+      if (changed2) setEditingSolutionBlocks(copy2);
+    }
+  }, [titleEditor]);
 
   function blocksToPlainText(content) {
     if (!content && content !== "") return "";
@@ -186,124 +215,193 @@ export default function CaseStudies() {
 
             {isEditing ? (
               <div>
-                <h2 className="text-2xl font-bold mb-4">Editing: {caseData?.title}</h2>
+                <h2 className="text-2xl font-bold mb-4">{isCreating ? "Creating New Case Study" : `Editing: ${caseData?.title}`}</h2>
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
                   <input value={titleEditor} onChange={(event) => setTitleEditor(event.target.value)} className="w-full p-2 border rounded" />
                 </div>
-                
+
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
                   {editingBlocks && Array.isArray(editingBlocks) ? (
                     <div className="space-y-4">
                       {editingBlocks.map((block, index) => (
                         <div key={index} className="border rounded p-3">
-                          <div className="mb-2 text-sm text-gray-600">Block #{index + 1} — <span className="font-mono">{block.type}</span></div>
-                          {block.type === 'paragraph' && (
-                            <textarea value={block.text || ''} onChange={(e) => {
-                              const copy = editingBlocks.slice();
-                              copy[index] = { ...copy[index], text: e.target.value };
-                              setEditingBlocks(copy);
-                            }} rows={4} className="w-full p-2 border rounded text-sm font-mono" />
+                          <div className="mb-2 text-sm text-gray-600">
+                            Block #{index + 1} — <span className="font-mono">{block.type}</span>
+                          </div>
+                          {block.type === "paragraph" && (
+                            <textarea
+                              value={block.text || ""}
+                              onChange={(event) => {
+                                const copy = editingBlocks.slice();
+                                copy[index] = { ...copy[index], text: event.target.value };
+                                setEditingBlocks(copy);
+                              }}
+                              rows={4}
+                              className="w-full p-2 border rounded text-sm font-mono"
+                            />
                           )}
-                          {block.type === 'image' && (
+                          {block.type === "image" && (
                             <div className="grid grid-cols-1 gap-2">
                               <label className="text-xs text-gray-600">Replace image (upload)</label>
-                              <input type="file" accept="image/*" onChange={(event) => {
-                                const file = event.target.files && event.target.files[0];
-                                if (!file) return;
-                                const copy = editingBlocks.slice();
-                                // store file temporarily for upload and show local preview
-                                try {
-                                  const preview = URL.createObjectURL(file);
-                                  copy[index] = { ...copy[index], _file: file, src: preview };
-                                } catch (err) {
-                                  copy[index] = { ...copy[index], _file: file };
-                                }
-                                setEditingBlocks(copy);
-                              }} />
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(event) => {
+                                  const file = event.target.files && event.target.files[0];
+                                  if (!file) return;
+                                  const copy = editingBlocks.slice();
+                                  try {
+                                    const preview = URL.createObjectURL(file);
+                                    let alt = "";
+                                    if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
+                                    else alt = (file.name || "").replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
+                                    copy[index] = { ...copy[index], _file: file, src: preview, alt, _autoAlt: true };
+                                  } catch (error) {
+                                    let alt = "";
+                                    if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
+                                    else alt = (file.name || "").replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
+                                    copy[index] = { ...copy[index], _file: file, alt, _autoAlt: true };
+                                  }
+                                  setEditingBlocks(copy);
+                                }}
+                              />
 
                               <label className="text-xs text-gray-600">Or image URL</label>
-                              <input value={block.src || block.url || ''} onChange={(event) => {
-                                const copy = editingBlocks.slice();
-                                copy[index] = { ...copy[index], src: event.target.value, url: undefined };
-                                setEditingBlocks(copy);
-                              }} className="w-full p-2 border rounded text-sm" />
+                              <input
+                                value={block.src || block.url || ""}
+                                onChange={(event) => {
+                                  const copy = editingBlocks.slice();
+                                  const val = event.target.value || "";
+                                  let alt = "";
+                                  if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
+                                  else {
+                                    try {
+                                      const p = val.split("?")[0].split("#")[0];
+                                      const parts = p.split('/');
+                                      let fileName = parts[parts.length - 1] || p;
+                                      fileName = fileName.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
+                                      alt = fileName;
+                                    } catch (error) {
+                                      alt = "";
+                                    }
+                                  }
+                                  copy[index] = { ...copy[index], src: val, url: undefined, alt, _autoAlt: true };
+                                  setEditingBlocks(copy);
+                                }}
+                                className="w-full p-2 border rounded text-sm"
+                              />
 
                               <label className="text-xs text-gray-600">Alt text</label>
-                              <input value={block.alt || ''} onChange={(event) => {
-                                const copy = editingBlocks.slice();
-                                copy[index] = { ...copy[index], alt: event.target.value };
-                                setEditingBlocks(copy);
-                              }} className="w-full p-2 border rounded text-sm" />
-
-                              <div className="mt-2">
-                                {(block.src || block.url) ? (
-                                  <img src={block.src || block.url} alt={block.alt || ''} className="object-contain w-full h-36" />
-                                ) : (
-                                  <div className="text-sm text-gray-400">No image</div>
-                                )}
-                              </div>
-                              <div className="mt-2">
-                                <button className="px-2 py-1 rounded border text-sm" onClick={() => {
+                              <input
+                                value={block.alt || ""}
+                                onChange={(event) => {
                                   const copy = editingBlocks.slice();
-                                  copy.splice(index, 1);
+                                  copy[index] = { ...copy[index], alt: event.target.value, _autoAlt: false };
                                   setEditingBlocks(copy);
-                                }}>Remove block</button>
+                                }}
+                                className="w-full p-2 border rounded text-sm"
+                              />
+
+                              <div className="mt-2">{block.src || block.url ? <img src={block.src || block.url} alt={block.alt || ""} className="object-contain w-full h-36" /> : <div className="text-sm text-gray-400">No image</div>}</div>
+                              <div className="mt-2">
+                                <button
+                                  className="px-2 py-1 rounded border text-sm"
+                                  onClick={() => {
+                                    const copy = editingBlocks.slice();
+                                    copy.splice(index, 1);
+                                    setEditingBlocks(copy);
+                                  }}
+                                >
+                                  Remove block
+                                </button>
                               </div>
                             </div>
                           )}
-                          {block.type !== 'paragraph' && block.type !== 'image' && (
-                            <textarea value={JSON.stringify(block, null, 2)} onChange={(event) => {
-                              try {
-                                const parsed = JSON.parse(event.target.value);
-                                const copy = editingBlocks.slice();
-                                copy[index] = parsed;
-                                setEditingBlocks(copy);
-                              } catch (error) {
-                                const copy = editingBlocks.slice();
-                                copy[index] = { ...copy[index], _raw: event.target.value };
-                                setEditingBlocks(copy);
-                              }
-                            }} rows={4} className="w-full p-2 border rounded text-sm font-mono" />
+                          {block.type !== "paragraph" && block.type !== "image" && (
+                            <textarea
+                              value={JSON.stringify(block, null, 2)}
+                              onChange={(event) => {
+                                try {
+                                  const parsed = JSON.parse(event.target.value);
+                                  const copy = editingBlocks.slice();
+                                  copy[index] = parsed;
+                                  setEditingBlocks(copy);
+                                } catch (error) {
+                                  const copy = editingBlocks.slice();
+                                  copy[index] = { ...copy[index], _raw: event.target.value };
+                                  setEditingBlocks(copy);
+                                }
+                              }}
+                              rows={4}
+                              className="w-full p-2 border rounded text-sm font-mono"
+                            />
                           )}
 
                           <div className="mt-2 flex gap-2">
-                            <button className="px-2 py-1 rounded border text-sm" onClick={() => {
-                              if (!editingBlocks || index === 0) return;
-                              const copy = editingBlocks.slice();
-                              const tmp = copy[index-1];
-                              copy[index-1] = copy[index];
-                              copy[index] = tmp;
-                              setEditingBlocks(copy);
-                            }} disabled={index === 0}>Move up</button>
-                            <button className="px-2 py-1 rounded border text-sm" onClick={() => {
-                              if (!editingBlocks || index >= editingBlocks.length - 1) return;
-                              const copy = editingBlocks.slice();
-                              const tmp = copy[index+1];
-                              copy[index+1] = copy[index];
-                              copy[index] = tmp;
-                              setEditingBlocks(copy);
-                            }} disabled={index >= (editingBlocks ? editingBlocks.length - 1 : 0)}>Move down</button>
-                            <button className="px-2 py-1 rounded border text-sm" onClick={() => {
-                              const copy = editingBlocks.slice();
-                              copy.splice(index, 1);
-                              setEditingBlocks(copy);
-                            }}>Remove block</button>
+                            <button
+                              className="px-2 py-1 rounded border text-sm"
+                              onClick={() => {
+                                if (!editingBlocks || index === 0) return;
+                                const copy = editingBlocks.slice();
+                                const tmp = copy[index - 1];
+                                copy[index - 1] = copy[index];
+                                copy[index] = tmp;
+                                setEditingBlocks(copy);
+                              }}
+                              disabled={index === 0}
+                            >
+                              Move up
+                            </button>
+                            <button
+                              className="px-2 py-1 rounded border text-sm"
+                              onClick={() => {
+                                if (!editingBlocks || index >= editingBlocks.length - 1) return;
+                                const copy = editingBlocks.slice();
+                                const tmp = copy[index + 1];
+                                copy[index + 1] = copy[index];
+                                copy[index] = tmp;
+                                setEditingBlocks(copy);
+                              }}
+                              disabled={index >= (editingBlocks ? editingBlocks.length - 1 : 0)}
+                            >
+                              Move down
+                            </button>
+                            <button
+                              className="px-2 py-1 rounded border text-sm"
+                              onClick={() => {
+                                const copy = editingBlocks.slice();
+                                copy.splice(index, 1);
+                                setEditingBlocks(copy);
+                              }}
+                            >
+                              Remove block
+                            </button>
                           </div>
                         </div>
                       ))}
                       <div className="flex gap-2">
-                        <button className="px-3 py-1 rounded border" onClick={() => {
-                          const copy = (editingBlocks || []).slice();
-                          copy.push({ type: 'paragraph', text: '' });
-                          setEditingBlocks(copy);
-                        }}>Add paragraph</button>
-                        <button className="px-3 py-1 rounded border" onClick={() => {
-                          const copy = (editingBlocks || []).slice();
-                          copy.push({ type: 'image', src: '', alt: '' });
-                          setEditingBlocks(copy);
-                        }}>Add image</button>
+                        <button
+                          className="bg-indigo-600 text-white px-3 py-1 rounded"
+                          onClick={() => {
+                            const copy = (editingBlocks || []).slice();
+                            copy.push({ type: "paragraph", text: "" });
+                            setEditingBlocks(copy);
+                          }}
+                        >
+                          Add paragraph
+                        </button>
+                        <button
+                          className="bg-white border px-3 py-1 rounded"
+                          onClick={() => {
+                            const copy = (editingBlocks || []).slice();
+                            copy.push({ type: "image", src: "", alt: "" });
+                            setEditingBlocks(copy);
+                          }}
+                        >
+                          Add image
+                        </button>
                       </div>
                     </div>
                   ) : (
@@ -337,22 +435,22 @@ export default function CaseStudies() {
                         const API_BASE = process.env.REACT_APP_API_BASE || "https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api";
                         const blocksCopy = editingBlocks.slice();
                         for (let i = 0; i < blocksCopy.length; i++) {
-                          const blk = blocksCopy[i];
-                          if (blk && blk._file) {
+                          const block = blocksCopy[i];
+                          if (block && block._file) {
                             try {
-                              const fd = new FormData();
-                              fd.append('file', blk._file);
+                              const formData = new FormData();
+                              formData.append("file", block._file);
                               const headers = {};
-                              if (adminToken) headers['Authorization'] = 'Bearer ' + adminToken;
-                              const upRes = await fetch(`${API_BASE}/uploads`, { method: 'POST', body: fd, headers });
-                              if (!upRes.ok) throw new Error('upload failed');
+                              if (adminToken) headers["Authorization"] = "Bearer " + adminToken;
+                              const upRes = await fetch(`${API_BASE}/uploads`, { method: "POST", body: formData, headers });
+                              if (!upRes.ok) throw new Error("upload failed");
                               const upJson = await upRes.json();
-                              const url = upJson.url || upJson.path || '';
+                              const url = upJson.url || upJson.path || "";
                               blocksCopy[i] = { ...blocksCopy[i], src: url };
                               delete blocksCopy[i]._file;
-                            } catch (err) {
-                              console.error('upload failed', err);
-                              alert('Image upload failed: ' + (err.message || err));
+                            } catch (error) {
+                              console.error("upload failed", error);
+                              alert("Image upload failed: " + (error.message || error));
                             }
                           }
                         }
@@ -361,7 +459,11 @@ export default function CaseStudies() {
                       } else {
                         const paragraphJson = toJsonString(contentEditor);
                         let paragraphBlocks = [];
-                        try { paragraphBlocks = JSON.parse(paragraphJson); } catch (e) { paragraphBlocks = []; }
+                        try {
+                          paragraphBlocks = JSON.parse(paragraphJson);
+                        } catch (error) {
+                          paragraphBlocks = [];
+                        }
 
                         contentPayload = JSON.stringify(paragraphBlocks, null, 2);
                       }
@@ -371,22 +473,22 @@ export default function CaseStudies() {
                         const API_BASE = process.env.REACT_APP_API_BASE || "https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api";
                         const solCopy = editingSolutionBlocks.slice();
                         for (let i = 0; i < solCopy.length; i++) {
-                          const blk = solCopy[i];
-                          if (blk && blk._file) {
+                          const block = solCopy[i];
+                          if (block && block._file) {
                             try {
-                              const fd = new FormData();
-                              fd.append('file', blk._file);
+                              const formData = new FormData();
+                              formData.append("file", block._file);
                               const headers = {};
-                              if (adminToken) headers['Authorization'] = 'Bearer ' + adminToken;
-                              const upRes = await fetch(`${API_BASE}/uploads`, { method: 'POST', body: fd, headers });
-                              if (!upRes.ok) throw new Error('upload failed');
+                              if (adminToken) headers["Authorization"] = "Bearer " + adminToken;
+                              const upRes = await fetch(`${API_BASE}/uploads`, { method: "POST", body: formData, headers });
+                              if (!upRes.ok) throw new Error("upload failed");
                               const upJson = await upRes.json();
-                              const url = upJson.url || upJson.path || '';
+                              const url = upJson.url || upJson.path || "";
                               solCopy[i] = { ...solCopy[i], src: url };
                               delete solCopy[i]._file;
-                            } catch (err) {
-                              console.error('upload failed', err);
-                              alert('Solution image upload failed: ' + (err.message || err));
+                            } catch (error) {
+                              console.error("upload failed", error);
+                              alert("Solution image upload failed: " + (error.message || error));
                             }
                           }
                         }
@@ -395,7 +497,11 @@ export default function CaseStudies() {
                       } else {
                         const solutionParagraphJson = toJsonString(solutionEditor);
                         let solutionParagraphBlocks = [];
-                        try { solutionParagraphBlocks = JSON.parse(solutionParagraphJson); } catch (e) { solutionParagraphBlocks = []; }
+                        try {
+                          solutionParagraphBlocks = JSON.parse(solutionParagraphJson);
+                        } catch (error) {
+                          solutionParagraphBlocks = [];
+                        }
                         solutionPayload = JSON.stringify(solutionParagraphBlocks, null, 2);
                       }
 
@@ -404,28 +510,55 @@ export default function CaseStudies() {
                         const API_BASE = process.env.REACT_APP_API_BASE || "https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api";
                         const headers = { "Content-Type": "application/json" };
                         if (adminToken) headers["Authorization"] = "Bearer " + adminToken;
-                        const payload = { content: contentPayload, solution_content_json: solutionPayload, title: titleEditor, solution_title: solutionTitleEditor };
-                        const res = await fetch(`${API_BASE}/case-studies/${caseData.slug}`, {
-                          method: "PUT",
-                          headers,
-                          body: JSON.stringify(payload),
-                        });
-                        if (!res.ok) {
-                          const txt = await res.text();
-                          throw new Error("Save failed: " + res.status + " " + txt);
+                          const payload = { content: contentPayload, solution_content_json: solutionPayload, title: titleEditor, solution_title: solutionTitleEditor };
+                          let res;
+                          if (isCreating) {
+                            const slug = titleEditor ? titleEditor.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-') : '';
+                            const createBody = { ...payload, slug };
+                            res = await fetch(`${API_BASE}/case-studies`, {
+                              method: "POST",
+                              headers,
+                              body: JSON.stringify(createBody),
+                            });
+                            if (!res.ok) {
+                              const txt = await res.text();
+                              throw new Error("Create failed: " + res.status + " " + txt);
+                            }
+                            const result = await res.json().catch(() => ({}));
+                            const created = {
+                              slug: result.slug || (titleEditor ? titleEditor.toLowerCase().replace(/[^a-z0-9]+/g, '-') : ''),
+                              title: titleEditor,
+                              content: JSON.parse(contentPayload),
+                              solutionContent: JSON.parse(solutionPayload),
+                              solutionTitle: solutionTitleEditor,
+                            };
+                            const newList = (caseList || []).slice();
+                            newList.push(created);
+                            setCaseList(newList);
+                            setSelectedIndex(newList.length - 1);
+                            setCaseData(created);
+                            setIsCreating(false);
+                            setIsEditing(false);
+                          } else {
+                            res = await fetch(`${API_BASE}/case-studies/${caseData.slug}`, {
+                              method: "PUT",
+                              headers,
+                              body: JSON.stringify(payload),
+                            });
+                            if (!res.ok) {
+                              const txt = await res.text();
+                              throw new Error("Save failed: " + res.status + " " + txt);
+                            }
+                            const result = await res.json().catch(() => ({}));
+                            setCaseData((previous) => ({ ...previous, title: titleEditor, content: JSON.parse(contentPayload), solutionContent: JSON.parse(solutionPayload), solutionTitle: solutionTitleEditor, slug: result.slug || previous.slug }));
+                            setCaseList((previousList) => previousList.map((it, idx) => (idx === selectedIndex ? { ...it, title: titleEditor, slug: result.slug || it.slug } : it)));
+                            setIsEditing(false);
+                          }
+                        } catch (error) {
+                          alert(error.message || "Save failed");
+                        } finally {
+                          setSaving(false);
                         }
-                        const result = await res.json().catch(() => ({}));
-                        setCaseData((previous) => ({ ...previous, title: titleEditor, content: JSON.parse(contentPayload), solutionContent: JSON.parse(solutionPayload), solutionTitle: solutionTitleEditor, slug: result.slug || previous.slug }));
-                        setCaseList((previousList) => previousList.map((it, idx) => (idx === selectedIndex ? { ...it, title: titleEditor, slug: result.slug || it.slug } : it)));
-                        setIsEditing(false);
-                        if (typeof window !== 'undefined' && window.location) {
-                          window.location.reload();
-                        }
-                      } catch (error) {
-                        alert(error.message || "Save failed");
-                      } finally {
-                        setSaving(false);
-                      }
                     }}
                   >
                     Save
@@ -439,45 +572,68 @@ export default function CaseStudies() {
               !loading &&
               caseData && (
                 <div>
-                  <div className="flex items-start justify-between">
+                  {adminToken && (
+                    <div className="mb-4 w-full">
+                      <div className="flex flex-col sm:flex-row gap-2 w-full">
+                        <button
+                          className="bg-indigo-600 text-white px-4 py-2 rounded w-full sm:w-auto"
+                          onClick={() => {
+                            setIsCreating(true);
+                            setTitleEditor("");
+                            setSolutionTitleEditor("");
+                            setContentEditor("");
+                            setSolutionEditor("");
+                            setEditingBlocks([
+                              { type: "image", src: "", alt: "" },
+                              { type: "paragraph", text: "" },
+                            ]);
+                            setEditingSolutionBlocks([{ type: "paragraph", text: "" }]);
+                            setIsEditing(true);
+                          }}
+                        >
+                          Add New Study Case
+                        </button>
+                        <button
+                          className="bg-white border px-4 py-2 rounded w-full sm:w-auto"
+                          onClick={() => {
+                            if (!caseData) return;
+                            try {
+                              setContentEditor(blocksToPlainText(caseData.content));
+                            } catch (error) {
+                              setContentEditor(caseData.content || "");
+                            }
+                            try {
+                              setSolutionEditor(blocksToPlainText(caseData.solutionContent));
+                            } catch (error) {
+                              setSolutionEditor(caseData.solutionContent || "");
+                            }
+
+                            try {
+                              const arr = Array.isArray(caseData.content) ? caseData.content : typeof caseData.content === "string" ? JSON.parse(caseData.content || "[]") : [];
+                              setEditingBlocks(arr.map((b) => ({ ...b })));
+                            } catch (error) {
+                              setEditingBlocks(null);
+                            }
+
+                            try {
+                              const sArr = Array.isArray(caseData.solutionContent) ? caseData.solutionContent : typeof caseData.solutionContent === "string" ? JSON.parse(caseData.solutionContent || "[]") : [];
+                              setEditingSolutionBlocks(sArr.map((b) => ({ ...b })));
+                            } catch (error) {
+                              setEditingSolutionBlocks(null);
+                            }
+                            setTitleEditor(caseData.title || "");
+                            setSolutionTitleEditor(caseData.solutionTitle || "");
+                            setIsCreating(false);
+                            setIsEditing(true);
+                          }}
+                        >
+                          Edit Study Case
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  <div>
                     {caseData.title && <h2 className="text-3xl font-bold mb-6">{caseData.title}</h2>}
-                    {adminToken && (
-                      <button
-                        className="text-sm text-indigo-600 hover:underline ml-2"
-                        onClick={() => {
-                          if (!caseData) return;
-                          try {
-                            setContentEditor(blocksToPlainText(caseData.content));
-                          } catch (error) {
-                            setContentEditor(caseData.content || "");
-                          }
-                          try {
-                            setSolutionEditor(blocksToPlainText(caseData.solutionContent));
-                          } catch (error) {
-                            setSolutionEditor(caseData.solutionContent || "");
-                          }
-                          
-                          try {
-                            const arr = Array.isArray(caseData.content) ? caseData.content : (typeof caseData.content === 'string' ? JSON.parse(caseData.content || '[]') : []);
-                            setEditingBlocks(arr.map(b => ({ ...b })));
-                          } catch (error) {
-                            setEditingBlocks(null);
-                          }
-                          
-                          try {
-                            const sArr = Array.isArray(caseData.solutionContent) ? caseData.solutionContent : (typeof caseData.solutionContent === 'string' ? JSON.parse(caseData.solutionContent || '[]') : []);
-                            setEditingSolutionBlocks(sArr.map(b => ({ ...b })));
-                          } catch (error) {
-                            setEditingSolutionBlocks(null);
-                          }
-                          setTitleEditor(caseData.title || "");
-                          setSolutionTitleEditor(caseData.solutionTitle || "");
-                          setIsEditing(true);
-                        }}
-                      >
-                        Edit
-                      </button>
-                    )}
                   </div>
                   {(Array.isArray(caseData.content) ? caseData.content : [caseData.content]).map((block, i) => renderBlock(block, i))}
                 </div>
@@ -504,103 +660,168 @@ export default function CaseStudies() {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Solution blocks</label>
                         <div className="space-y-3">
-                          {editingSolutionBlocks.map((blk, sIndex) => (
+                          {editingSolutionBlocks.map((block, sIndex) => (
                             <div key={sIndex} className="border rounded p-2">
-                              <div className="mb-1 text-sm text-gray-600">Block #{sIndex + 1} — <span className="font-mono">{blk.type}</span></div>
-                              {blk.type === 'paragraph' && (
-                                <textarea value={blk.text || ''} onChange={(e) => {
-                                  const copy = editingSolutionBlocks.slice();
-                                  copy[sIndex] = { ...copy[sIndex], text: e.target.value };
-                                  setEditingSolutionBlocks(copy);
-                                }} rows={3} className="w-full p-2 border rounded text-sm font-mono" />
+                              <div className="mb-1 text-sm text-gray-600">
+                                Block #{sIndex + 1} — <span className="font-mono">{block.type}</span>
+                              </div>
+                              {block.type === "paragraph" && (
+                                <textarea
+                                  value={block.text || ""}
+                                  onChange={(event) => {
+                                    const copy = editingSolutionBlocks.slice();
+                                    copy[sIndex] = { ...copy[sIndex], text: event.target.value };
+                                    setEditingSolutionBlocks(copy);
+                                  }}
+                                  rows={3}
+                                  className="w-full p-2 border rounded text-sm font-mono"
+                                />
                               )}
-                              {blk.type === 'image' && (
+                              {block.type === "image" && (
                                 <div>
                                   <label className="text-xs text-gray-600">Replace image (upload)</label>
-                                  <input type="file" accept="image/*" onChange={(e) => {
-                                    const file = e.target.files && e.target.files[0];
-                                    if (!file) return;
-                                    const copy = editingSolutionBlocks.slice();
-                                    try {
-                                      const preview = URL.createObjectURL(file);
-                                      copy[sIndex] = { ...copy[sIndex], _file: file, src: preview };
-                                    } catch (err) {
-                                      copy[sIndex] = { ...copy[sIndex], _file: file };
-                                    }
-                                    setEditingSolutionBlocks(copy);
-                                  }} />
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(event) => {
+                                      const file = event.target.files && event.target.files[0];
+                                      if (!file) return;
+                                      const copy = editingSolutionBlocks.slice();
+                                      try {
+                                        const preview = URL.createObjectURL(file);
+                                          let alt = "";
+                                          if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
+                                          else alt = (file.name || "").replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
+                                            copy[sIndex] = { ...copy[sIndex], _file: file, src: preview, alt, _autoAlt: true };
+                                      } catch (error) {
+                                          let alt = "";
+                                          if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
+                                          else alt = (file.name || "").replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
+                                          copy[sIndex] = { ...copy[sIndex], _file: file, alt, _autoAlt: true };
+                                      }
+                                      setEditingSolutionBlocks(copy);
+                                    }}
+                                  />
                                   <label className="text-xs text-gray-600 mt-2 block">Or image URL</label>
-                                  <input value={blk.src || blk.url || ''} onChange={(e) => {
-                                    const copy = editingSolutionBlocks.slice();
-                                    copy[sIndex] = { ...copy[sIndex], src: e.target.value, url: undefined };
-                                    setEditingSolutionBlocks(copy);
-                                  }} className="w-full p-2 border rounded text-sm" />
+                                  <input
+                                    value={block.src || block.url || ""}
+                                    onChange={(event) => {
+                                      const copy = editingSolutionBlocks.slice();
+                                      const val = event.target.value || "";
+                                      let alt = "";
+                                      if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
+                                      else {
+                                        try {
+                                          const p = val.split("?")[0].split("#")[0];
+                                          const parts = p.split('/');
+                                          let fileName = parts[parts.length - 1] || p;
+                                          fileName = fileName.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
+                                          alt = fileName;
+                                        } catch (err) {
+                                          alt = "";
+                                        }
+                                      }
+                                      copy[sIndex] = { ...copy[sIndex], src: val, url: undefined, alt, _autoAlt: true };
+                                      setEditingSolutionBlocks(copy);
+                                    }}
+                                    className="w-full p-2 border rounded text-sm"
+                                  />
                                   <label className="text-xs text-gray-600 mt-2 block">Alt text</label>
-                                  <input value={blk.alt || ''} onChange={(e) => {
-                                    const copy = editingSolutionBlocks.slice();
-                                    copy[sIndex] = { ...copy[sIndex], alt: e.target.value };
-                                    setEditingSolutionBlocks(copy);
-                                  }} className="w-full p-2 border rounded text-sm" />
-                                  <div className="mt-2">
-                                    {(blk.src || blk.url) ? (
-                                      <img src={blk.src || blk.url} alt={blk.alt || ''} className="object-contain w-full h-28" />
-                                    ) : (
-                                      <div className="text-sm text-gray-400">No image</div>
-                                    )}
-                                  </div>
+                                  <input
+                                    value={block.alt || ""}
+                                    onChange={(event) => {
+                                      const copy = editingSolutionBlocks.slice();
+                                      copy[sIndex] = { ...copy[sIndex], alt: event.target.value, _autoAlt: false };
+                                      setEditingSolutionBlocks(copy);
+                                    }}
+                                    className="w-full p-2 border rounded text-sm"
+                                  />
+                                  <div className="mt-2">{block.src || block.url ? <img src={block.src || block.url} alt={block.alt || ""} className="object-contain w-full h-28" /> : <div className="text-sm text-gray-400">No image</div>}</div>
                                 </div>
                               )}
-                              {blk.type !== 'paragraph' && blk.type !== 'image' && (
-                                <textarea value={JSON.stringify(blk, null, 2)} onChange={(e) => {
-                                  try {
-                                    const parsed = JSON.parse(e.target.value);
-                                    const copy = editingSolutionBlocks.slice();
-                                    copy[sIndex] = parsed;
-                                    setEditingSolutionBlocks(copy);
-                                  } catch (err) {
-                                    const copy = editingSolutionBlocks.slice();
-                                    copy[sIndex] = { ...copy[sIndex], _raw: e.target.value };
-                                    setEditingSolutionBlocks(copy);
-                                  }
-                                }} rows={3} className="w-full p-2 border rounded text-sm font-mono" />
+                              {block.type !== "paragraph" && block.type !== "image" && (
+                                <textarea
+                                  value={JSON.stringify(block, null, 2)}
+                                  onChange={(event) => {
+                                    try {
+                                      const parsed = JSON.parse(event.target.value);
+                                      const copy = editingSolutionBlocks.slice();
+                                      copy[sIndex] = parsed;
+                                      setEditingSolutionBlocks(copy);
+                                    } catch (error) {
+                                      const copy = editingSolutionBlocks.slice();
+                                      copy[sIndex] = { ...copy[sIndex], _raw: event.target.value };
+                                      setEditingSolutionBlocks(copy);
+                                    }
+                                  }}
+                                  rows={3}
+                                  className="w-full p-2 border rounded text-sm font-mono"
+                                />
                               )}
 
                               <div className="mt-2 flex gap-2">
-                                <button className="px-2 py-1 rounded border text-sm" onClick={() => {
-                                  if (!editingSolutionBlocks || sIndex === 0) return;
-                                  const copy = editingSolutionBlocks.slice();
-                                  const tmp = copy[sIndex-1];
-                                  copy[sIndex-1] = copy[sIndex];
-                                  copy[sIndex] = tmp;
-                                  setEditingSolutionBlocks(copy);
-                                }} disabled={sIndex === 0}>Move up</button>
-                                <button className="px-2 py-1 rounded border text-sm" onClick={() => {
-                                  if (!editingSolutionBlocks || sIndex >= editingSolutionBlocks.length - 1) return;
-                                  const copy = editingSolutionBlocks.slice();
-                                  const tmp = copy[sIndex+1];
-                                  copy[sIndex+1] = copy[sIndex];
-                                  copy[sIndex] = tmp;
-                                  setEditingSolutionBlocks(copy);
-                                }} disabled={sIndex >= (editingSolutionBlocks ? editingSolutionBlocks.length - 1 : 0)}>Move down</button>
-                                <button className="px-2 py-1 rounded border text-sm" onClick={() => {
-                                  const copy = editingSolutionBlocks.slice();
-                                  copy.splice(sIndex, 1);
-                                  setEditingSolutionBlocks(copy);
-                                }}>Remove block</button>
+                                <button
+                                  className="px-2 py-1 rounded border text-sm"
+                                  onClick={() => {
+                                    if (!editingSolutionBlocks || sIndex === 0) return;
+                                    const copy = editingSolutionBlocks.slice();
+                                    const tmp = copy[sIndex - 1];
+                                    copy[sIndex - 1] = copy[sIndex];
+                                    copy[sIndex] = tmp;
+                                    setEditingSolutionBlocks(copy);
+                                  }}
+                                  disabled={sIndex === 0}
+                                >
+                                  Move up
+                                </button>
+                                <button
+                                  className="px-2 py-1 rounded border text-sm"
+                                  onClick={() => {
+                                    if (!editingSolutionBlocks || sIndex >= editingSolutionBlocks.length - 1) return;
+                                    const copy = editingSolutionBlocks.slice();
+                                    const tmp = copy[sIndex + 1];
+                                    copy[sIndex + 1] = copy[sIndex];
+                                    copy[sIndex] = tmp;
+                                    setEditingSolutionBlocks(copy);
+                                  }}
+                                  disabled={sIndex >= (editingSolutionBlocks ? editingSolutionBlocks.length - 1 : 0)}
+                                >
+                                  Move down
+                                </button>
+                                <button
+                                  className="px-2 py-1 rounded border text-sm"
+                                  onClick={() => {
+                                    const copy = editingSolutionBlocks.slice();
+                                    copy.splice(sIndex, 1);
+                                    setEditingSolutionBlocks(copy);
+                                  }}
+                                >
+                                  Remove block
+                                </button>
                               </div>
                             </div>
                           ))}
                           <div className="flex gap-2 mt-2">
-                            <button className="px-3 py-1 rounded border" onClick={() => {
-                              const copy = (editingSolutionBlocks || []).slice();
-                              copy.push({ type: 'paragraph', text: '' });
-                              setEditingSolutionBlocks(copy);
-                            }}>Add paragraph</button>
-                            <button className="px-3 py-1 rounded border" onClick={() => {
-                              const copy = (editingSolutionBlocks || []).slice();
-                              copy.push({ type: 'image', src: '', alt: '' });
-                              setEditingSolutionBlocks(copy);
-                            }}>Add image</button>
+                            <button
+                              className="bg-indigo-600 text-white px-3 py-1 rounded"
+                              onClick={() => {
+                                const copy = (editingSolutionBlocks || []).slice();
+                                copy.push({ type: "paragraph", text: "" });
+                                setEditingSolutionBlocks(copy);
+                              }}
+                            >
+                              Add paragraph
+                            </button>
+                            <button
+                              className="bg-white border px-3 py-1 rounded"
+                              onClick={() => {
+                                const copy = (editingSolutionBlocks || []).slice();
+                                copy.push({ type: "image", src: "", alt: "" });
+                                setEditingSolutionBlocks(copy);
+                              }}
+                            >
+                              Add image
+                            </button>
                           </div>
                         </div>
                       </div>
