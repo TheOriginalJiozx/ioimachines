@@ -19,10 +19,11 @@ export default function CaseStudies() {
   const [saving, setSaving] = useState(false);
   const [adminToken, setAdminToken] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
+  const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
 
   function normalizeEntry(entry) {
     const title = entry.title || "";
-    const heroImage = entry.heroImage || entry.hero_image || "";
+    const image = entry.image || entry.hero_image || "";
     let content = entry.content || entry.contentJson || entry.content_json || "";
     try {
       content = typeof content === "string" ? JSON.parse(content) : content;
@@ -32,7 +33,7 @@ export default function CaseStudies() {
       solutionContent = typeof solutionContent === "string" ? JSON.parse(solutionContent) : solutionContent;
     } catch (error) {}
     const solutionTitle = entry.solution_title || entry.solutionTitle || "";
-    return { slug: entry.slug, title, heroImage, content, solutionTitle, solutionContent };
+    return { slug: entry.slug, title, image, content, solutionTitle, solutionContent };
   }
 
   useEffect(() => {
@@ -93,8 +94,11 @@ export default function CaseStudies() {
       for (let i = 0; i < copy.length; i++) {
         const b = copy[i];
         if (b && b.type === 'image' && b._autoAlt) {
-          copy[i] = { ...b, alt: `${titleEditor} image` };
-          changed = true;
+          const newAlt = `${titleEditor} image`;
+          if (b.alt !== newAlt) {
+            copy[i] = { ...b, alt: newAlt };
+            changed = true;
+          }
         }
       }
       if (changed) setEditingBlocks(copy);
@@ -105,8 +109,11 @@ export default function CaseStudies() {
       for (let i = 0; i < copy2.length; i++) {
         const b = copy2[i];
         if (b && b.type === 'image' && b._autoAlt) {
-          copy2[i] = { ...b, alt: `${titleEditor} image` };
-          changed2 = true;
+          const newAlt = `${titleEditor} image`;
+          if (b.alt !== newAlt) {
+            copy2[i] = { ...b, alt: newAlt };
+            changed2 = true;
+          }
         }
       }
       if (changed2) setEditingSolutionBlocks(copy2);
@@ -226,17 +233,23 @@ export default function CaseStudies() {
                   {editingBlocks && Array.isArray(editingBlocks) ? (
                     <div className="space-y-4">
                       {editingBlocks.map((block, index) => (
-                        <div key={index} className="border rounded p-3">
+                        <div key={block._id || index} className="border rounded p-3">
                           <div className="mb-2 text-sm text-gray-600">
                             Block #{index + 1} — <span className="font-mono">{block.type}</span>
                           </div>
-                          {block.type === "paragraph" && (
+                            {block.type === "paragraph" && (
                             <textarea
                               value={block.text || ""}
                               onChange={(event) => {
-                                const copy = editingBlocks.slice();
-                                copy[index] = { ...copy[index], text: event.target.value };
-                                setEditingBlocks(copy);
+                                const id = block._id;
+                                const val = event.target.value;
+                                setEditingBlocks((prev) => {
+                                  const arr = (prev || []).slice();
+                                  const idx = arr.findIndex((b) => b._id === id);
+                                  if (idx === -1) return prev;
+                                  arr[idx] = { ...arr[idx], text: val };
+                                  return arr;
+                                });
                               }}
                               rows={4}
                               className="w-full p-2 border rounded text-sm font-mono"
@@ -251,20 +264,31 @@ export default function CaseStudies() {
                                 onChange={(event) => {
                                   const file = event.target.files && event.target.files[0];
                                   if (!file) return;
-                                  const copy = editingBlocks.slice();
+                                  const id = block._id;
                                   try {
                                     const preview = URL.createObjectURL(file);
                                     let alt = "";
                                     if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
                                     else alt = (file.name || "").replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
-                                    copy[index] = { ...copy[index], _file: file, src: preview, alt, _autoAlt: true };
+                                    setEditingBlocks((prev) => {
+                                      const arr = (prev || []).slice();
+                                      const idx = arr.findIndex((b) => b._id === id);
+                                      if (idx === -1) return prev;
+                                      arr[idx] = { ...arr[idx], _file: file, src: preview, alt, _autoAlt: true };
+                                      return arr;
+                                    });
                                   } catch (error) {
                                     let alt = "";
                                     if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
                                     else alt = (file.name || "").replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
-                                    copy[index] = { ...copy[index], _file: file, alt, _autoAlt: true };
+                                    setEditingBlocks((prev) => {
+                                      const arr = (prev || []).slice();
+                                      const idx = arr.findIndex((b) => b._id === id);
+                                      if (idx === -1) return prev;
+                                      arr[idx] = { ...arr[idx], _file: file, alt, _autoAlt: true };
+                                      return arr;
+                                    });
                                   }
-                                  setEditingBlocks(copy);
                                 }}
                               />
 
@@ -320,65 +344,88 @@ export default function CaseStudies() {
                             </div>
                           )}
                           {block.type !== "paragraph" && block.type !== "image" && (
-                            <textarea
-                              value={JSON.stringify(block, null, 2)}
-                              onChange={(event) => {
-                                try {
-                                  const parsed = JSON.parse(event.target.value);
-                                  const copy = editingBlocks.slice();
-                                  copy[index] = parsed;
-                                  setEditingBlocks(copy);
-                                } catch (error) {
-                                  const copy = editingBlocks.slice();
-                                  copy[index] = { ...copy[index], _raw: event.target.value };
-                                  setEditingBlocks(copy);
-                                }
-                              }}
-                              rows={4}
-                              className="w-full p-2 border rounded text-sm font-mono"
-                            />
+                            <>
+                              <input
+                                value={block.src || block.url || ""}
+                                onChange={(event) => {
+                                  const val = event.target.value || "";
+                                  const id = block._id;
+                                  let alt = "";
+                                  if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
+                                  else {
+                                    try {
+                                      const p = val.split("?")[0].split("#")[0];
+                                      const parts = p.split('/');
+                                      let fname = parts[parts.length - 1] || p;
+                                      fname = fname.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
+                                      alt = fname;
+                                    } catch (e) {
+                                      alt = "";
+                                    }
+                                  }
+                                  setEditingBlocks((prev) => {
+                                    const arr = (prev || []).slice();
+                                    const idx = arr.findIndex((b) => b._id === id);
+                                    if (idx === -1) return prev;
+                                    arr[idx] = { ...arr[idx], src: val, url: undefined, alt, _autoAlt: true };
+                                    return arr;
+                                  });
+                                }}
+                                className="w-full p-2 border rounded text-sm"
+                              />
+                              <div className="mt-2 flex gap-2">
+                                <button
+                                  className="px-2 py-1 rounded border text-sm"
+                                  onClick={() => {
+                                    const id = block._id;
+                                    setEditingBlocks((prev) => {
+                                      const arr = (prev || []).slice();
+                                      const idx = arr.findIndex((b) => b._id === id);
+                                      if (idx <= 0) return prev;
+                                      const tmp = arr[idx - 1];
+                                      arr[idx - 1] = arr[idx];
+                                      arr[idx] = tmp;
+                                      return arr;
+                                    });
+                                  }}
+                                  disabled={index === 0}
+                                >
+                                  Move up
+                                </button>
+                                <button
+                                  className="px-2 py-1 rounded border text-sm"
+                                  onClick={() => {
+                                    if (!editingBlocks || index >= editingBlocks.length - 1) return;
+                                    const copy = editingBlocks.slice();
+                                    const tmp = copy[index + 1];
+                                    copy[index + 1] = copy[index];
+                                    copy[index] = tmp;
+                                    setEditingBlocks(copy);
+                                  }}
+                                  disabled={index >= (editingBlocks ? editingBlocks.length - 1 : 0)}
+                                >
+                                  Move down
+                                </button>
+                                <button
+                                  className="px-2 py-1 rounded border text-sm"
+                                  onClick={() => {
+                                    const id = editingBlocks && editingBlocks[index] && editingBlocks[index]._id;
+                                    if (!id) {
+                                      setEditingBlocks((prev) => {
+                                        const copy = (prev || []).slice();
+                                        copy.splice(index, 1);
+                                        return copy;
+                                      });
+                                      return;
+                                    }
+                                    setEditingBlocks((prev) => (prev || []).filter((b) => b._id !== id));
+                                  }}
+                                >
+                                  Remove block
+                                </button>
+                              </div>
+                            </>
                           )}
-
-                          <div className="mt-2 flex gap-2">
-                            <button
-                              className="px-2 py-1 rounded border text-sm"
-                              onClick={() => {
-                                if (!editingBlocks || index === 0) return;
-                                const copy = editingBlocks.slice();
-                                const tmp = copy[index - 1];
-                                copy[index - 1] = copy[index];
-                                copy[index] = tmp;
-                                setEditingBlocks(copy);
-                              }}
-                              disabled={index === 0}
-                            >
-                              Move up
-                            </button>
-                            <button
-                              className="px-2 py-1 rounded border text-sm"
-                              onClick={() => {
-                                if (!editingBlocks || index >= editingBlocks.length - 1) return;
-                                const copy = editingBlocks.slice();
-                                const tmp = copy[index + 1];
-                                copy[index + 1] = copy[index];
-                                copy[index] = tmp;
-                                setEditingBlocks(copy);
-                              }}
-                              disabled={index >= (editingBlocks ? editingBlocks.length - 1 : 0)}
-                            >
-                              Move down
-                            </button>
-                            <button
-                              className="px-2 py-1 rounded border text-sm"
-                              onClick={() => {
-                                const copy = editingBlocks.slice();
-                                copy.splice(index, 1);
-                                setEditingBlocks(copy);
-                              }}
-                            >
-                              Remove block
-                            </button>
-                          </div>
                         </div>
                       ))}
                       <div className="flex gap-2">
@@ -386,7 +433,7 @@ export default function CaseStudies() {
                           className="bg-indigo-600 text-white px-3 py-1 rounded"
                           onClick={() => {
                             const copy = (editingBlocks || []).slice();
-                            copy.push({ type: "paragraph", text: "" });
+                            copy.push({ _id: genId(), type: "paragraph", text: "" });
                             setEditingBlocks(copy);
                           }}
                         >
@@ -396,7 +443,7 @@ export default function CaseStudies() {
                           className="bg-white border px-3 py-1 rounded"
                           onClick={() => {
                             const copy = (editingBlocks || []).slice();
-                            copy.push({ type: "image", src: "", alt: "" });
+                            copy.push({ _id: genId(), type: "image", src: "", alt: "", _autoAlt: true });
                             setEditingBlocks(copy);
                           }}
                         >
@@ -584,10 +631,10 @@ export default function CaseStudies() {
                             setContentEditor("");
                             setSolutionEditor("");
                             setEditingBlocks([
-                              { type: "image", src: "", alt: "" },
-                              { type: "paragraph", text: "" },
+                              { _id: genId(), type: "image", src: "", alt: "", _autoAlt: true },
+                              { _id: genId(), type: "paragraph", text: "" },
                             ]);
-                            setEditingSolutionBlocks([{ type: "paragraph", text: "" }]);
+                            setEditingSolutionBlocks([{ _id: genId(), type: "paragraph", text: "" }]);
                             setIsEditing(true);
                           }}
                         >
@@ -610,14 +657,14 @@ export default function CaseStudies() {
 
                             try {
                               const arr = Array.isArray(caseData.content) ? caseData.content : typeof caseData.content === "string" ? JSON.parse(caseData.content || "[]") : [];
-                              setEditingBlocks(arr.map((b) => ({ ...b })));
+                              setEditingBlocks(arr.map((b) => ({ ...b, _id: b._id || genId() })));
                             } catch (error) {
                               setEditingBlocks(null);
                             }
 
                             try {
                               const sArr = Array.isArray(caseData.solutionContent) ? caseData.solutionContent : typeof caseData.solutionContent === "string" ? JSON.parse(caseData.solutionContent || "[]") : [];
-                              setEditingSolutionBlocks(sArr.map((b) => ({ ...b })));
+                              setEditingSolutionBlocks(sArr.map((b) => ({ ...b, _id: b._id || genId() })));
                             } catch (error) {
                               setEditingSolutionBlocks(null);
                             }
@@ -660,18 +707,24 @@ export default function CaseStudies() {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Solution blocks</label>
                         <div className="space-y-3">
-                          {editingSolutionBlocks.map((block, sIndex) => (
-                            <div key={sIndex} className="border rounded p-2">
+                          {editingSolutionBlocks.map((block, studyIndex) => (
+                            <div key={block._id || studyIndex} className="border rounded p-2">
                               <div className="mb-1 text-sm text-gray-600">
-                                Block #{sIndex + 1} — <span className="font-mono">{block.type}</span>
+                                Block #{studyIndex + 1} — <span className="font-mono">{block.type}</span>
                               </div>
                               {block.type === "paragraph" && (
                                 <textarea
                                   value={block.text || ""}
                                   onChange={(event) => {
-                                    const copy = editingSolutionBlocks.slice();
-                                    copy[sIndex] = { ...copy[sIndex], text: event.target.value };
-                                    setEditingSolutionBlocks(copy);
+                                    const id = block._id;
+                                    const val = event.target.value;
+                                    setEditingSolutionBlocks((prev) => {
+                                      const arr = (prev || []).slice();
+                                      const idx = arr.findIndex((b) => b._id === id);
+                                      if (idx === -1) return prev;
+                                      arr[idx] = { ...arr[idx], text: val };
+                                      return arr;
+                                    });
                                   }}
                                   rows={3}
                                   className="w-full p-2 border rounded text-sm font-mono"
@@ -684,30 +737,41 @@ export default function CaseStudies() {
                                     type="file"
                                     accept="image/*"
                                     onChange={(event) => {
-                                      const file = event.target.files && event.target.files[0];
-                                      if (!file) return;
-                                      const copy = editingSolutionBlocks.slice();
-                                      try {
-                                        const preview = URL.createObjectURL(file);
+                                        const file = event.target.files && event.target.files[0];
+                                        if (!file) return;
+                                        const id = block._id;
+                                        try {
+                                          const preview = URL.createObjectURL(file);
                                           let alt = "";
                                           if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
                                           else alt = (file.name || "").replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
-                                            copy[sIndex] = { ...copy[sIndex], _file: file, src: preview, alt, _autoAlt: true };
-                                      } catch (error) {
+                                          setEditingSolutionBlocks((prev) => {
+                                            const arr = (prev || []).slice();
+                                            const idx = arr.findIndex((b) => b._id === id);
+                                            if (idx === -1) return prev;
+                                            arr[idx] = { ...arr[idx], _file: file, src: preview, alt, _autoAlt: true };
+                                            return arr;
+                                          });
+                                        } catch (error) {
                                           let alt = "";
                                           if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
                                           else alt = (file.name || "").replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
-                                          copy[sIndex] = { ...copy[sIndex], _file: file, alt, _autoAlt: true };
-                                      }
-                                      setEditingSolutionBlocks(copy);
-                                    }}
+                                          setEditingSolutionBlocks((prev) => {
+                                            const arr = (prev || []).slice();
+                                            const idx = arr.findIndex((b) => b._id === id);
+                                            if (idx === -1) return prev;
+                                            arr[idx] = { ...arr[idx], _file: file, alt, _autoAlt: true };
+                                            return arr;
+                                          });
+                                        }
+                                      }}
                                   />
                                   <label className="text-xs text-gray-600 mt-2 block">Or image URL</label>
                                   <input
                                     value={block.src || block.url || ""}
                                     onChange={(event) => {
-                                      const copy = editingSolutionBlocks.slice();
                                       const val = event.target.value || "";
+                                      const id = block._id;
                                       let alt = "";
                                       if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
                                       else {
@@ -721,8 +785,13 @@ export default function CaseStudies() {
                                           alt = "";
                                         }
                                       }
-                                      copy[sIndex] = { ...copy[sIndex], src: val, url: undefined, alt, _autoAlt: true };
-                                      setEditingSolutionBlocks(copy);
+                                      setEditingSolutionBlocks((prev) => {
+                                        const arr = (prev || []).slice();
+                                        const idx = arr.findIndex((b) => b._id === id);
+                                        if (idx === -1) return prev;
+                                        arr[idx] = { ...arr[idx], src: val, url: undefined, alt, _autoAlt: true };
+                                        return arr;
+                                      });
                                     }}
                                     className="w-full p-2 border rounded text-sm"
                                   />
@@ -730,9 +799,15 @@ export default function CaseStudies() {
                                   <input
                                     value={block.alt || ""}
                                     onChange={(event) => {
-                                      const copy = editingSolutionBlocks.slice();
-                                      copy[sIndex] = { ...copy[sIndex], alt: event.target.value, _autoAlt: false };
-                                      setEditingSolutionBlocks(copy);
+                                      const id = block._id;
+                                      const val = event.target.value;
+                                      setEditingSolutionBlocks((prev) => {
+                                        const arr = (prev || []).slice();
+                                        const idx = arr.findIndex((b) => b._id === id);
+                                        if (idx === -1) return prev;
+                                        arr[idx] = { ...arr[idx], alt: val, _autoAlt: false };
+                                        return arr;
+                                      });
                                     }}
                                     className="w-full p-2 border rounded text-sm"
                                   />
@@ -746,11 +821,11 @@ export default function CaseStudies() {
                                     try {
                                       const parsed = JSON.parse(event.target.value);
                                       const copy = editingSolutionBlocks.slice();
-                                      copy[sIndex] = parsed;
+                                      copy[studyIndex] = parsed;
                                       setEditingSolutionBlocks(copy);
                                     } catch (error) {
                                       const copy = editingSolutionBlocks.slice();
-                                      copy[sIndex] = { ...copy[sIndex], _raw: event.target.value };
+                                      copy[studyIndex] = { ...copy[studyIndex], _raw: event.target.value };
                                       setEditingSolutionBlocks(copy);
                                     }
                                   }}
@@ -763,41 +838,56 @@ export default function CaseStudies() {
                                 <button
                                   className="px-2 py-1 rounded border text-sm"
                                   onClick={() => {
-                                    if (!editingSolutionBlocks || sIndex === 0) return;
-                                    const copy = editingSolutionBlocks.slice();
-                                    const tmp = copy[sIndex - 1];
-                                    copy[sIndex - 1] = copy[sIndex];
-                                    copy[sIndex] = tmp;
-                                    setEditingSolutionBlocks(copy);
+                                    const id = block._id;
+                                    setEditingSolutionBlocks((prev) => {
+                                      const arr = (prev || []).slice();
+                                      const idx = arr.findIndex((b) => b._id === id);
+                                      if (idx <= 0) return prev;
+                                      const tmp = arr[idx - 1];
+                                      arr[idx - 1] = arr[idx];
+                                      arr[idx] = tmp;
+                                      return arr;
+                                    });
                                   }}
-                                  disabled={sIndex === 0}
+                                  disabled={studyIndex === 0}
                                 >
                                   Move up
                                 </button>
                                 <button
                                   className="px-2 py-1 rounded border text-sm"
                                   onClick={() => {
-                                    if (!editingSolutionBlocks || sIndex >= editingSolutionBlocks.length - 1) return;
-                                    const copy = editingSolutionBlocks.slice();
-                                    const tmp = copy[sIndex + 1];
-                                    copy[sIndex + 1] = copy[sIndex];
-                                    copy[sIndex] = tmp;
-                                    setEditingSolutionBlocks(copy);
+                                    const id = block._id;
+                                    setEditingSolutionBlocks((prev) => {
+                                      const arr = (prev || []).slice();
+                                      const idx = arr.findIndex((b) => b._id === id);
+                                      if (idx === -1 || idx >= arr.length - 1) return prev;
+                                      const tmp = arr[idx + 1];
+                                      arr[idx + 1] = arr[idx];
+                                      arr[idx] = tmp;
+                                      return arr;
+                                    });
                                   }}
-                                  disabled={sIndex >= (editingSolutionBlocks ? editingSolutionBlocks.length - 1 : 0)}
+                                  disabled={studyIndex >= (editingSolutionBlocks ? editingSolutionBlocks.length - 1 : 0)}
                                 >
                                   Move down
                                 </button>
-                                <button
-                                  className="px-2 py-1 rounded border text-sm"
-                                  onClick={() => {
-                                    const copy = editingSolutionBlocks.slice();
-                                    copy.splice(sIndex, 1);
-                                    setEditingSolutionBlocks(copy);
-                                  }}
-                                >
-                                  Remove block
-                                </button>
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        const id = editingSolutionBlocks && editingSolutionBlocks[studyIndex] && editingSolutionBlocks[studyIndex]._id;
+                                        if (!id) {
+                                          setEditingSolutionBlocks((prev) => {
+                                            const copy = (prev || []).slice();
+                                            copy.splice(studyIndex, 1);
+                                            return copy;
+                                          });
+                                          return;
+                                        }
+                                        setEditingSolutionBlocks((prev) => (prev || []).filter((b) => b._id !== id));
+                                      }}
+                                    >
+                                      Remove block
+                                    </button>
                               </div>
                             </div>
                           ))}
@@ -806,7 +896,7 @@ export default function CaseStudies() {
                               className="bg-indigo-600 text-white px-3 py-1 rounded"
                               onClick={() => {
                                 const copy = (editingSolutionBlocks || []).slice();
-                                copy.push({ type: "paragraph", text: "" });
+                                copy.push({ _id: genId(), type: "paragraph", text: "" });
                                 setEditingSolutionBlocks(copy);
                               }}
                             >
@@ -815,9 +905,11 @@ export default function CaseStudies() {
                             <button
                               className="bg-white border px-3 py-1 rounded"
                               onClick={() => {
-                                const copy = (editingSolutionBlocks || []).slice();
-                                copy.push({ type: "image", src: "", alt: "" });
-                                setEditingSolutionBlocks(copy);
+                                setEditingSolutionBlocks((prev) => {
+                                  const arr = (prev || []).slice();
+                                  arr.push({ _id: genId(), type: "image", src: "", alt: "", _autoAlt: true });
+                                  return arr;
+                                });
                               }}
                             >
                               Add image
