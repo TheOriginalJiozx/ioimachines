@@ -23,9 +23,7 @@ export default function RequestConsultation({ onClose, modal = false, variant = 
     }
     setSending(true);
     try {
-      const API_BASE =
-        process.env.REACT_APP_API_BASE ||
-        "https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api";
+      const API_BASE = process.env.REACT_APP_API_BASE || "https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api";
       const res = await fetch(`${API_BASE}/consultation`, {
         method: "POST",
         headers: {
@@ -54,22 +52,20 @@ export default function RequestConsultation({ onClose, modal = false, variant = 
   }
 
   const content = (
-    <div
-      className={
-        variant === "contact"
-          ? "relative w-full max-w-2xl mx-4 z-10"
-          : "relative bg-white rounded shadow-lg w-full max-w-2xl mx-4 z-10"
-      }
-    >
-      <div className={variant == ""}>
-        {modal && (
-          <button onClick={() => onClose && onClose()} className="text-gray-500 hover:text-gray-700">
-            Close
-          </button>
-        )}
-      </div>
-
+    <div className={variant === "contact" ? "relative w-full max-w-2xl mx-4 z-10" : "relative bg-white rounded-lg shadow-lg w-full max-w-2xl mx-4 z-10"}>
       <div className={variant === "contact" ? "p-0 mt-4" : "p-6"}>
+        {modal && (
+          <div className="flex items-start justify-between">
+            <h3 className={variant === "contact" ? "text-lg font-semibold text-white" : "text-lg font-semibold text-gray-800"}>
+              Request A Consultation
+            </h3>
+            <button onClick={() => onClose && onClose()} className="text-gray-500 hover:text-gray-700">
+              ✕
+            </button>
+          </div>
+        )}
+
+        <div className={modal && variant !== "contact" ? "mt-4" : ""}>
           <form
             className={variant === "contact" ? "w-full max-w-2xl" : "w-full"}
             onSubmit={async (event) => {
@@ -77,66 +73,32 @@ export default function RequestConsultation({ onClose, modal = false, variant = 
               await handleSubmit();
             }}
           >
-            <div className="space-y-4">
-              <input
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                placeholder="Full Name"
-                className={
-                  variant === "contact"
-                    ? "w-full px-4 py-3 rounded border border-white bg-transparent text-white placeholder-white/70"
-                    : "w-full px-4 py-3 rounded border border-gray-300 bg-white text-[#444444] placeholder-gray-400"
-                }
-              />
-              <input
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="Email address"
-                type="email"
-                className={
-                  variant === "contact"
-                    ? "w-full px-4 py-3 rounded border border-white bg-transparent text-white placeholder-white/70"
-                    : "w-full px-4 py-3 rounded border border-gray-300 bg-white text-[#444444] placeholder-gray-400"
-                }
-              />
-              <textarea
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                placeholder="Enter your message here"
-                rows={5}
-                className={
-                  variant === "contact"
-                    ? "w-full px-4 py-3 rounded border border-white bg-transparent text-white placeholder-white/70"
-                    : "w-full px-4 py-3 rounded border border-gray-300 bg-white text-[#444444] placeholder-gray-400"
-                }
-              />
+          <div className="space-y-4">
+            <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Full Name" className={variant === "contact" ? "w-full px-4 py-3 rounded border border-white bg-transparent text-white placeholder-white/70" : "w-full px-4 py-3 rounded border border-gray-300 bg-white text-[#444444] placeholder-gray-400"} />
+            <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" type="email" className={variant === "contact" ? "w-full px-4 py-3 rounded border border-white bg-transparent text-white placeholder-white/70" : "w-full px-4 py-3 rounded border border-gray-300 bg-white text-[#444444] placeholder-gray-400"} />
+            <textarea value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Enter your message here" rows={5} className={variant === "contact" ? "w-full px-4 py-3 rounded border border-white bg-transparent text-white placeholder-white/70" : "w-full px-4 py-3 rounded border border-gray-300 bg-white text-[#444444] placeholder-gray-400"} />
 
-              <div className="flex items-center justify-between">
-                  <div className={"flex items-center space-x-4 text-sm " + (variant === "contact" ? "text-white" : "text-[#444444]") }>
-                  <div>Type in the answer to the sum:</div>
-                  <div className="ml-2">
-                    {captchaA} + {captchaB} =
-                  </div>
-                      <input
-                        value={captchaAnswer}
-                        onChange={(event) => setCaptchaAnswer(event.target.value)}
-                        className={variant === "contact" ? "w-16 px-2 py-1 rounded text-black" : "w-16 px-2 py-1 rounded border border-gray-300"}
-                      />
+            <div className="flex items-center justify-between">
+              <div className={"flex items-center space-x-4 text-sm " + (variant === "contact" ? "text-white" : "text-[#444444]")}>
+                <div>Type in the answer to the sum:</div>
+                <div className="ml-2">
+                  {captchaA} + {captchaB} =
                 </div>
-
-                <div>
-                  <button disabled={sending} type="submit" className="bg-black text-white px-6 py-3 rounded">
-                    {sending ? "Sending..." : "SEND MESSAGE"}
-                  </button>
-                </div>
+                <input value={captchaAnswer} onChange={(event) => setCaptchaAnswer(event.target.value)} className={variant === "contact" ? "w-16 px-2 py-1 rounded text-black" : "w-16 px-2 py-1 rounded border border-gray-300"} />
               </div>
 
-              {status && (
-                <div className={"text-sm " + (variant === "contact" ? "text-white" : "text-[#444444]")}>{status}</div>
-              )}
+              <div>
+                <button disabled={sending} type="submit" className="bg-black text-white px-6 py-3 rounded">
+                  {sending ? "Sending..." : "SEND MESSAGE"}
+                </button>
+              </div>
             </div>
+
+            {status && <div className={"text-sm " + (variant === "contact" ? "text-white" : "text-[#444444]")}>{status}</div>}
+          </div>
           </form>
         </div>
+      </div>
     </div>
   );
 

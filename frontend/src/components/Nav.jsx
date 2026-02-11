@@ -4,7 +4,11 @@ import logo from '../assets/ioimachines_logo.png'
 
 const navLinks = ["Home", "Services", "Case Studies", "About Us", "Contact", "Admin"];
 const navDropdown = {
-  Services: [{ name: "Feasibility Study", path: "/services/feasibility-study" }],
+  Services: [
+    { name: "Feasibility Study", path: "/services/feasibility-study" },
+    { name: "Turnkey Solutions", path: "/services/turnkey-solutions" },
+    { name: "IP Core Licensing", path: "/services/ip-core-licensing" },
+  ],
 };
 
 export default function Nav() {

@@ -9,6 +9,8 @@ import CaseStudies from './pages/CaseStudies'
 import Contact from './pages/Contact'
 import About from './pages/About'
 import FeasibilityStudy from './pages/FeasibilityStudy'
+import TurnkeySolutions from './pages/TurnkeySolutions'
+import IPCoreLicensing from './pages/IPCoreLicensing'
 import './App.css'
 
 export default function App() {
@@ -28,6 +30,8 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/about-us" element={<About />} />
         <Route path="/services/feasibility-study" element={<FeasibilityStudy />} />
+        <Route path="/services/turnkey-solutions" element={<TurnkeySolutions />} />
+        <Route path="/services/ip-core-licensing" element={<IPCoreLicensing />} />
       </Routes>
       <Footer />
     </>
