@@ -19,8 +19,8 @@ export default function Footer() {
       let json = {};
       try {
         json = text ? JSON.parse(text) : {};
-      } catch (err) {
-        /* ignore parse errors */
+      } catch (error) {
+        
       }
       if (!res.ok) throw new Error(json.error || text || "Failed");
       setStatus("Subscribed — thank you!");
@@ -65,7 +65,7 @@ export default function Footer() {
                 await handleSubscribe();
               }}
             >
-              <input id="newsletter-email" type="email" aria-label="email" placeholder="Your email address" value={email} onChange={(e) => setEmail(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-l-md w-full sm:w-56 focus:outline-none text-sm" />
+              <input id="newsletter-email" type="email" aria-label="email" placeholder="Your email address" value={email} onChange={(event) => setEmail(event.target.value)} className="px-3 py-2 border border-gray-300 rounded-l-md w-full sm:w-56 focus:outline-none text-sm" />
               <button disabled={loading} className="bg-[#444444] text-white px-3 py-2 font-semi-bold rounded-r-md text-sm">
                 {loading ? "Sending..." : "Subscribe"}
               </button>

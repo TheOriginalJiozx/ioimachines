@@ -42,7 +42,7 @@ export default function CaseStudies() {
       window.setPageTitle("Case Studies");
     }
 
-    // adminToken now comes from AppState provider
+
 
     async function load() {
       setLoading(true);
@@ -421,7 +421,7 @@ export default function CaseStudies() {
                                       let fname = parts[parts.length - 1] || p;
                                       fname = fname.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
                                       alt = fname;
-                                    } catch (e) {
+                                    } catch (error) {
                                       alt = "";
                                     }
                                   }
@@ -846,7 +846,7 @@ export default function CaseStudies() {
                                           let fileName = parts[parts.length - 1] || p;
                                           fileName = fileName.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
                                           alt = fileName;
-                                        } catch (err) {
+                                        } catch (error) {
                                           alt = "";
                                         }
                                       }

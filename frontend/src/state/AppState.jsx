@@ -24,7 +24,7 @@ export function AppStateProvider({ children }) {
       try {
         if (token) window.localStorage.setItem('adminToken', token);
         else window.localStorage.removeItem('adminToken');
-      } catch (e) {}
+      } catch (error) {}
       window.dispatchEvent(new Event('admin-auth-changed'));
     }
   };

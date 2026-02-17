@@ -26,9 +26,9 @@ export default function ContactCase() {
       if (!res.ok) throw new Error(json.error || 'Failed');
       setStatus('Message sent — thank you.');
       setName(''); setEmail(''); setMessage('');
-    } catch (err) {
+    } catch (error) {
       setStatus('Error sending message');
-      console.error(err);
+      console.error(error);
     } finally { setSending(false); }
   }
 
@@ -38,9 +38,9 @@ export default function ContactCase() {
       <p className="text-[#606060] text-sm sm:text-base mt-2">Contact us for a demo tailored for your needs</p>
       <form className="mt-6 sm:mt-8" onSubmit={handleSubmit}>
         <div className="flex flex-col items-center space-y-3 sm:space-y-4">
-          <input required value={name} onChange={e=>setName(e.target.value)} className="w-full max-w-lg sm:max-w-md border rounded px-4 py-3 mx-auto text-sm" placeholder="Full Name" />
-          <input required value={email} onChange={e=>setEmail(e.target.value)} className="w-full max-w-lg sm:max-w-md border rounded px-4 py-3 mx-auto text-sm" placeholder="Email address" type="email" />
-          <textarea required value={message} onChange={e=>setMessage(e.target.value)} className="w-full max-w-lg sm:max-w-md border rounded px-4 py-3 mx-auto text-sm" rows={4} placeholder="Briefly describe your case" />
+          <input required value={name} onChange={(event)=>setName(event.target.value)} className="w-full max-w-lg sm:max-w-md border rounded px-4 py-3 mx-auto text-sm" placeholder="Full Name" />
+          <input required value={email} onChange={(event)=>setEmail(event.target.value)} className="w-full max-w-lg sm:max-w-md border rounded px-4 py-3 mx-auto text-sm" placeholder="Email address" type="email" />
+          <textarea required value={message} onChange={(event)=>setMessage(event.target.value)} className="w-full max-w-lg sm:max-w-md border rounded px-4 py-3 mx-auto text-sm" rows={4} placeholder="Briefly describe your case" />
         </div>
         <div className="mt-6 flex justify-center">
           <button disabled={sending} className="w-full max-w-lg sm:max-w-md bg-[#444444] text-white px-6 py-3 rounded text-sm">{sending ? 'Sending...' : 'CONTACT US'}</button>

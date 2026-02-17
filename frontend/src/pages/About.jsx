@@ -3,9 +3,9 @@ import { useAppState } from "../state/AppState";
 import ContactCase from "../components/ContactCase";
 import Features from "../components/Features";
 import GetAdvice from "../components/GetAdvice";
-import { genId, blocksToPlainText, renderBlock } from "../lib/blocks.jsx";
+import { genId, blocksToPlainText } from "../lib/blocks.jsx";
 
-  // Local override for About page to keep larger typography than the default renderer
+
   function renderBlockAbout(block, index) {
     if (!block) return null;
     switch (block.type) {
@@ -73,7 +73,7 @@ import { genId, blocksToPlainText, renderBlock } from "../lib/blocks.jsx";
     }
   }
 
-  // Renderer for Mission section: larger paragraph/list sizing than Why
+
   function renderBlockMission(block, index) {
     if (!block) return null;
     switch (block.type) {
@@ -179,7 +179,7 @@ export default function About() {
           try {
             const parsed = row.content ? JSON.parse(row.content) : null;
             return { ...row, parsedContent: parsed };
-          } catch (e) {
+          } catch (error) {
             return { ...row, parsedContent: null };
           }
         };
@@ -257,12 +257,12 @@ export default function About() {
 
       <section className="bg-white" aria-label="Our Mission section">
         <div className="max-w-6xl mx-auto px-6 py-12">
-          <div className="text-center max-w-3xl mx-auto">
+          <div className={"text-center " + (editingMission ? "max-w-6xl" : "max-w-3xl") + " mx-auto"}>
             {editingMission ? (
-              <div>
+              <div className={"editing-feasibility"}>
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                  <input value={missionTitle} onChange={(e) => setMissionTitle(e.target.value)} className="w-full p-2 border rounded" />
+                  <input value={missionTitle} onChange={(event) => setMissionTitle(event.target.value)} className="w-full p-2 border rounded" />
                 </div>
 
                 <div className="mb-4">
@@ -314,95 +314,36 @@ export default function About() {
                               </div>
                             </>
                           )}
-                          {block.type === 'image' && (
-                            <div className="grid grid-cols-1 gap-2">
-                              <label className="text-xs text-gray-600">Replace image (upload)</label>
-                              <div className="flex items-center gap-2">
-                                <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
-                                  Choose image
-                                  <input type="file" accept="image/*" onChange={(e) => {
-                                    const file = e.target.files && e.target.files[0];
-                                    if (!file) return;
-                                    const id = block._id;
-                                    try {
-                                      const preview = URL.createObjectURL(file);
-                                      let alt = '';
-                                      if (missionTitle && missionTitle.trim()) alt = `${missionTitle} image`;
-                                      else { try { const name = (file.name||''); alt = name.replace(/\.[^/.]+$/,'').replace(/[-_]+/g,' '); } catch(e){ alt = '' } }
-                                      setMissionBlocks((prev) => {
-                                        const copy = (prev||[]).slice();
-                                        const idx = copy.findIndex((b) => b._id === id);
-                                        if (idx === -1) return prev;
-                                        copy[idx] = { ...copy[idx], _file: file, src: preview, alt, _autoAlt: true };
-                                        return copy;
-                                      });
-                                    } catch (err) {
-                                      let alt = '';
-                                      if (missionTitle && missionTitle.trim()) alt = `${missionTitle} image`;
-                                      setMissionBlocks((prev) => {
-                                        const copy = (prev||[]).slice();
-                                        const idx = copy.findIndex((b) => b._id === id);
-                                        if (idx === -1) return prev;
-                                        copy[idx] = { ...copy[idx], _file: file, alt, _autoAlt: true };
-                                        return copy;
-                                      });
-                                    }
-                                  }} className="hidden" />
-                                </label>
-                              </div>
-                              <label className="text-xs text-gray-600">Or image URL</label>
-                              <input value={block.src || block.url || ''} onChange={(event) => {
-                                const val = event.target.value||'';
-                                const copy = (missionBlocks||[]).slice();
-                                let alt = '';
-                                if (missionTitle && missionTitle.trim()) alt = `${missionTitle} image`;
-                                else { try { const p = val.split('?')[0].split('#')[0]; const parts = p.split('/'); let fileName = parts[parts.length-1]||p; fileName = fileName.replace(/\.[^/.]+$/,'').replace(/[-_]+/g,' '); alt = fileName;} catch(e){alt=''} }
-                                copy[index] = { ...copy[index], src: val, url: undefined, alt, _autoAlt: true };
-                                setMissionBlocks(copy);
-                              }} className="w-full p-2 border rounded text-sm" />
-                              <label className="text-xs text-gray-600">Alt text</label>
-                              <input value={block.alt||''} onChange={(e)=>{ const copy=(missionBlocks||[]).slice(); copy[index]={...copy[index], alt:e.target.value, _autoAlt:false}; setMissionBlocks(copy);}} className="w-full p-2 border rounded text-sm" />
-                              <div className="mt-2">{block.src||block.url ? <img src={block.src||block.url} alt={block.alt||''} className="object-contain w-full h-36" /> : <div className="text-sm text-gray-400">No image</div>}</div>
-                              <div className="mt-2">
-                                <button className="px-2 py-1 rounded border text-sm" onClick={() => {
-                                  const id = block._id;
-                                  setMissionBlocks((previous) => (previous || []).filter((b) => b._id !== id));
-                                }}>Remove block</button>
-                              </div>
-                            </div>
-                          )}
                         </div>
                       ))}
                       <div className="flex gap-2">
                         <button className="bg-indigo-600 text-white px-3 py-1 rounded" onClick={()=>{ const copy=(missionBlocks||[]).slice(); copy.push({_id:genId(), type:'paragraph', text:''}); setMissionBlocks(copy); }}>Add paragraph</button>
-                        <button className="bg-white border px-3 py-1 rounded" onClick={()=>{ const copy=(missionBlocks||[]).slice(); copy.push({_id:genId(), type:'image', src:'', alt:'', _autoAlt:true}); setMissionBlocks(copy); }}>Add image</button>
                       </div>
                     </div>
                   ) : (
-                    <textarea value={missionContentEditor} onChange={(e)=>setMissionContentEditor(e.target.value)} rows={6} className="w-full px-4 py-2 border rounded" />
+                    <textarea value={missionContentEditor} onChange={(event) =>setMissionContentEditor(event.target.value)} rows={6} className="w-full px-4 py-2 border rounded" />
                   )}
                 </div>
                 <div className="flex justify-end gap-3 mt-4">
                   <button onClick={() => { setEditingMission(false); }} className="px-4 py-2 rounded border">Cancel</button>
-                  <button onClick={() => saveSection('about-mission', missionTitle || 'Our Mission', missionBlocks || (missionContentEditor ? [{ _id: genId(), type: 'paragraph', text: missionContentEditor }] : []), setEditingMission, setMission)} className="px-4 py-2 rounded bg-[#444444] text-white">Save</button>
+                  <button onClick={() => saveSection(missionTitle, missionBlocks || (missionContentEditor ? [{ _id: genId(), type: 'paragraph', text: missionContentEditor }] : []), setEditingMission, setMission)} className="px-4 py-2 rounded bg-[#444444] text-white">Save</button>
                 </div>
               </div>
             ) : (
               <>
-                <h2 className="text-[34px] font-semibold text-[#222222]">{mission?.title || 'Our Mission'}</h2>
+                <h2 className="text-[34px] font-semibold text-[#222222]">{mission?.title}</h2>
                 <div className="mt-4 text-lg leading-relaxed">
                   {(() => {
                     const blocksSource = (mission?.parsedContent && Array.isArray(mission.parsedContent.intro)) ? mission.parsedContent.intro : null;
                     if (blocksSource) return (blocksSource || []).map((b, i) => renderBlockMission(b, i));
-                    return <p>{mission?.content || "Our mission is to empower manufacturers with reliable, AI-driven machine vision systems that detect defects early, reduce waste, and increase throughput."}</p>;
+                    return <p>{mission?.content}</p>;
                   })()}
                 </div>
                 {adminToken && <div className="mt-4"><button onClick={() => {
-                  setMissionTitle(mission?.title || 'Our Mission');
-                  const parsed = mission?.parsedContent || (mission && mission.content ? (() => { try { return JSON.parse(mission.content) } catch(e){ return null } })() : null);
+                  setMissionTitle(mission?.title);
+                  const parsed = mission?.parsedContent || (mission && mission.content ? (() => { try { return JSON.parse(mission.content) } catch (error){ return null } })() : null);
                   if (parsed && parsed.intro) {
                     let arr = Array.isArray(parsed.intro) ? parsed.intro.map((b) => ({ ...b, _id: b._id || genId() })) : (typeof parsed.intro === 'string' ? [{ _id: genId(), type: 'paragraph', text: parsed.intro }] : []);
-                    if (!arr.some((b) => b && b.type === 'image')) arr.unshift({ _id: genId(), type: 'image', src: '', alt: '', _autoAlt: true });
                     if (!arr.some((b) => b && b.type === 'paragraph')) arr.push({ _id: genId(), type: 'paragraph', text: '' });
                     setMissionBlocks(arr);
                     setMissionContentEditor(blocksToPlainText(arr));
@@ -410,17 +351,16 @@ export default function About() {
                     try {
                       const maybe = JSON.parse(mission.content);
                       let arr = Array.isArray(maybe) ? maybe.map((b) => ({ ...b, _id: b._id || genId() })) : (typeof maybe === 'string' ? [{ _id: genId(), type: 'paragraph', text: maybe }] : []);
-                      if (!arr.some((b) => b && b.type === 'image')) arr.unshift({ _id: genId(), type: 'image', src: '', alt: '', _autoAlt: true });
                       if (!arr.some((b) => b && b.type === 'paragraph')) arr.push({ _id: genId(), type: 'paragraph', text: '' });
                       setMissionBlocks(arr);
                       setMissionContentEditor(blocksToPlainText(arr));
-                    } catch (e) {
-                      const arr = [{ _id: genId(), type: 'image', src: '', alt: '', _autoAlt: true }, { _id: genId(), type: 'paragraph', text: mission.content || '' }];
+                    } catch (error) {
+                      const arr = [{ _id: genId(), type: 'paragraph', text: mission.content || '' }];
                       setMissionBlocks(arr);
                       setMissionContentEditor(blocksToPlainText(arr));
                     }
                   } else {
-                    setMissionBlocks([{ _id: genId(), type: 'image', src: '', alt: '', _autoAlt: true }, { _id: genId(), type: 'paragraph', text: '' }]);
+                    setMissionBlocks([{ _id: genId(), type: 'paragraph', text: '' }]);
                     setMissionContentEditor("");
                   }
                   setEditingMission(true);
@@ -432,8 +372,8 @@ export default function About() {
       </section>
 
       <section className="bg-white" aria-label="Why Choose Us section">
-        <div className="max-w-6xl mx-auto px-6 py-16">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div className="max-w-6xl mx-auto px-6 py-16">
+          <div className={`grid md:grid-cols-2 gap-12 items-center ${editingWhy ? 'md:grid-cols-3' : ''}`}>
             <div>
               {(() => {
                 const blocksSource = (why?.parsedContent && Array.isArray(why.parsedContent.intro)) ? why.parsedContent.intro : null;
@@ -447,12 +387,12 @@ export default function About() {
                 return <img src="/about_us2.jpg" alt="contact" className="w-full md:h-[28rem] object-cover rounded shadow" />;
               })()}
             </div>
-            <div>
+            <div className={editingWhy ? 'editor-column editing-feasibility md:col-span-2' : ''}>
               {editingWhy ? (
                 <div className="mt-4">
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                    <input value={whyTitle} onChange={(e) => setWhyTitle(e.target.value)} className="w-full p-2 border rounded" />
+                    <input value={whyTitle} onChange={(event) => setWhyTitle(event.target.value)} className="w-full p-2 border rounded" />
                   </div>
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
@@ -509,15 +449,15 @@ export default function About() {
                                 <div className="flex items-center gap-2">
                                   <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
                                     Choose image
-                                    <input type="file" accept="image/*" onChange={(e) => {
-                                      const file = e.target.files && e.target.files[0];
+                                    <input type="file" accept="image/*" onChange={(event) => {
+                                      const file = event.target.files && event.target.files[0];
                                       if (!file) return;
                                       const id = block._id;
                                       try {
                                         const preview = URL.createObjectURL(file);
                                         let alt = '';
                                         if (whyTitle && whyTitle.trim()) alt = `${whyTitle} image`;
-                                        else { try { const name = (file.name||''); alt = name.replace(/\.[^/.]+$/,'').replace(/[-_]+/g,' '); } catch(e){ alt = '' } }
+                                        else { try { const name = (file.name||''); alt = name.replace(/\.[^/.]+$/,'').replace(/[-_]+/g,' '); } catch (error){ alt = '' } }
                                         setWhyBlocks((prev) => {
                                           const copy = (prev||[]).slice();
                                           const idx = copy.findIndex((b) => b._id === id);
@@ -525,7 +465,7 @@ export default function About() {
                                           copy[idx] = { ...copy[idx], _file: file, src: preview, alt, _autoAlt: true };
                                           return copy;
                                         });
-                                      } catch (err) {
+                                      } catch (error) {
                                         let alt = '';
                                         if (whyTitle && whyTitle.trim()) alt = `${whyTitle} image`;
                                         setWhyBlocks((prev) => {
@@ -545,12 +485,12 @@ export default function About() {
                                   const copy = (whyBlocks||[]).slice();
                                   let alt = '';
                                   if (whyTitle && whyTitle.trim()) alt = `${whyTitle} image`;
-                                  else { try { const p = val.split('?')[0].split('#')[0]; const parts = p.split('/'); let fileName = parts[parts.length-1]||p; fileName = fileName.replace(/\.[^/.]+$/,'').replace(/[-_]+/g,' '); alt = fileName;} catch(e){alt=''} }
+                                  else { try { const p = val.split('?')[0].split('#')[0]; const parts = p.split('/'); let fileName = parts[parts.length-1]||p; fileName = fileName.replace(/\.[^/.]+$/,'').replace(/[-_]+/g,' '); alt = fileName;} catch (error){alt=''} }
                                   copy[index] = { ...copy[index], src: val, url: undefined, alt, _autoAlt: true };
                                   setWhyBlocks(copy);
                                 }} className="w-full p-2 border rounded text-sm" />
                                 <label className="text-xs text-gray-600">Alt text</label>
-                                <input value={block.alt||''} onChange={(e)=>{ const copy=(whyBlocks||[]).slice(); copy[index]={...copy[index], alt:e.target.value, _autoAlt:false}; setWhyBlocks(copy);}} className="w-full p-2 border rounded text-sm" />
+                                <input value={block.alt||''} onChange={(event) =>{ const copy=(whyBlocks||[]).slice(); copy[index]={...copy[index], alt:event.target.value, _autoAlt:false}; setWhyBlocks(copy);}} className="w-full p-2 border rounded text-sm" />
                                 <div className="mt-2">{block.src||block.url ? <img src={block.src||block.url} alt={block.alt||''} className="object-contain w-full h-36" /> : <div className="text-sm text-gray-400">No image</div>}</div>
                                 <div className="mt-2">
                                   <button className="px-2 py-1 rounded border text-sm" onClick={() => {
@@ -568,7 +508,7 @@ export default function About() {
                         </div>
                       </div>
                     ) : (
-                      <textarea value={whyContentEditor} onChange={(e)=>setWhyContentEditor(e.target.value)} rows={6} className="w-full px-4 py-2 border rounded" />
+                      <textarea value={whyContentEditor} onChange={(event) =>setWhyContentEditor(event.target.value)} rows={6} className="w-full px-4 py-2 border rounded" />
                     )}
                   </div>
                   <div className="flex justify-end gap-3 mt-4">
@@ -578,47 +518,25 @@ export default function About() {
                 </div>
               ) : (
                 <>
-                  <h2 className="text-[40px] font-semibold text-[#222222]">{why?.title || 'Why Choose Us'}</h2>
-                  <div>
+                  <h2 className="text-[34px] font-semibold text-[#222222]">{why?.title}</h2>
+                  <div className="mt-4 text-[15px] leading-relaxed">
                     {(() => {
-                      const blocksSource = (why?.parsedContent && Array.isArray(why.parsedContent.intro)) ? why.parsedContent.intro : null;
-                      if (blocksSource) {
-                        const imgIndex = blocksSource.findIndex((b) => b && b.type === 'image');
-                        return (blocksSource || []).filter((_, idx) => idx !== imgIndex).map((block, i) => renderBlockAbout(block, i));
-                      }
-                      if (why && why.content) return <div dangerouslySetInnerHTML={{ __html: why.content }} />;
-                      return (
-                        <>
-                          <p>
-                            IOIMACHINES develops and manufactures custom machine vision solutions for vision-based quality control on the factory floor.
-                          </p>
-
-                          <p>
-                            Our solutions are based on innovative methods of feature detection and state-of-the-art artificial intelligence.
-                          </p>
-
-                          <p className="mt-4">Our vision software runs on:</p>
-                          <ul className="list-disc pl-6 mt-2">
-                            <li>Standard industrial vision computers</li>
-                            <li>Proprietary vision computers supplied with FPGA-based accelerators</li>
-                          </ul>
-
-                          <p className="mt-4">We also provide custom turnkey solutions including:</p>
-                          <ul className="list-disc pl-6 mt-2">
-                            <li>Industrial 2D cameras</li>
-                            <li>3D sensors for accurate measurements of defects with 3D illumination units</li>
-                            <li>Automation systems to present product for inspection</li>
-                          </ul>
-                        </>
-                      );
-                    })()}
+                        const blocksSource = (why?.parsedContent && Array.isArray(why.parsedContent.intro)) ? why.parsedContent.intro : null;
+                        if (blocksSource) {
+                          const imgIndex = blocksSource.findIndex((b) => b && b.type === 'image');
+                          return (blocksSource || []).map((b, i) => {
+                            if (i === imgIndex) return null;
+                            return renderBlockAbout(b, i);
+                          });
+                        }
+                        return <p>{why?.content}</p>;
+                      })()}
                   </div>
                   {adminToken && <div className="mt-4"><button onClick={() => {
-                    setWhyTitle(why?.title || 'Why Choose Us');
-                    const parsed = why?.parsedContent || (why && why.content ? (() => { try { return JSON.parse(why.content) } catch(e){ return null } })() : null);
+                    setWhyTitle(why?.title);
+                    const parsed = why?.parsedContent || (why && why.content ? (() => { try { return JSON.parse(why.content) } catch (error){ return null } })() : null);
                     if (parsed && parsed.intro) {
                       let arr = Array.isArray(parsed.intro) ? parsed.intro.map((b) => ({ ...b, _id: b._id || genId() })) : (typeof parsed.intro === 'string' ? [{ _id: genId(), type: 'paragraph', text: parsed.intro }] : []);
-                      if (!arr.some((b) => b && b.type === 'image')) arr.unshift({ _id: genId(), type: 'image', src: '', alt: '', _autoAlt: true });
                       if (!arr.some((b) => b && b.type === 'paragraph')) arr.push({ _id: genId(), type: 'paragraph', text: '' });
                       setWhyBlocks(arr);
                       setWhyContentEditor(blocksToPlainText(arr));
@@ -626,18 +544,17 @@ export default function About() {
                       try {
                         const maybe = JSON.parse(why.content);
                         let arr = Array.isArray(maybe) ? maybe.map((b) => ({ ...b, _id: b._id || genId() })) : (typeof maybe === 'string' ? [{ _id: genId(), type: 'paragraph', text: maybe }] : []);
-                        if (!arr.some((b) => b && b.type === 'image')) arr.unshift({ _id: genId(), type: 'image', src: '', alt: '', _autoAlt: true });
                         if (!arr.some((b) => b && b.type === 'paragraph')) arr.push({ _id: genId(), type: 'paragraph', text: '' });
                         setWhyBlocks(arr);
                         setWhyContentEditor(blocksToPlainText(arr));
-                      } catch (e) {
-                        const arr = [{ _id: genId(), type: 'image', src: '', alt: '', _autoAlt: true }, { _id: genId(), type: 'paragraph', text: why.content || '' }];
+                      } catch (error) {
+                        const arr = [{ _id: genId(), type: 'paragraph', text: why.content || '' }];
                         setWhyBlocks(arr);
                         setWhyContentEditor(blocksToPlainText(arr));
                       }
                     } else {
-                      setWhyBlocks([{ _id: genId(), type: 'image', src: '', alt: '', _autoAlt: true }, { _id: genId(), type: 'paragraph', text: '' }]);
-                      setWhyContentEditor('');
+                      setWhyBlocks([{ _id: genId(), type: 'paragraph', text: '' }]);
+                      setWhyContentEditor("");
                     }
                     setEditingWhy(true);
                   }} className="px-3 py-1 rounded border">Edit</button></div>}

@@ -5,14 +5,19 @@ import com.ioimachines.backend.repository.SiteSectionRepository;
 import com.ioimachines.backend.util.AdminSessionStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.Map;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/sections")
 public class SiteSectionController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SiteSectionController.class);
 
     @Autowired
     private SiteSectionRepository repo;
@@ -44,7 +49,13 @@ public class SiteSectionController {
         String token = null;
         if (auth != null && auth.startsWith("Bearer ")) token = auth.substring(7);
         if (token == null) token = headerToken;
+        if (token == null && payload != null) {
+            Object bodyToken = payload.getOrDefault("adminToken", payload.get("token"));
+            if (bodyToken instanceof String) token = (String) bodyToken;
+        }
         Long adminId = sessionStore.validate(token);
+        LOGGER.info("PUT /api/sections/{} called - token present={} adminId={}", key, token != null, adminId);
+        LOGGER.info("Payload keys: {}", payload == null ? null : payload.keySet());
         if (adminId == null) return ResponseEntity.status(401).body(Map.of("error","invalid token"));
 
         String title = (String) payload.getOrDefault("title", null);
@@ -68,8 +79,9 @@ public class SiteSectionController {
             if (phone != null) s.setPhoneJson(phone instanceof String ? (String)phone : phone.toString());
             if (address != null) s.setAddressJson(address instanceof String ? (String)address : address.toString());
             if (timing != null) s.setTimingJson(timing instanceof String ? (String)timing : timing.toString());
-            repo.save(s);
-            return ResponseEntity.ok(Map.of("ok", true));
+            s = repo.save(s);
+            LOGGER.info("Updated SiteSection id={} key={}", s.getId(), s.getKey());
+            return ResponseEntity.ok(Map.of("ok", true, "id", s.getId()));
         } else {
             SiteSection s = new SiteSection(
                 key,
@@ -81,6 +93,7 @@ public class SiteSectionController {
                 timingJson == null ? "" : timingJson
             );
             s = repo.save(s);
+            LOGGER.info("Created SiteSection id={} key={}", s.getId(), s.getKey());
             return ResponseEntity.created(URI.create("/api/sections/"+s.getKey())).body(Map.of("ok", true));
         }
     }

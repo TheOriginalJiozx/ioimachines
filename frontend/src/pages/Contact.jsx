@@ -36,21 +36,21 @@ export default function Contact() {
         setSection({ ...json, parsedContent: parsed });
 
         try {
-          const a = json && json.address ? (function(){ try { return JSON.parse(json.address) } catch(e){ return json.address } })() : null;
+          const a = json && json.address ? (function(){ try { return JSON.parse(json.address) } catch (error){ return json.address } })() : null;
           setEditAddress(a || 'Hvidovrevej 44<br/>2610 Rødovre<br/>Denmark');
-        } catch (e) { setEditAddress('Hvidovrevej 44<br/>2610 Rødovre<br/>Denmark'); }
+        } catch (error) { setEditAddress('Hvidovrevej 44<br/>2610 Rødovre<br/>Denmark'); }
         try {
-          const m = json && json.email ? (function(){ try { return JSON.parse(json.email) } catch(e){ return json.email } })() : null;
+          const m = json && json.email ? (function(){ try { return JSON.parse(json.email) } catch (error){ return json.email } })() : null;
           setEditEmail(m || 'mc@ioimachines.com');
-        } catch (e) { setEditEmail('mc@ioimachines.com'); }
+        } catch (error) { setEditEmail('mc@ioimachines.com'); }
         try {
-          const t = json && json.timing ? (function(){ try { return JSON.parse(json.timing) } catch(e){ return json.timing } })() : null;
+          const t = json && json.timing ? (function(){ try { return JSON.parse(json.timing) } catch (error){ return json.timing } })() : null;
           setEditTiming(t || 'Monday - Friday: 8 AM - 10 PM<br/>Saturday: 8 AM - 12 PM<br/>Sunday: 8 AM - 12 PM');
-        } catch (e) { setEditTiming('Monday - Friday: 8 AM - 10 PM<br/>Saturday: 8 AM - 12 PM<br/>Sunday: 8 AM - 12 PM'); }
+        } catch (error) { setEditTiming('Monday - Friday: 8 AM - 10 PM<br/>Saturday: 8 AM - 12 PM<br/>Sunday: 8 AM - 12 PM'); }
         try {
-          const p = json && json.phone ? (function(){ try { return JSON.parse(json.phone) } catch(e){ return json.phone } })() : null;
+          const p = json && json.phone ? (function(){ try { return JSON.parse(json.phone) } catch (error){ return json.phone } })() : null;
           setEditPhone(p || '(+45) 30 32 89 64');
-        } catch (e) { setEditPhone('(+45) 30 32 89 64'); }
+        } catch (error) { setEditPhone('(+45) 30 32 89 64'); }
       } catch (error) {
         alert("Failed to load content: " + error.message);
       }
@@ -64,10 +64,10 @@ export default function Contact() {
       const headers = { "Content-Type": "application/json" };
       if (adminToken) headers["Authorization"] = "Bearer " + adminToken;
 
-      // build intro from blocks if present and extract contact blocks
+
       let blocks = null;
       if (editingBlocks && Array.isArray(editingBlocks)) {
-        // handle any pending file uploads attached to blocks
+
         const API_BASE = import.meta.env.VITE_API_BASE || "https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api";
         const blocksCopy = editingBlocks.slice();
         for (let i = 0; i < blocksCopy.length; i++) {
@@ -90,7 +90,7 @@ export default function Contact() {
             }
           }
         }
-        // update editingBlocks state with uploaded urls
+
         setEditingBlocks(blocksCopy);
         blocks = blocksCopy;
       } else if (contentEditor && contentEditor.trim()) blocks = [{ _id: genId(), type: 'paragraph', text: contentEditor, contactType: null }];
@@ -135,8 +135,8 @@ export default function Contact() {
 
       <section className="bg-white" aria-label="Contact intro section">
         <div className="max-w-6xl mx-auto px-6 py-16">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+          <div className={`grid md:grid-cols-2 gap-12 items-center ${editing ? "md:grid-cols-3" : ""}`}>
+            <div className={editing ? "md:col-span-1" : ""}>
               {editing ? (
                 <div className="w-full md:h-[28rem]"></div>
               ) : (
@@ -151,12 +151,12 @@ export default function Contact() {
                 })()
               )}
             </div>
-            <div>
+            <div className={editing ? "editor-column editing-feasibility md:col-span-2" : "editor-column"}>
               {editing ? (
                 <div className="mt-4">
                   <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                    <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="w-full p-2 border rounded" />
+                    <input value={editTitle} onChange={(event) => setEditTitle(event.target.value)} className="w-full p-2 border rounded" />
                   </div>
                   
                   <div className="mb-4">
@@ -170,8 +170,8 @@ export default function Contact() {
                               <>
                                 <div className="mb-2 flex items-center gap-2">
                                   <label className="text-xs text-gray-600">Contact field</label>
-                                  <select value={block.contactType || ''} onChange={(e) => {
-                                    const val = e.target.value || null;
+                                  <select value={block.contactType || ''} onChange={(event) => {
+                                    const val = event.target.value || null;
                                     const id = block._id;
                                     setEditingBlocks((previous) => {
                                       const array = (previous || []).slice();
@@ -239,15 +239,15 @@ export default function Contact() {
                                 <div className="flex items-center gap-2">
                                   <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
                                     Choose image
-                                    <input type="file" accept="image/*" onChange={(e) => {
-                                  const file = e.target.files && e.target.files[0];
+                                    <input type="file" accept="image/*" onChange={(event) => {
+                                  const file = event.target.files && event.target.files[0];
                                   if (!file) return;
                                   const id = block._id;
                                   try {
                                     const preview = URL.createObjectURL(file);
                                     let alt = '';
                                     if (editTitle && editTitle.trim()) alt = `${editTitle} image`;
-                                    else { try { const name = (file.name||''); alt = name.replace(/\.[^/.]+$/,'').replace(/[-_]+/g,' '); } catch(e){ alt = '' } }
+                                    else { try { const name = (file.name||''); alt = name.replace(/\.[^/.]+$/,'').replace(/[-_]+/g,' '); } catch (error){ alt = '' } }
                                     setEditingBlocks((prev) => {
                                       const copy = (prev||[]).slice();
                                       const idx = copy.findIndex((b) => b._id === id);
@@ -255,7 +255,7 @@ export default function Contact() {
                                       copy[idx] = { ...copy[idx], _file: file, src: preview, alt, _autoAlt: true };
                                       return copy;
                                     });
-                                  } catch (err) {
+                                  } catch (error) {
                                     let alt = '';
                                     if (editTitle && editTitle.trim()) alt = `${editTitle} image`;
                                     setEditingBlocks((prev) => {
@@ -276,12 +276,12 @@ export default function Contact() {
                                   const copy = (editingBlocks||[]).slice();
                                   let alt = '';
                                   if (editTitle && editTitle.trim()) alt = `${editTitle} image`;
-                                  else { try { const p = val.split('?')[0].split('#')[0]; const parts = p.split('/'); let fileName = parts[parts.length-1]||p; fileName = fileName.replace(/\.[^/.]+$/,'').replace(/[-_]+/g,' '); alt = fileName;} catch(e){alt=''} }
+                                  else { try { const p = val.split('?')[0].split('#')[0]; const parts = p.split('/'); let fileName = parts[parts.length-1]||p; fileName = fileName.replace(/\.[^/.]+$/,'').replace(/[-_]+/g,' '); alt = fileName;} catch (error){alt=''} }
                                   copy[index] = { ...copy[index], src: val, url: undefined, alt, _autoAlt: true };
                                   setEditingBlocks(copy);
                                 }} className="w-full p-2 border rounded text-sm" />
                                 <label className="text-xs text-gray-600">Alt text</label>
-                                <input value={block.alt||''} onChange={(e)=>{ const copy=(editingBlocks||[]).slice(); copy[index]={...copy[index], alt:e.target.value, _autoAlt:false}; setEditingBlocks(copy);}} className="w-full p-2 border rounded text-sm" />
+                                <input value={block.alt||''} onChange={(event) =>{ const copy=(editingBlocks||[]).slice(); copy[index]={...copy[index], alt:event.target.value, _autoAlt:false}; setEditingBlocks(copy);}} className="w-full p-2 border rounded text-sm" />
                                 <div className="mt-2">{block.src||block.url ? <img src={block.src||block.url} alt={block.alt||''} className="object-contain w-full h-36" /> : <div className="text-sm text-gray-400">No image</div>}</div>
                                 <div className="mt-2"><button className="px-2 py-1 rounded border text-sm" onClick={()=>{ const copy=(editingBlocks||[]).slice(); copy.splice(index,1); setEditingBlocks(copy); }}>Remove block</button></div>
                               </div>
@@ -294,7 +294,7 @@ export default function Contact() {
                         </div>
                       </div>
                     ) : (
-                      <textarea value={contentEditor} onChange={(e)=>setContentEditor(e.target.value)} rows={6} className="w-full px-4 py-2 border rounded" />
+                      <textarea value={contentEditor} onChange={(event) =>setContentEditor(event.target.value)} rows={6} className="w-full px-4 py-2 border rounded" />
                     )}
                   </div>
                   <div className="flex justify-end gap-3 mt-4">
@@ -306,7 +306,7 @@ export default function Contact() {
                 <>
                   <h2 className="text-[40px] font-semibold text-[#222222]">{section?.title || 'Get in Touch'}</h2>
                   {(() => {
-                    // Always render the saved section content for the public intro
+
                     const blocksSource = (section?.parsedContent && Array.isArray(section.parsedContent.intro))
                       ? section.parsedContent.intro
                       : null;
@@ -328,7 +328,7 @@ export default function Contact() {
                       <p className="mt-4 text-[#444444] text-[15px]" dangerouslySetInnerHTML={{ __html: section?.content || `Thank you for showing interest — let us get in touch.<br/>Fill the consultation form below and we'll contact you shortly to discuss your requirements.` }} />
                     );
                   })()}
-                  {/* Render contact fields stored on the same section row in a two-column layout */}
+
                   {(section?.address || section?.email || section?.phone || section?.timing) && (
                     <div className="mt-6 grid md:grid-cols-2 gap-8 text-[#444444] text-[15px]">
                       <div>
@@ -383,7 +383,7 @@ export default function Contact() {
                               setContentEditor("");
                             }
                           } else if (section && section.content) {
-                            // legacy plain content
+
                             try {
                               const maybe = JSON.parse(section.content);
                               if (Array.isArray(maybe)) {
@@ -396,14 +396,14 @@ export default function Contact() {
                                 setEditingBlocks([{ _id: genId(), type: 'paragraph', text: '', contactType: null }]);
                                 setContentEditor("");
                               }
-                              // also append parsed contact fields when they exist at top-level (tag them)
+
                               if (maybe && typeof maybe === 'object') {
                                 if (maybe.address) setEditingBlocks((prev) => (prev || []).concat([{ _id: genId(), type: 'paragraph', text: maybe.address, contactType: 'address' }]));
                                 if (maybe.email) setEditingBlocks((prev) => (prev || []).concat([{ _id: genId(), type: 'paragraph', text: maybe.email, contactType: 'email' }]));
                                 if (maybe.timing) setEditingBlocks((prev) => (prev || []).concat([{ _id: genId(), type: 'paragraph', text: maybe.timing, contactType: 'timing' }]));
                                 if (maybe.phone) setEditingBlocks((prev) => (prev || []).concat([{ _id: genId(), type: 'paragraph', text: maybe.phone, contactType: 'phone' }]));
                               }
-                            } catch (e) {
+                            } catch (error) {
                               setEditingBlocks([{ _id: genId(), type: 'paragraph', text: section.content, contactType: null }]);
                               setContentEditor(section.content || "");
                             }
@@ -411,40 +411,39 @@ export default function Contact() {
                             setEditingBlocks([{ _id: genId(), type: 'paragraph', text: '', contactType: null }]);
                             setContentEditor("");
                           }
-                          // also initialize contact edit fields from section row for backwards compatibility
-                          try { const a = section && section.address ? (function(){ try{ return JSON.parse(section.address) }catch(e){return section.address} })() : null; setEditAddress(a || 'Hvidovrevej 44<br/>2610 Rødovre<br/>Denmark'); } catch(e){ setEditAddress('Hvidovrevej 44<br/>2610 Rødovre<br/>Denmark'); }
-                          try { const m = section && section.email ? (function(){ try{ return JSON.parse(section.email) }catch(e){return section.email} })() : null; setEditEmail(m || 'mc@ioimachines.com'); } catch(e){ setEditEmail('mc@ioimachines.com'); }
-                          try { const t = section && section.timing ? (function(){ try{ return JSON.parse(section.timing) }catch(e){return section.timing} })() : null; setEditTiming(t || 'Monday - Friday: 8 AM - 10 PM<br/>Saturday: 8 AM - 12 PM<br/>Sunday: 8 AM - 12 PM'); } catch(e){ setEditTiming('Monday - Friday: 8 AM - 10 PM<br/>Saturday: 8 AM - 12 PM<br/>Sunday: 8 AM - 12 PM'); }
-                          try { const p = section && section.phone ? (function(){ try{ return JSON.parse(section.phone) }catch(e){return section.phone} })() : null; setEditPhone(p || '(+45) 30 32 89 64'); } catch(e){ setEditPhone('(+45) 30 32 89 64'); }
 
-                          // Ensure contact paragraphs are present in the block editor: append blocks for top-level contact fields if not already tagged
+                          try { const a = section && section.address ? (function(){ try{ return JSON.parse(section.address) }catch (error){return section.address} })() : null; setEditAddress(a || 'Hvidovrevej 44<br/>2610 Rødovre<br/>Denmark'); } catch (error){ setEditAddress('Hvidovrevej 44<br/>2610 Rødovre<br/>Denmark'); }
+                          try { const m = section && section.email ? (function(){ try{ return JSON.parse(section.email) }catch (error){return section.email} })() : null; setEditEmail(m || 'mc@ioimachines.com'); } catch (error){ setEditEmail('mc@ioimachines.com'); }
+                          try { const t = section && section.timing ? (function(){ try{ return JSON.parse(section.timing) }catch (error){return section.timing} })() : null; setEditTiming(t || 'Monday - Friday: 8 AM - 10 PM<br/>Saturday: 8 AM - 12 PM<br/>Sunday: 8 AM - 12 PM'); } catch (error){ setEditTiming('Monday - Friday: 8 AM - 10 PM<br/>Saturday: 8 AM - 12 PM<br/>Sunday: 8 AM - 12 PM'); }
+                          try { const p = section && section.phone ? (function(){ try{ return JSON.parse(section.phone) }catch (error){return section.phone} })() : null; setEditPhone(p || '(+45) 30 32 89 64'); } catch (error){ setEditPhone('(+45) 30 32 89 64'); }
+
                           setEditingBlocks((prev) => {
                             const arr = (prev || []).slice();
                             const hasType = (type) => arr.some((b) => b.contactType === type);
                             try {
                               if (!hasType('address') && section && section.address) {
-                                const val = (function(){ try{ return JSON.parse(section.address) }catch(e){return section.address} })();
+                                const val = (function(){ try{ return JSON.parse(section.address) }catch (error){return section.address} })();
                                 arr.push({ _id: genId(), type: 'paragraph', text: val, contactType: 'address' });
                               }
-                            } catch(e) {}
+                            } catch (error) {}
                             try {
                               if (!hasType('email') && section && section.email) {
-                                const val = (function(){ try{ return JSON.parse(section.email) }catch(e){return section.email} })();
+                                const val = (function(){ try{ return JSON.parse(section.email) }catch (error){return section.email} })();
                                 arr.push({ _id: genId(), type: 'paragraph', text: val, contactType: 'email' });
                               }
-                            } catch(e) {}
+                            } catch (error) {}
                             try {
                               if (!hasType('timing') && section && section.timing) {
-                                const val = (function(){ try{ return JSON.parse(section.timing) }catch(e){return section.timing} })();
+                                const val = (function(){ try{ return JSON.parse(section.timing) }catch (error){return section.timing} })();
                                 arr.push({ _id: genId(), type: 'paragraph', text: val, contactType: 'timing' });
                               }
-                            } catch(e) {}
+                            } catch (error) {}
                             try {
                               if (!hasType('phone') && section && section.phone) {
-                                const val = (function(){ try{ return JSON.parse(section.phone) }catch(e){return section.phone} })();
+                                const val = (function(){ try{ return JSON.parse(section.phone) }catch (error){return section.phone} })();
                                 arr.push({ _id: genId(), type: 'paragraph', text: val, contactType: 'phone' });
                               }
-                            } catch(e) {}
+                            } catch (error) {}
                             return arr;
                           });
 

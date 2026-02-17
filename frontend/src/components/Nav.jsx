@@ -61,7 +61,7 @@ export default function Nav() {
   }, [location]);
 
   useEffect(() => {
-    // keep local isAdmin in sync with AppState adminToken
+
     setIsAdmin(!!adminToken);
   }, [adminToken]);
 
