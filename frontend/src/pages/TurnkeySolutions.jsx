@@ -1,10 +1,77 @@
 import { useEffect, useState } from "react";
+import { useAppState } from "../state/AppState";
 import ContactCase from "../components/ContactCase";
 import Features from "../components/Features";
 import GetAdvice from "../components/GetAdvice";
 import RequestConsultation from "../components/RequestConsultation";
-import { useAppState } from "../state/AppState";
-import { genId, blocksToPlainText, renderBlock } from "../lib/blocks.jsx";
+import { genId, blocksToPlainText } from "../lib/blocks.jsx";
+
+function renderBlockTurnkey(block, index) {
+  if (!block) return null;
+  
+  switch (block.type) {
+    case "paragraph": {
+      const hideTitle = block.title && (block.title.toLowerCase().includes("image text") || block.title.toLowerCase().includes("images"));
+      return (
+        <div key={index} className="mb-4">
+          {block.title && !hideTitle && <h3 className="text-[24px] font-semibold text-[#222222] mb-2">{block.title}</h3>}
+          <div className="whitespace-pre-wrap text-[15px] text-[#444444]">{block.text}</div>
+          {block.images && block.images.length > 0 && (
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {block.images.map((img, i) => (
+                <img key={i} src={img} alt={`image-${i}`} className="w-full h-28 sm:h-32 md:h-40 object-contain bg-white p-2 rounded" />
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+    case "image":
+      return (
+        <div key={index} className="mb-4">
+          <img src={block.src} alt={block.alt || ""} className="w-full rounded shadow" />
+        </div>
+      );
+    case "list": {
+      const hideTitle = block.title && block.title.toLowerCase() === "gui functions";
+      const ListTag = block.style === "decimal" ? "ol" : "ul";
+      const isScope = block.style === "decimal";
+      
+      if (isScope) {
+        return (
+          <div key={index} className="mt-8 bg-[#FAFAFA] p-6 rounded shadow-sm">
+            <h3 className="text-[20px] font-semibold mb-3 text-[#222222]">Scope & Approach</h3>
+            <ListTag className="list-decimal pl-8 space-y-2 text-[15px] text-[#444444]">
+              {(block.items || []).map((item, i) => (
+                <li key={i}>{item}</li>
+              ))}
+            </ListTag>
+          </div>
+        );
+      }
+      
+      return (
+        <div key={index} className="mb-4">
+          {block.title && !hideTitle && <h2 className="text-[56px] font-semibold text-[#222222] mb-3">{block.title}</h2>}
+          {block.extraText && block.extraText.length > 0 && (
+            <div className="mb-3 text-[15px] text-[#444444]">
+              {block.extraText.map((text, i) => (
+                <p key={i} className="mb-2">{text}</p>
+              ))}
+            </div>
+          )}
+          <ListTag className="mt-4 list-disc list-inside space-y-2 text-[15px] pl-6">
+            {(block.items || []).map((item, i) => (
+              <li key={i} className="text-[#444444] mb-2">{item}</li>
+            ))}
+          </ListTag>
+        </div>
+      );
+    }
+    default:
+      return null;
+  }
+}
 
 export default function TurnkeySolutions() {
   useEffect(() => {
@@ -13,14 +80,14 @@ export default function TurnkeySolutions() {
     }
   }, []);
 
+  const [showModal, setShowModal] = useState(false);
   const { adminToken } = useAppState();
 
-  const [showModal, setShowModal] = useState(false);
   const [turnkey, setTurnkey] = useState(null);
   const [editingTurnkey, setEditingTurnkey] = useState(false);
   const [turnkeyTitle, setTurnkeyTitle] = useState("");
-  const [turnkeyContentEditor, setTurnkeyContentEditor] = useState("");
   const [turnkeyBlocks, setTurnkeyBlocks] = useState(null);
+  const [turnkeyContentEditor, setTurnkeyContentEditor] = useState("");
 
   useEffect(() => {
     if (typeof window === "undefined" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -99,7 +166,7 @@ export default function TurnkeySolutions() {
     } catch (error) {
       alert("Save failed: " + (error.message || error));
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-white text-[#444444] font-sans" aria-label="Turnkey solutions page">
@@ -124,346 +191,633 @@ export default function TurnkeySolutions() {
         <div className="max-w-6xl mx-auto px-6 py-16">
           <div className="grid md:grid-cols-2 gap-12 items-start">
             <div>
-              <img src="/turnkey_img2.jpg" alt="turnkey-solutions" className="w-full md:h-[28rem] object-cover rounded shadow" />
-              <div className="mt-4 text-[#444444] text-[15px] space-y-3">
-                {(() => {
-                  const blocksSource = turnkey?.parsedContent && Array.isArray(turnkey.parsedContent.intro) ? turnkey.parsedContent.intro : null;
-                  if (editingTurnkey) {
-                    return (
-                      <div>
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                          <input value={turnkeyTitle} onChange={(e) => setTurnkeyTitle(e.target.value)} className="w-full p-2 border rounded" />
-                        </div>
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-                          {turnkeyBlocks && Array.isArray(turnkeyBlocks) ? (
-                            <div className="space-y-4">
-                              {turnkeyBlocks.map((block, index) => (
-                                <div key={block._id || index} className="border rounded p-3">
-                                  <div className="mb-2 text-sm text-gray-600">Block #{index + 1} — <span className="font-mono">{block.title ? (block.title.charAt(0).toLowerCase() + block.title.slice(1)) : block.type}</span></div>
-                                  {block.type === "paragraph" && (
-                                    <>
-                                      <textarea
-                                        value={block.text || ""}
-                                        onChange={(event) => {
-                                          const id = block._id;
-                                          const val = event.target.value;
+              <div className="mt-4 text-[#444444] text-[15px]">
+                {turnkey && turnkey.parsedContent && Array.isArray(turnkey.parsedContent.intro) && turnkey.parsedContent.intro.map((block, idx) => {
+                  if (block.type === "list" && block.style === "decimal") return null;
+                  if (block.type === "list" && block.title === "Process") return null;
+                  return renderBlockTurnkey(block, idx);
+                })}
+              </div>
+            </div>
+            <div>
+              {editingTurnkey ? (
+                <div className="mt-4">
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                    {turnkeyBlocks && Array.isArray(turnkeyBlocks) ? (
+                      <div className="space-y-4">
+                        {turnkeyBlocks.map((block, index) => (
+                          <div key={block._id || index} className="border rounded p-3">
+                            <div className="mb-2 text-sm text-gray-600">
+                              Block #{index + 1} — <span className="font-mono">{block.title ? (block.title.charAt(0).toLowerCase() + block.title.slice(1).toLowerCase()) : block.type}</span>
+                            </div>
+                            {block.type === "paragraph" && !(block.title && (String(block.title).toLowerCase().includes("signature") || String(block.title).toLowerCase().includes("image"))) && (
+                              <>
+                                <textarea
+                                  value={block.text || ""}
+                                  onChange={(event) => {
+                                    const id = block._id;
+                                    const val = event.target.value;
+                                    setTurnkeyBlocks((previous) => {
+                                      const array = (previous || []).slice();
+                                      const idx = array.findIndex((b) => b._id === id);
+                                      if (idx === -1) return previous;
+                                      array[idx] = { ...array[idx], text: val };
+                                      return array;
+                                    });
+                                  }}
+                                  rows={6}
+                                  className="w-full p-2 border rounded text-sm font-mono"
+                                />
+                                {block.images && block.images.length > 0 && (
+                                  <div className="mt-2 space-y-2">
+                                    {block.images.map((img, imgIndex) => (
+                                      <div key={imgIndex} className="border rounded p-2 bg-gray-50">
+                                        {img && <img src={img} alt="uploaded" className="w-full h-24 object-cover rounded mb-1" />}
+                                        <button
+                                          className="px-2 py-1 rounded border text-xs"
+                                          onClick={() => {
+                                            const id = block._id;
+                                            setTurnkeyBlocks((previous) => {
+                                              const array = (previous || []).slice();
+                                              const idx = array.findIndex((b) => b._id === id);
+                                              if (idx === -1) return previous;
+                                              const newImages = (array[idx].images || []).filter((_, i) => i !== imgIndex);
+                                              array[idx] = { ...array[idx], images: newImages };
+                                              return array;
+                                            });
+                                          }}
+                                        >
+                                          Remove image
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                <div className="mt-2 flex gap-2">
+                                  <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
+                                    Add image
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={(event) => {
+                                        const file = event.target.files && event.target.files[0];
+                                        if (!file) return;
+                                        const id = block._id;
+                                        const reader = new FileReader();
+                                        reader.onload = (e) => {
+                                          const dataUrl = e.target.result;
                                           setTurnkeyBlocks((previous) => {
                                             const array = (previous || []).slice();
                                             const idx = array.findIndex((b) => b._id === id);
                                             if (idx === -1) return previous;
-                                            array[idx] = { ...array[idx], text: val };
+                                            const images = [...(array[idx].images || []), dataUrl];
+                                            array[idx] = { ...array[idx], images };
+                                            return array;
+                                          });
+                                        };
+                                        reader.readAsDataURL(file);
+                                      }}
+                                      className="hidden"
+                                    />
+                                  </label>
+                                  <div className="mt-2 flex gap-2 flex-wrap">
+                                    {index > 0 && (
+                                      <button
+                                        className="px-2 py-1 rounded border text-sm"
+                                        onClick={() => {
+                                          setTurnkeyBlocks((previous) => {
+                                            const array = (previous || []).slice();
+                                            [array[index - 1], array[index]] = [array[index], array[index - 1]];
                                             return array;
                                           });
                                         }}
-                                        rows={4}
-                                        className="w-full p-2 border rounded text-sm font-mono"
-                                      />
-                                      <div className="mt-2 flex gap-2">
-                                        <button className="px-2 py-1 rounded border text-sm" onClick={() => {
-                                          const id = block._id;
+                                      >
+                                        Move up
+                                      </button>
+                                    )}
+                                    {index < (turnkeyBlocks.length - 1) && (
+                                      <button
+                                        className="px-2 py-1 rounded border text-sm"
+                                        onClick={() => {
                                           setTurnkeyBlocks((previous) => {
                                             const array = (previous || []).slice();
-                                            const idx = array.findIndex((b) => b._id === id);
-                                            if (idx <= 0) return previous;
-                                            const tmp = array[idx - 1];
-                                            array[idx - 1] = array[idx];
-                                            array[idx] = tmp;
+                                            [array[index], array[index + 1]] = [array[index + 1], array[index]];
                                             return array;
                                           });
-                                        }} disabled={index === 0}>Move up</button>
-                                        <button className="px-2 py-1 rounded border text-sm" onClick={() => {
-                                          const id = block._id;
-                                          setTurnkeyBlocks((previous) => {
-                                            const array = (previous || []).slice();
-                                            const idx = array.findIndex((b) => b._id === id);
-                                            if (idx === -1 || idx >= array.length - 1) return previous;
-                                            const tmp = array[idx + 1];
-                                            array[idx + 1] = array[idx];
-                                            array[idx] = tmp;
-                                            return array;
-                                          });
-                                        }} disabled={index >= (turnkeyBlocks ? turnkeyBlocks.length - 1 : 0)}>Move down</button>
-                                        <button className="px-2 py-1 rounded border text-sm" onClick={() => {
-                                          const id = turnkeyBlocks && turnkeyBlocks[index] && turnkeyBlocks[index]._id;
-                                          if (!id) {
-                                            setTurnkeyBlocks((previous) => {
-                                              const c = (previous || []).slice();
-                                              c.splice(index, 1);
-                                              return c;
-                                            });
-                                            return;
-                                          }
-                                          setTurnkeyBlocks((previous) => (previous || []).filter((b) => b._id !== id));
-                                        }}>Remove block</button>
-                                      </div>
-                                    </>
-                                  )}
-                                  {block.type === "image" && (
-                                    <div className="grid grid-cols-1 gap-2">
-                                      <label className="text-xs text-gray-600">Replace image (upload)</label>
-                                      <div className="flex items-center gap-2">
-                                        <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">Choose image
-                                          <input type="file" accept="image/*" onChange={(event) => {
-                                            const file = event.target.files && event.target.files[0];
-                                            if (!file) return;
-                                            const id = block._id;
-                                            try {
-                                              const preview = URL.createObjectURL(file);
-                                              let alt = "";
-                                              if (turnkeyTitle && turnkeyTitle.trim()) alt = `${turnkeyTitle} image`;
-                                              else {
-                                                try {
-                                                  const name = file.name || "";
-                                                  alt = name.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
-                                                } catch (error) { alt = ""; }
-                                              }
-                                              setTurnkeyBlocks((prev) => {
-                                                const copy = (prev || []).slice();
-                                                const idx = copy.findIndex((b) => b._id === id);
-                                                if (idx === -1) return prev;
-                                                copy[idx] = { ...copy[idx], _file: file, src: preview, alt, _autoAlt: true };
-                                                return copy;
-                                              });
-                                            } catch (error) {
-                                              let alt = "";
-                                              if (turnkeyTitle && turnkeyTitle.trim()) alt = `${turnkeyTitle} image`;
-                                              setTurnkeyBlocks((prev) => {
-                                                const copy = (prev || []).slice();
-                                                const idx = copy.findIndex((b) => b._id === id);
-                                                if (idx === -1) return prev;
-                                                copy[idx] = { ...copy[idx], _file: file, alt, _autoAlt: true };
-                                                return copy;
-                                              });
-                                            }
-                                          }} className="hidden" />
-                                        </label>
-                                      </div>
-                                      <label className="text-xs text-gray-600">Or image URL</label>
-                                      <input value={block.src || block.url || ""} onChange={(event) => {
-                                        const val = event.target.value || "";
-                                        const copy = (turnkeyBlocks || []).slice();
-                                        let alt = "";
-                                        if (turnkeyTitle && turnkeyTitle.trim()) alt = `${turnkeyTitle} image`;
-                                        else {
-                                          try {
-                                            const p = val.split("?")[0].split("#")[0];
-                                            const parts = p.split("/");
-                                            let fileName = parts[parts.length - 1] || p;
-                                            fileName = fileName.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
-                                            alt = fileName;
-                                          } catch (error) { alt = ""; }
-                                        }
-                                        copy[index] = { ...copy[index], src: val, url: undefined, alt, _autoAlt: true };
-                                        setTurnkeyBlocks(copy);
-                                      }} className="w-full p-2 border rounded text-sm" />
-                                      <label className="text-xs text-gray-600">Alt text</label>
-                                      <input value={block.alt || ""} onChange={(event) => {
-                                        const copy = (turnkeyBlocks || []).slice();
-                                        copy[index] = { ...copy[index], alt: event.target.value, _autoAlt: false };
-                                        setTurnkeyBlocks(copy);
-                                      }} className="w-full p-2 border rounded text-sm" />
-                                      <div className="mt-2">{block.src || block.url ? <img src={block.src || block.url} alt={block.alt || ""} className="object-contain w-full h-36" /> : <div className="text-sm text-gray-400">No image</div>}</div>
-                                      <div className="mt-2"><button className="px-2 py-1 rounded border text-sm" onClick={() => {
+                                        }}
+                                      >
+                                        Move down
+                                      </button>
+                                    )}
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
                                         const id = block._id;
                                         setTurnkeyBlocks((previous) => (previous || []).filter((b) => b._id !== id));
-                                      }}>Remove block</button></div>
-                                    </div>
-                                  )}
-                                  {block.type === "list" && (
-                                    <div className="grid grid-cols-1 gap-2">
-                                      <label className="text-xs text-gray-600">List items (one per line)</label>
-                                      <textarea value={block._editorValue !== undefined ? block._editorValue : ([...(block.items || []).map((it) => it), ...(block.extraText || [])].join("\n"))} onChange={(event) => {
-                                        const val = event.target.value;
-                                        const copy = (turnkeyBlocks || []).slice();
-                                        copy[index] = { ...copy[index], _editorValue: val };
-                                        setTurnkeyBlocks(copy);
-                                      }} onBlur={(event) => {
-                                        const val = event.target.value || "";
-                                        const rawLines = val.split(/\r?\n/).map((s) => s.replace(/\u00A0/g, " ").replace(/\t/g, " "));
-                                        const items = [];
-                                        const extra = [];
-                                        const ordered = [];
-                                        rawLines.forEach((ln) => {
-                                          const trimmedEnd = ln.replace(/\s+$/g, "");
-                                          const candidateEnd = trimmedEnd.replace(/;\s*$/, "").trim();
-                                          const existingItems = (block.items || []).map((s) => String(s).trim());
-                                          if (trimmedEnd.endsWith(";") || (candidateEnd !== "" && existingItems.includes(candidateEnd))) {
-                                            const candidate = candidateEnd;
-                                            if (candidate !== "") {
-                                              items.push(candidate);
-                                              ordered.push({ kind: "item", text: candidate });
-                                            } else {
-                                              ordered.push({ kind: "text", text: ln });
-                                              extra.push(ln);
-                                            }
-                                          } else {
-                                            ordered.push({ kind: "text", text: ln });
-                                            extra.push(ln);
-                                          }
-                                        });
-                                        const copy = (turnkeyBlocks || []).slice();
-                                        copy[index] = { ...copy[index], items, extraText: extra, orderedContent: ordered, _editorValue: val };
-                                        setTurnkeyBlocks(copy);
-                                      }} rows={4} className="w-full p-2 border rounded text-sm font-mono" />
-                                      <div className="mt-2"><button className="px-2 py-1 rounded border text-sm" onClick={() => {
-                                        const id = block._id;
-                                        setTurnkeyBlocks((previous) => (previous || []).filter((b) => b._id !== id));
-                                      }}>Remove block</button></div>
-                                    </div>
-                                  )}
+                                      }}
+                                    >
+                                      Remove block
+                                    </button>
+                                  </div>
                                 </div>
-                              ))}
-                              <div className="flex gap-2">
-                                <button className="bg-indigo-600 text-white px-3 py-1 rounded" onClick={() => {
-                                  const copy = (turnkeyBlocks || []).slice();
-                                  copy.push({ _id: genId(), type: "paragraph", text: "" });
-                                  setTurnkeyBlocks(copy);
-                                }}>Add paragraph</button>
-                                <button className="bg-white border px-3 py-1 rounded" onClick={() => {
-                                  const copy = (turnkeyBlocks || []).slice();
-                                  copy.push({ _id: genId(), type: "image", src: "", alt: "", _autoAlt: true });
-                                  setTurnkeyBlocks(copy);
-                                }}>Add image</button>
-                                <button className="bg-white border px-3 py-1 rounded" onClick={() => {
-                                  const copy = (turnkeyBlocks || []).slice();
-                                  const imgIndex = copy.findIndex((b) => b && b.type === "image");
-                                  const insertAt = imgIndex !== -1 ? imgIndex + 1 : copy.length;
-                                  const list = { _id: genId(), type: "list", title: "Service Description", style: "disc", items: [""] };
-                                  copy.splice(insertAt, 0, list);
-                                  setTurnkeyBlocks(copy);
-                                }}>Add Service Description</button>
-                                <button className="bg-white border px-3 py-1 rounded" onClick={() => {
-                                  const copy = (turnkeyBlocks || []).slice();
-                                  const imgIndex = copy.findIndex((b) => b && b.type === "image");
-                                  const insertAt = imgIndex !== -1 ? imgIndex + 1 : copy.length;
-                                  const imgText = { _id: genId(), type: "paragraph", title: "Image text", text: "" };
-                                  copy.splice(insertAt, 0, imgText);
-                                  setTurnkeyBlocks(copy);
-                                }}>Add image text</button>
-                                <button className="bg-white border px-3 py-1 rounded" onClick={() => {
-                                  const copy = (turnkeyBlocks || []).slice();
-                                  copy.push({ _id: genId(), type: "list", title: "Inhouse Competencies", style: "disc", items: [""] });
-                                  setTurnkeyBlocks(copy);
-                                }}>Add Inhouse Competencies</button>
-                                <button className="bg-white border px-3 py-1 rounded" onClick={() => {
-                                  const copy = (turnkeyBlocks || []).slice();
-                                  copy.push({ _id: genId(), type: "image", src: "", alt: "inhouse-competencies", _autoAlt: true });
-                                  setTurnkeyBlocks(copy);
-                                }}>Add Inhouse Competencies Image</button>
-                                <button className="bg-white border px-3 py-1 rounded" onClick={() => {
-                                  const copy = (turnkeyBlocks || []).slice();
-                                  copy.push({ _id: genId(), type: "list", style: "decimal", items: [""] });
-                                  setTurnkeyBlocks(copy);
-                                }}>Add list</button>
-                              </div>
-                            </div>
-                          ) : (
-                            <textarea value={turnkeyContentEditor} onChange={(event) => setTurnkeyContentEditor(event.target.value)} rows={6} className="w-full px-4 py-2 border rounded" />
-                          )}
-                        </div>
+                              </>
+                            )}
+                            {block.type === "paragraph" && block.title && String(block.title).toLowerCase().includes("image text") && (
+                              <>
+                                <textarea
+                                  value={block.text || ""}
+                                  onChange={(event) => {
+                                    const id = block._id;
+                                    const val = event.target.value;
+                                    setTurnkeyBlocks((previous) => {
+                                      const array = (previous || []).slice();
+                                      const idx = array.findIndex((b) => b._id === id);
+                                      if (idx === -1) return previous;
+                                      array[idx] = { ...array[idx], text: val };
+                                      return array;
+                                    });
+                                  }}
+                                  rows={6}
+                                  className="w-full p-2 border rounded text-sm font-mono"
+                                />
+                                {block.images && block.images.length > 0 && (
+                                  <div className="mt-2 space-y-2">
+                                    {block.images.map((img, imgIndex) => (
+                                      <div key={imgIndex} className="border rounded p-2 bg-gray-50">
+                                        {img && <img src={img} alt="uploaded" className="w-full h-24 object-cover rounded mb-1" />}
+                                        <button
+                                          className="px-2 py-1 rounded border text-xs"
+                                          onClick={() => {
+                                            const id = block._id;
+                                            setTurnkeyBlocks((previous) => {
+                                              const array = (previous || []).slice();
+                                              const idx = array.findIndex((b) => b._id === id);
+                                              if (idx === -1) return previous;
+                                              const newImages = (array[idx].images || []).filter((_, i) => i !== imgIndex);
+                                              array[idx] = { ...array[idx], images: newImages };
+                                              return array;
+                                            });
+                                          }}
+                                        >
+                                          Remove image
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                <div className="mt-2 flex gap-2 flex-wrap">
+                                  {index > 0 && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setTurnkeyBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index - 1], array[index]] = [array[index], array[index - 1]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move up
+                                    </button>
+                                  )}
+                                  {index < (turnkeyBlocks.length - 1) && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setTurnkeyBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index], array[index + 1]] = [array[index + 1], array[index]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move down
+                                    </button>
+                                  )}
+                                  <button
+                                    className="px-2 py-1 rounded border text-sm"
+                                    onClick={() => {
+                                      const id = block._id;
+                                      setTurnkeyBlocks((previous) => (previous || []).filter((b) => b._id !== id));
+                                    }}
+                                  >
+                                    Remove block
+                                  </button>
+                                </div>
+                              </>
+                            )}
 
-                        <div className="flex justify-end gap-3 mt-4">
-                          <button onClick={() => setEditingTurnkey(false)} className="px-4 py-2 rounded border">Cancel</button>
-                          <button onClick={() => {
-                            saveSection(
-                              "turnkey",
-                              turnkeyTitle,
-                              turnkeyBlocks || (turnkeyContentEditor ? [{ _id: genId(), type: "paragraph", text: turnkeyContentEditor }] : []),
-                              setEditingTurnkey,
-                              setTurnkey
-                            );
-                          }} className="px-4 py-2 rounded bg-[#444444] text-white">Save</button>
+                            {block.type === "heading" && (
+                              <>
+                                <input
+                                  type="text"
+                                  value={block.text || ""}
+                                  onChange={(event) => {
+                                    const id = block._id;
+                                    const val = event.target.value;
+                                    setTurnkeyBlocks((previous) => {
+                                      const array = (previous || []).slice();
+                                      const idx = array.findIndex((b) => b._id === id);
+                                      if (idx === -1) return previous;
+                                      array[idx] = { ...array[idx], text: val };
+                                      return array;
+                                    });
+                                  }}
+                                  className="w-full p-2 border rounded text-sm"
+                                  placeholder="Heading text"
+                                />
+                                  <div className="mt-2 flex gap-2 flex-wrap">
+                                    {index > 0 && (
+                                      <button
+                                        className="px-2 py-1 rounded border text-sm"
+                                        onClick={() => {
+                                          setTurnkeyBlocks((previous) => {
+                                            const array = (previous || []).slice();
+                                            [array[index - 1], array[index]] = [array[index], array[index - 1]];
+                                            return array;
+                                          });
+                                        }}
+                                      >
+                                        Move up
+                                      </button>
+                                    )}
+                                    {index < (turnkeyBlocks.length - 1) && (
+                                      <button
+                                        className="px-2 py-1 rounded border text-sm"
+                                        onClick={() => {
+                                          setTurnkeyBlocks((previous) => {
+                                            const array = (previous || []).slice();
+                                            [array[index], array[index + 1]] = [array[index + 1], array[index]];
+                                            return array;
+                                          });
+                                        }}
+                                      >
+                                        Move down
+                                      </button>
+                                    )}
+                                  <button
+                                    className="px-2 py-1 rounded border text-sm"
+                                    onClick={() => {
+                                      const id = block._id;
+                                      setTurnkeyBlocks((previous) => (previous || []).filter((b) => b._id !== id));
+                                    }}
+                                  >
+                                    Remove block
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                            {block.type === "list" && (
+                              <>
+                                <label className="text-xs text-gray-600 block">
+                                  {block._isSemicolonList ? "Text and items (items end with ;)" : "List items (one per line)"}
+                                </label>
+                                <textarea
+                                  value={block._editorValue !== undefined ? block._editorValue : (
+                                    block._isSemicolonList
+                                      ? [
+                                          ...(block.extraText || []),
+                                          ...((block.items || []).map(item => item + ";"))
+                                        ].join("\n")
+                                      : (block.items || []).join("\n")
+                                  )}
+                                  onChange={(event) => {
+                                    const id = block._id;
+                                    const val = event.target.value;
+                                    setTurnkeyBlocks((previous) => {
+                                      const array = (previous || []).slice();
+                                      const idx = array.findIndex((b) => b._id === id);
+                                      if (idx === -1) return previous;
+                                      array[idx] = { ...array[idx], _editorValue: val };
+                                      return array;
+                                    });
+                                  }}
+                                  onBlur={(event) => {
+                                    const id = block._id;
+                                    const val = event.target.value;
+                                    let items = [];
+                                    let extra = [];
+                                    
+                                    if (block._isSemicolonList) {
+                                      const lines = val.split("\n").map(s => s.replace(/\u00A0/g, " ").replace(/\t/g, " "));
+                                      lines.forEach((line) => {
+                                        const trimmedEnd = line.replace(/\s+$/g, "");
+                                        if (trimmedEnd.endsWith(";")) {
+                                          const itemText = trimmedEnd.replace(/;\s*$/, "").trim();
+                                          if (itemText) items.push(itemText);
+                                        } else if (line.trim()) {
+                                          extra.push(line.trim());
+                                        }
+                                      });
+                                    } else {
+                                      items = val.split("\n").map(s => s.trim()).filter(s => s.length > 0);
+                                    }
+                                    
+                                    setTurnkeyBlocks((previous) => {
+                                      const array = (previous || []).slice();
+                                      const idx = array.findIndex((b) => b._id === id);
+                                      if (idx === -1) return previous;
+                                      const updated = { ...array[idx], items, _editorValue: undefined };
+                                      if (block._isSemicolonList) {
+                                        updated.extraText = extra;
+                                      }
+                                      array[idx] = updated;
+                                      return array;
+                                    });
+                                  }}
+                                  rows={6}
+                                  className="w-full p-2 border rounded text-sm font-mono"
+                                />
+                                <div className="mt-2 flex gap-2 flex-wrap">
+                                  {index > 0 && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setTurnkeyBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index - 1], array[index]] = [array[index], array[index - 1]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move up
+                                    </button>
+                                  )}
+                                  {index < (turnkeyBlocks.length - 1) && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setTurnkeyBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index], array[index + 1]] = [array[index + 1], array[index]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move down
+                                    </button>
+                                  )}
+                                  <button
+                                    className="px-2 py-1 rounded border text-sm"
+                                    onClick={() => {
+                                      const id = block._id;
+                                      setTurnkeyBlocks((previous) => (previous || []).filter((b) => b._id !== id));
+                                    }}
+                                  >
+                                    Remove block
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                            {block.type === "image" && (
+                              <div className="grid grid-cols-1 gap-2">
+                                <label className="text-xs text-gray-600">Replace image (upload)</label>
+                                <div className="flex items-center gap-2">
+                                  <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
+                                    Choose image
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={(event) => {
+                                        const file = event.target.files && event.target.files[0];
+                                        if (!file) return;
+                                        const id = block._id;
+                                        try {
+                                          const preview = URL.createObjectURL(file);
+                                          setTurnkeyBlocks((prev) => {
+                                            const copy = (prev || []).slice();
+                                            const idx = copy.findIndex((b) => b._id === id);
+                                            if (idx === -1) return prev;
+                                            copy[idx] = { ...copy[idx], _file: file, src: preview, alt: block.alt || "image", _autoAlt: false };
+                                            return copy;
+                                          });
+                                        } catch (error) {
+                                          console.error("preview failed", error);
+                                        }
+                                      }}
+                                      className="hidden"
+                                    />
+                                  </label>
+                                </div>
+                                <label className="text-xs text-gray-600">Or image URL</label>
+                                <input
+                                  value={block.src || ""}
+                                  onChange={(event) => {
+                                    const id = block._id;
+                                    const val = event.target.value || "";
+                                    setTurnkeyBlocks((prev) => {
+                                      const copy = (prev || []).slice();
+                                      const idx = copy.findIndex((b) => b._id === id);
+                                      if (idx === -1) return prev;
+                                      copy[idx] = { ...copy[idx], src: val, alt: block.alt || "image", _autoAlt: false };
+                                      return copy;
+                                    });
+                                  }}
+                                  className="w-full p-2 border rounded text-sm"
+                                />
+                                <label className="text-xs text-gray-600">Alt text</label>
+                                <input
+                                  value={block.alt || ""}
+                                  onChange={(event) => {
+                                    const id = block._id;
+                                    setTurnkeyBlocks((prev) => {
+                                      const copy = (prev || []).slice();
+                                      const idx = copy.findIndex((b) => b._id === id);
+                                      if (idx === -1) return prev;
+                                      copy[idx] = { ...copy[idx], alt: event.target.value, _autoAlt: false };
+                                      return copy;
+                                    });
+                                  }}
+                                  className="w-full p-2 border rounded text-sm"
+                                />
+                                <div className="mt-2">{block.src ? <img src={block.src} alt={block.alt || ""} className="object-contain w-full h-36 rounded" /> : <div className="text-sm text-gray-400">No image</div>}</div>
+                                <div className="mt-2 flex gap-2 flex-wrap">
+                                  {index > 0 && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setTurnkeyBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index - 1], array[index]] = [array[index], array[index - 1]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move up
+                                    </button>
+                                  )}
+                                  {index < (turnkeyBlocks.length - 1) && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setTurnkeyBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index], array[index + 1]] = [array[index + 1], array[index]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move down
+                                    </button>
+                                  )}
+                                  <button
+                                    className="px-2 py-1 rounded border text-sm"
+                                    onClick={() => {
+                                      const id = block._id;
+                                      setTurnkeyBlocks((previous) => (previous || []).filter((b) => b._id !== id));
+                                    }}
+                                  >
+                                    Remove block
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        <div className="flex gap-2 flex-wrap">
+                          <button
+                            className="bg-white border px-3 py-1 rounded text-sm"
+                            onClick={() => {
+                              const copy = (turnkeyBlocks || []).slice();
+                              copy.push({ _id: genId(), type: "image", src: "", alt: "", _autoAlt: true });
+                              setTurnkeyBlocks(copy);
+                            }}
+                          >
+                            Add image
+                          </button>
+                          <button
+                            className="bg-white border px-3 py-1 rounded text-sm"
+                            onClick={() => {
+                              const copy = (turnkeyBlocks || []).slice();
+                              copy.push({ _id: genId(), type: "paragraph", title: "Image Text", text: "", images: [] });
+                              setTurnkeyBlocks(copy);
+                            }}
+                          >
+                            Add image text
+                          </button>
+                          <button
+                            className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={turnkeyBlocks?.some(b => b.type === "list" && b.title === "Process")}
+                            onClick={() => {
+                              const copy = (turnkeyBlocks || []).slice();
+                              copy.push({ _id: genId(), type: "list", title: "Process", style: "disc", items: [""] });
+                              setTurnkeyBlocks(copy);
+                            }}
+                          >
+                            Add process
+                          </button>
+                          <button
+                            className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={turnkeyBlocks?.some(b => b.type === "list" && b.style === "decimal")}
+                            onClick={() => {
+                              const copy = (turnkeyBlocks || []).slice();
+                              copy.push({ _id: genId(), type: "list", style: "decimal", items: [""] });
+                              setTurnkeyBlocks(copy);
+                            }}
+                          >
+                            Add scope & approach
+                          </button>
+                          <button
+                            className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={Array.isArray(turnkeyBlocks) && turnkeyBlocks.some(b => b.type === "paragraph" && b.title === "Inhouse Competencies Image")}
+                            onClick={() => {
+                              const copy = (turnkeyBlocks || []).slice();
+                              copy.push({ _id: genId(), type: "paragraph", title: "Inhouse Competencies Image", text: "", images: [] });
+                              setTurnkeyBlocks(copy);
+                            }}
+                          >
+                            Add inhouse competencies image
+                          </button>
+                          <button
+                            className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={Array.isArray(turnkeyBlocks) && turnkeyBlocks.some(b => b.type === "list" && b.title === "Inhouse Competencies")}
+                            onClick={() => {
+                              const copy = (turnkeyBlocks || []).slice();
+                              copy.push({ _id: genId(), type: "list", title: "Inhouse Competencies", style: "disc", items: [""] });
+                              setTurnkeyBlocks(copy);
+                            }}
+                          >
+                            Add inhouse competencies
+                          </button>
+                          <button
+                            className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={Array.isArray(turnkeyBlocks) && turnkeyBlocks.some(b => b.type === "list" && b.title === "Service Description")}
+                            onClick={() => {
+                              const copy = (turnkeyBlocks || []).slice();
+                              copy.push({ _id: genId(), type: "list", title: "Service Description", style: "disc", items: [""] });
+                              setTurnkeyBlocks(copy);
+                            }}
+                          >
+                            Add service description
+                          </button>
                         </div>
                       </div>
-                    );
-                  }
+                    ) : (
+                      <textarea value={turnkeyContentEditor} onChange={(event) => setTurnkeyContentEditor(event.target.value)} rows={6} className="w-full px-4 py-2 border rounded" />
+                    )}
+                  </div>
 
-                  if (blocksSource) {
-                    return <>{blocksSource.map((b, i) => renderBlock(b, i))}</>;
-                  }
-
-                  // fallback static content
-                  return (
-                    <>
-                      <div>IOIMACHINES develops custom machine vision systems for different applications such as surface inspection and fabric quality control.</div>
-                      <div>Our systems build on our proprietary algorithms for feature detection combined with machine learning and artificial intelligence.</div>
-                      <div>Our software runs on Windows-based computers with GPUs to accelerate computations.</div>
-                      <div>For extreme high-speed applications we implement our proprietary FPGA-based acceleration hardware.</div>
-                      <h3 className="text-[24px] font-semibold text-[#222222]">Service Description</h3>
-                      <div>IOIMACHINES Vision engineers have extensive experience in designing, manufacturing, implementing, testing and validating machine vision solutions.</div>
-                      <ul className="mt-4 list-disc list-outside pl-8 space-y-2 text-[15px]">
-                        <li className="text-[#444444]">Starting at your production site, we evaluate possibility to build in-line machine vision inspection station.</li>
-                        <li className="text-[#444444]">Produce a specification document describing desired performance parameters and system components.</li>
-                        <li className="text-[#444444]">Build the system at our production facilities and perform tests to identify any issues and correct them prior to shipment.</li>
-                        <li className="text-[#444444]">Install the system at your site and perform a site acceptance test to ensure that it works optimally in the production environment.</li>
-                      </ul>
-                      <h3 className="text-[24px] font-semibold text-[#222222]">Inhouse Competencies</h3>
-                      <div>Our competency area covers:</div>
-                      <ul className="mt-4 list-disc list-outside pl-8 space-y-2 text-[15px]">
-                        <li className="text-[#444444]">Machine and computer vision algorithms.</li>
-                        <li className="text-[#444444]">Design and implementation of vision algorithms in FPGAs and SoCs (System on Chip).</li>
-                        <li className="text-[#444444]">2D industrial cameras.</li>
-                        <li className="text-[#444444]">3D sensors for 3D measurements of defect size.</li>
-                        <li className="text-[#444444]">Lighting technologies and schemes.</li>
-                        <li className="text-[#444444]">Design and implementation of automation systems including PLCs, robotics and conveyor belts.</li>
-                        <li className="text-[#444444]">Sensor interfaces.</li>
-                        <li className="text-[#444444]">Electronic and mechanical system design.</li>
-                      </ul>
-                      <img src="/turnkey_components.png" alt="turnkey-components" className="" />
-                    </>
-                  );
-                })()}
-              </div>
-            </div>
-            <div>
-              <h2 className="text-[40px] font-semibold text-[#222222]">Process</h2>
-              <ul className="mt-4 list-disc list-inside space-y-2 text-[15px]">
-                <li className="text-[#444444]">Budget and Milestones.</li>
-                <li className="text-[#444444]">Pre-Assessment.</li>
-                <li className="text-[#444444]">Service Implementation.</li>
-              </ul>
-
-              <div className="mt-10 flex justify-start">
-                <button onClick={() => setShowModal(true)} className="text-black px-6 py-3 border border-black uppercase">
-                  Request a Consultation
-                </button>
-              </div>
-              {adminToken && (
-                <div className="mt-4">
-                  <button
-                    onClick={() => {
-                      setTurnkeyTitle(turnkey?.title || "Turnkey Solutions");
-                      const parsed = turnkey?.parsedContent || null;
-                      let arr = [];
-                      if (parsed && parsed.intro) {
-                        arr = Array.isArray(parsed.intro)
-                          ? parsed.intro.map((b) => ({ ...b, _id: b._id || genId() }))
-                          : typeof parsed.intro === "string"
-                          ? [{ _id: genId(), type: "paragraph", text: parsed.intro }]
-                          : [];
-                      }
-                      if (!arr.some((b) => b && b._id)) arr = arr.map((b) => ({ ...b, _id: genId() }));
-                      setTurnkeyBlocks(arr);
-                      setTurnkeyContentEditor(blocksToPlainText(arr));
-                      setEditingTurnkey(true);
-                    }}
-                    className="mt-3 px-3 py-1 border rounded"
-                  >
-                    Edit
-                  </button>
+                  <div className="flex justify-end gap-3 mt-4">
+                    <button onClick={() => setEditingTurnkey(false)} className="px-4 py-2 rounded border">
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        saveSection("turnkey", turnkeyTitle, turnkeyBlocks || (turnkeyContentEditor ? [{ _id: genId(), type: "paragraph", text: turnkeyContentEditor }] : []), setEditingTurnkey, setTurnkey);
+                      }}
+                      className="px-4 py-2 rounded bg-[#444444] text-white"
+                    >
+                      Save
+                    </button>
+                  </div>
                 </div>
+              ) : (
+                <>
+                  {turnkey && turnkey.parsedContent && Array.isArray(turnkey.parsedContent.intro) && turnkey.parsedContent.intro.map((block, idx) => {
+                    if (block.type === "list" && block.title === "Process") {
+                      return renderBlockTurnkey(block, idx);
+                    }
+                    return null;
+                  })}
+
+                  <div className="mt-6 flex justify-start">
+                    <button onClick={() => (window.location.href = "/contact")} className="text-black px-6 py-3 border border-black uppercase">
+                      Request an Evaluation License
+                    </button>
+                  </div>
+
+                  {turnkey && turnkey.parsedContent && Array.isArray(turnkey.parsedContent.intro) && turnkey.parsedContent.intro.map((block, idx) => {
+                    if (block.type === "list" && block.style === "decimal") {
+                      return renderBlockTurnkey(block, idx);
+                    }
+                    return null;
+                  })}
+
+                  {adminToken && !editingTurnkey && (
+                    <div className="mt-4">
+                      <button
+                        onClick={() => {
+                          setTurnkeyTitle(turnkey?.title || "Turnkey Solutions");
+                          const parsed = turnkey?.parsedContent || null;
+                          let arr = [];
+                          if (parsed && parsed.intro) {
+                            arr = Array.isArray(parsed.intro) ? parsed.intro.map((b) => ({ ...b, _id: b._id || genId() })) : typeof parsed.intro === "string" ? [{ _id: genId(), type: "paragraph", text: parsed.intro }] : [];
+                          }
+                          
+                          if (!arr.some((b) => b && b._id)) arr = arr.map((b) => ({ ...b, _id: genId() }));
+                          setTurnkeyBlocks(arr);
+                          setTurnkeyContentEditor(blocksToPlainText(arr));
+                          setEditingTurnkey(true);
+                        }}
+                        className="mt-3 px-3 py-1 border rounded"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
-              <div className="mt-8 bg-[#FAFAFA] p-6 rounded shadow-sm">
-                <h3 className="text-[20px] font-semibold mb-3 text-[#222222]">Scope & Approach</h3>
-                <ul className="list-decimal pl-5 space-y-2 text-[15px] text-[#444444]">
-                  <li>Initial site visit to define requirements and capture sample images.</li>
-                  <li>Data analysis to evaluate technical feasibility and constraints.</li>
-                  <li>Prototype design and validation on representative samples.</li>
-                  <li>Final report with recommendations, BOM and project timeline.</li>
-                </ul>
-              </div>
             </div>
           </div>
         </div>
