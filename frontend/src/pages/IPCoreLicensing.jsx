@@ -8,7 +8,7 @@ import { genId, blocksToPlainText } from "../lib/blocks.jsx";
 
 function renderBlockIPCore(block, index) {
   if (!block) return null;
-  
+
   switch (block.type) {
     case "paragraph": {
       const hideTitle = block.title && (block.title.toLowerCase().includes("image text") || block.title.toLowerCase().includes("images"));
@@ -36,7 +36,7 @@ function renderBlockIPCore(block, index) {
       const hideTitle = block.title && block.title.toLowerCase() === "gui functions";
       const ListTag = block.style === "decimal" ? "ol" : "ul";
       const isScope = block.style === "decimal";
-      
+
       if (isScope) {
         return (
           <div key={index} className="mt-8 bg-[#FAFAFA] p-6 rounded shadow-sm">
@@ -49,30 +49,28 @@ function renderBlockIPCore(block, index) {
           </div>
         );
       }
-      
+
       return (
         <div key={index} className="mb-4">
-          {block.title && !hideTitle && <h2 className="text-[56px] font-semibold text-[#222222] mb-3">{block.title}</h2>}
+          {block.title && !hideTitle && <h2 className={`${block.title === "Process" ? "text-[56px]" : "text-[40px]"} font-semibold text-[#222222] mb-3`}>{block.title}</h2>}
           {block.extraText && block.extraText.length > 0 && (
             <div className="mb-3 text-[15px] text-[#444444]">
               {block.extraText.map((text, i) => (
-                <p key={i} className="mb-2">{text}</p>
+                <p key={i} className="mb-2">
+                  {text}
+                </p>
               ))}
             </div>
           )}
           <ListTag className="mt-4 list-disc list-inside space-y-2 text-[15px] pl-6">
             {(block.items || []).map((item, i) => (
-              <li key={i} className="text-[#444444] mb-2">{item}</li>
+              <li key={i} className="text-[#444444] mb-2">
+                {item}
+              </li>
             ))}
           </ListTag>
           {block.title === "Process" && (
             <>
-              <h2 className="mt-8 text-[40px] font-semibold mb-3 text-[#222222]">Let's Help You</h2>
-              <div className="mt-0 flex justify-start">
-                <button onClick={() => (window.location.href = "/contact")} className="text-black px-6 py-3 border border-black uppercase">
-                  Request an Evaluation License
-                </button>
-              </div>
             </>
           )}
         </div>
@@ -176,7 +174,7 @@ export default function IPCoreLicensing() {
     } catch (error) {
       alert("Save failed: " + (error.message || error));
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-white text-[#444444] font-sans" aria-label="IP core licensing page">
@@ -199,16 +197,21 @@ export default function IPCoreLicensing() {
 
       <section className="bg-white">
         <div className="max-w-6xl mx-auto px-6 py-16">
-          <div className="grid md:grid-cols-2 gap-12 items-start">
-            <div>
-              <div className="mt-4 text-[#444444] text-[15px]">
-                {ipcore && ipcore.parsedContent && Array.isArray(ipcore.parsedContent.intro) && ipcore.parsedContent.intro.map((block, idx) => {
-                  if (block.type === "list" && block.style === "decimal") return null;
-                  if (block.type === "list" && block.title === "Process") return null;
-                  return renderBlockIPCore(block, idx);
-                })}
+          <div className={editingIPCore ? "w-full" : "grid md:grid-cols-2 gap-12 items-start"}>
+            {!editingIPCore && (
+              <div>
+                <div className="mt-4 text-[#444444] text-[15px]">
+                  {ipcore &&
+                    ipcore.parsedContent &&
+                    Array.isArray(ipcore.parsedContent.intro) &&
+                    ipcore.parsedContent.intro.map((block, idx) => {
+                      if (block.type === "list" && block.style === "decimal") return null;
+                      if (block.type === "list" && block.title === "Process") return null;
+                      return renderBlockIPCore(block, idx);
+                    })}
+                </div>
               </div>
-            </div>
+            )}
             <div>
               {editingIPCore ? (
                 <div className="mt-4">
@@ -219,7 +222,7 @@ export default function IPCoreLicensing() {
                         {ipcoreBlocks.map((block, index) => (
                           <div key={block._id || index} className="border rounded p-3">
                             <div className="mb-2 text-sm text-gray-600">
-                              Block #{index + 1} — <span className="font-mono">{block.title ? (block.title.charAt(0).toLowerCase() + block.title.slice(1).toLowerCase()) : block.type}</span>
+                              Block #{index + 1} — <span className="font-mono">{block.title ? block.title.charAt(0).toLowerCase() + block.title.slice(1).toLowerCase() : block.type}</span>
                             </div>
                             {block.type === "paragraph" && !(block.title && String(block.title).toLowerCase().includes("images")) && (
                               <>
@@ -363,18 +366,46 @@ export default function IPCoreLicensing() {
                                       />
                                     </label>
                                   )}
-                                  {block.images && block.images.length >= 3 && (
-                                    <div className="text-xs text-gray-500">Max 3 images reached</div>
-                                  )}
-                                  <button
-                                    className="px-2 py-1 rounded border text-sm"
-                                    onClick={() => {
-                                      const id = block._id;
-                                      setIPCoreBlocks((previous) => (previous || []).filter((b) => b._id !== id));
-                                    }}
-                                  >
-                                    Remove block
-                                  </button>
+                                  {block.images && block.images.length >= 3 && <div className="text-xs text-gray-500">Max 3 images reached</div>}
+                                  <div className="mt-2 flex gap-2 flex-wrap">
+                                    {index > 0 && (
+                                      <button
+                                        className="px-2 py-1 rounded border text-sm"
+                                        onClick={() => {
+                                          setIPCoreBlocks((previous) => {
+                                            const array = (previous || []).slice();
+                                            [array[index - 1], array[index]] = [array[index], array[index - 1]];
+                                            return array;
+                                          });
+                                        }}
+                                      >
+                                        Move up
+                                      </button>
+                                    )}
+                                    {index < ipcoreBlocks.length - 1 && (
+                                      <button
+                                        className="px-2 py-1 rounded border text-sm"
+                                        onClick={() => {
+                                          setIPCoreBlocks((previous) => {
+                                            const array = (previous || []).slice();
+                                            [array[index], array[index + 1]] = [array[index + 1], array[index]];
+                                            return array;
+                                          });
+                                        }}
+                                      >
+                                        Move down
+                                      </button>
+                                    )}
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        const id = block._id;
+                                        setIPCoreBlocks((previous) => (previous || []).filter((b) => b._id !== id));
+                                      }}
+                                    >
+                                      Remove block
+                                    </button>
+                                  </div>
                                 </div>
                               </>
                             )}
@@ -397,7 +428,35 @@ export default function IPCoreLicensing() {
                                   className="w-full p-2 border rounded text-sm"
                                   placeholder="Heading text"
                                 />
-                                <div className="mt-2 flex gap-2">
+                                <div className="mt-2 flex gap-2 flex-wrap">
+                                  {index > 0 && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setIPCoreBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index - 1], array[index]] = [array[index], array[index - 1]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move up
+                                    </button>
+                                  )}
+                                  {index < ipcoreBlocks.length - 1 && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setIPCoreBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index], array[index + 1]] = [array[index + 1], array[index]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move down
+                                    </button>
+                                  )}
                                   <button
                                     className="px-2 py-1 rounded border text-sm"
                                     onClick={() => {
@@ -412,18 +471,9 @@ export default function IPCoreLicensing() {
                             )}
                             {block.type === "list" && (
                               <>
-                                <label className="text-xs text-gray-600 block">
-                                  {block._isSemicolonList ? "Text and items (items end with ;)" : "List items (one per line)"}
-                                </label>
+                                <label className="text-xs text-gray-600 block">{block._isSemicolonList ? "Text and items (items end with ;)" : "List items (one per line)"}</label>
                                 <textarea
-                                  value={block._editorValue !== undefined ? block._editorValue : (
-                                    block._isSemicolonList
-                                      ? [
-                                          ...(block.extraText || []),
-                                          ...((block.items || []).map(item => item + ";"))
-                                        ].join("\n")
-                                      : (block.items || []).join("\n")
-                                  )}
+                                  value={block._editorValue !== undefined ? block._editorValue : block._isSemicolonList ? [...(block.extraText || []), ...(block.items || []).map((item) => item + ";")].join("\n") : (block.items || []).join("\n")}
                                   onChange={(event) => {
                                     const id = block._id;
                                     const val = event.target.value;
@@ -440,9 +490,9 @@ export default function IPCoreLicensing() {
                                     const val = event.target.value;
                                     let items = [];
                                     let extra = [];
-                                    
+
                                     if (block._isSemicolonList) {
-                                      const lines = val.split("\n").map(s => s.replace(/\u00A0/g, " ").replace(/\t/g, " "));
+                                      const lines = val.split("\n").map((s) => s.replace(/\u00A0/g, " ").replace(/\t/g, " "));
                                       lines.forEach((line) => {
                                         const trimmedEnd = line.replace(/\s+$/g, "");
                                         if (trimmedEnd.endsWith(";")) {
@@ -453,9 +503,12 @@ export default function IPCoreLicensing() {
                                         }
                                       });
                                     } else {
-                                      items = val.split("\n").map(s => s.trim()).filter(s => s.length > 0);
+                                      items = val
+                                        .split("\n")
+                                        .map((s) => s.trim())
+                                        .filter((s) => s.length > 0);
                                     }
-                                    
+
                                     setIPCoreBlocks((previous) => {
                                       const array = (previous || []).slice();
                                       const idx = array.findIndex((b) => b._id === id);
@@ -471,7 +524,35 @@ export default function IPCoreLicensing() {
                                   rows={6}
                                   className="w-full p-2 border rounded text-sm font-mono"
                                 />
-                                <div className="mt-2 flex gap-2">
+                                <div className="mt-2 flex gap-2 flex-wrap">
+                                  {index > 0 && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setIPCoreBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index - 1], array[index]] = [array[index], array[index - 1]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move up
+                                    </button>
+                                  )}
+                                  {index < ipcoreBlocks.length - 1 && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setIPCoreBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index], array[index + 1]] = [array[index + 1], array[index]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move down
+                                    </button>
+                                  )}
                                   <button
                                     className="px-2 py-1 rounded border text-sm"
                                     onClick={() => {
@@ -546,7 +627,35 @@ export default function IPCoreLicensing() {
                                   className="w-full p-2 border rounded text-sm"
                                 />
                                 <div className="mt-2">{block.src ? <img src={block.src} alt={block.alt || ""} className="object-contain w-full h-36 rounded" /> : <div className="text-sm text-gray-400">No image</div>}</div>
-                                <div className="mt-2 flex gap-2">
+                                <div className="mt-2 flex gap-2 flex-wrap">
+                                  {index > 0 && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setIPCoreBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index - 1], array[index]] = [array[index], array[index - 1]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move up
+                                    </button>
+                                  )}
+                                  {index < ipcoreBlocks.length - 1 && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setIPCoreBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index], array[index + 1]] = [array[index + 1], array[index]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move down
+                                    </button>
+                                  )}
                                   <button
                                     className="px-2 py-1 rounded border text-sm"
                                     onClick={() => {
@@ -561,7 +670,7 @@ export default function IPCoreLicensing() {
                             )}
                           </div>
                         ))}
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                           <button
                             className="bg-indigo-600 text-white px-3 py-1 rounded text-sm"
                             onClick={() => {
@@ -626,7 +735,7 @@ export default function IPCoreLicensing() {
                             className="bg-white border px-3 py-1 rounded text-sm"
                             onClick={() => {
                               const copy = (ipcoreBlocks || []).slice();
-                              copy.push({ _id: genId(), type: "list", style: "decimal", items: [""] });
+                              copy.push({ _id: genId(), type: "list", title: "Scope & Approach", style: "decimal", items: [""] });
                               setIPCoreBlocks(copy);
                             }}
                           >
@@ -655,18 +764,8 @@ export default function IPCoreLicensing() {
                 </div>
               ) : (
                 <>
-                  {ipcore && ipcore.parsedContent && Array.isArray(ipcore.parsedContent.intro) && ipcore.parsedContent.intro.map((block, idx) => {
-                    if (block.type === "list" && block.title === "Process") {
-                      return renderBlockIPCore(block, idx);
-                    }
-                    if (block.type === "list" && block.style === "decimal") {
-                      return renderBlockIPCore(block, idx);
-                    }
-                    return null;
-                  })}
-
                   {adminToken && !editingIPCore && (
-                    <div className="mt-4">
+                    <div className="mb-4">
                       <button
                         onClick={() => {
                           setIPCoreTitle(ipcore?.title || "IP Core Licensing");
@@ -675,18 +774,44 @@ export default function IPCoreLicensing() {
                           if (parsed && parsed.intro) {
                             arr = Array.isArray(parsed.intro) ? parsed.intro.map((b) => ({ ...b, _id: b._id || genId() })) : typeof parsed.intro === "string" ? [{ _id: genId(), type: "paragraph", text: parsed.intro }] : [];
                           }
-                          
+
                           if (!arr.some((b) => b && b._id)) arr = arr.map((b) => ({ ...b, _id: genId() }));
                           setIPCoreBlocks(arr);
                           setIPCoreContentEditor(blocksToPlainText(arr));
                           setEditingIPCore(true);
                         }}
-                        className="mt-3 px-3 py-1 border rounded"
+                        className="px-3 py-1 border rounded"
                       >
                         Edit
                       </button>
                     </div>
                   )}
+                  {ipcore &&
+                    ipcore.parsedContent &&
+                    Array.isArray(ipcore.parsedContent.intro) &&
+                    ipcore.parsedContent.intro.map((block, idx) => {
+                      if (block.type === "list" && block.title === "Process") {
+                        return renderBlockIPCore(block, idx);
+                      }
+                      return null;
+                    })}
+
+                  <div className="mt-6 flex justify-start">
+                    <button onClick={() => setShowModal(true)} className="text-black px-6 py-3 border border-black uppercase">
+                      Request an Evaluation License
+                    </button>
+                  </div>
+
+                  {ipcore &&
+                    ipcore.parsedContent &&
+                    Array.isArray(ipcore.parsedContent.intro) &&
+                    ipcore.parsedContent.intro.map((block, idx) => {
+                      if (block.type === "list" && block.style === "decimal") {
+                        return renderBlockIPCore(block, idx);
+                      }
+                      return null;
+                    })}
+
                 </>
               )}
             </div>
@@ -698,19 +823,23 @@ export default function IPCoreLicensing() {
 
       {showModal && <RequestConsultation modal onClose={() => setShowModal(false)} />}
 
-      <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+      {!editingIPCore && (
+        <>
+          <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
 
-      <GetAdvice />
+          <GetAdvice />
 
-      <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+          <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
 
-      <Features />
+          <Features />
 
-      <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+          <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
 
-      <ContactCase />
+          <ContactCase />
 
-      <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+          <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+        </>
+      )}
     </div>
   );
 }

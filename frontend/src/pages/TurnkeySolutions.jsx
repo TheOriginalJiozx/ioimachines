@@ -52,7 +52,7 @@ function renderBlockTurnkey(block, index) {
       
       return (
         <div key={index} className="mb-4">
-          {block.title && !hideTitle && <h2 className="text-[56px] font-semibold text-[#222222] mb-3">{block.title}</h2>}
+          {block.title && !hideTitle && <h2 className={`${block.title === "Process" ? "text-[56px]" : "text-[40px]"} font-semibold text-[#222222] mb-3`}>{block.title}</h2>}
           {block.extraText && block.extraText.length > 0 && (
             <div className="mb-3 text-[15px] text-[#444444]">
               {block.extraText.map((text, i) => (
@@ -189,16 +189,18 @@ export default function TurnkeySolutions() {
 
       <section className="bg-white">
         <div className="max-w-6xl mx-auto px-6 py-16">
-          <div className="grid md:grid-cols-2 gap-12 items-start">
-            <div>
-              <div className="mt-4 text-[#444444] text-[15px]">
-                {turnkey && turnkey.parsedContent && Array.isArray(turnkey.parsedContent.intro) && turnkey.parsedContent.intro.map((block, idx) => {
-                  if (block.type === "list" && block.style === "decimal") return null;
-                  if (block.type === "list" && block.title === "Process") return null;
-                  return renderBlockTurnkey(block, idx);
-                })}
+          <div className={editingTurnkey ? "w-full" : "grid md:grid-cols-2 gap-12 items-start"}>
+            {!editingTurnkey && (
+              <div>
+                <div className="mt-4 text-[#444444] text-[15px]">
+                  {turnkey && turnkey.parsedContent && Array.isArray(turnkey.parsedContent.intro) && turnkey.parsedContent.intro.map((block, idx) => {
+                    if (block.type === "list" && block.style === "decimal") return null;
+                    if (block.type === "list" && block.title === "Process") return null;
+                    return renderBlockTurnkey(block, idx);
+                  })}
+                </div>
               </div>
-            </div>
+            )}
             <div>
               {editingTurnkey ? (
                 <div className="mt-4">
@@ -675,9 +677,10 @@ export default function TurnkeySolutions() {
                             )}
                           </div>
                         ))}
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                           <button
-                            className="bg-white border px-3 py-1 rounded text-sm"
+                            className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={turnkeyBlocks?.some(b => b.type === "image")}
                             onClick={() => {
                               const copy = (turnkeyBlocks || []).slice();
                               copy.push({ _id: genId(), type: "image", src: "", alt: "", _autoAlt: true });
@@ -687,7 +690,8 @@ export default function TurnkeySolutions() {
                             Add image
                           </button>
                           <button
-                            className="bg-white border px-3 py-1 rounded text-sm"
+                            className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={turnkeyBlocks?.some(b => b.type === "paragraph" && b.title && String(b.title).toLowerCase().includes("image text"))}
                             onClick={() => {
                               const copy = (turnkeyBlocks || []).slice();
                               copy.push({ _id: genId(), type: "paragraph", title: "Image Text", text: "", images: [] });
@@ -712,7 +716,7 @@ export default function TurnkeySolutions() {
                             disabled={turnkeyBlocks?.some(b => b.type === "list" && b.style === "decimal")}
                             onClick={() => {
                               const copy = (turnkeyBlocks || []).slice();
-                              copy.push({ _id: genId(), type: "list", style: "decimal", items: [""] });
+                              copy.push({ _id: genId(), type: "list", title: "Scope & Approach", style: "decimal", items: [""] });
                               setTurnkeyBlocks(copy);
                             }}
                           >
@@ -720,10 +724,10 @@ export default function TurnkeySolutions() {
                           </button>
                           <button
                             className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={Array.isArray(turnkeyBlocks) && turnkeyBlocks.some(b => b.type === "paragraph" && b.title === "Inhouse Competencies Image")}
+                            disabled={Array.isArray(turnkeyBlocks) && turnkeyBlocks.some(b => b.type === "image" && b.title === "Inhouse Competencies Image")}
                             onClick={() => {
                               const copy = (turnkeyBlocks || []).slice();
-                              copy.push({ _id: genId(), type: "paragraph", title: "Inhouse Competencies Image", text: "", images: [] });
+                              copy.push({ _id: genId(), type: "image", title: "Inhouse Competencies Image", src: "", alt: "" });
                               setTurnkeyBlocks(copy);
                             }}
                           >
@@ -774,6 +778,28 @@ export default function TurnkeySolutions() {
                 </div>
               ) : (
                 <>
+                  {adminToken && !editingTurnkey && (
+                    <div className="mb-4">
+                      <button
+                        onClick={() => {
+                          setTurnkeyTitle(turnkey?.title || "Turnkey Solutions");
+                          const parsed = turnkey?.parsedContent || null;
+                          let arr = [];
+                          if (parsed && parsed.intro) {
+                            arr = Array.isArray(parsed.intro) ? parsed.intro.map((b) => ({ ...b, _id: b._id || genId() })) : typeof parsed.intro === "string" ? [{ _id: genId(), type: "paragraph", text: parsed.intro }] : [];
+                          }
+                          
+                          if (!arr.some((b) => b && b._id)) arr = arr.map((b) => ({ ...b, _id: genId() }));
+                          setTurnkeyBlocks(arr);
+                          setTurnkeyContentEditor(blocksToPlainText(arr));
+                          setEditingTurnkey(true);
+                        }}
+                        className="px-3 py-1 border rounded"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  )}
                   {turnkey && turnkey.parsedContent && Array.isArray(turnkey.parsedContent.intro) && turnkey.parsedContent.intro.map((block, idx) => {
                     if (block.type === "list" && block.title === "Process") {
                       return renderBlockTurnkey(block, idx);
@@ -794,28 +820,6 @@ export default function TurnkeySolutions() {
                     return null;
                   })}
 
-                  {adminToken && !editingTurnkey && (
-                    <div className="mt-4">
-                      <button
-                        onClick={() => {
-                          setTurnkeyTitle(turnkey?.title || "Turnkey Solutions");
-                          const parsed = turnkey?.parsedContent || null;
-                          let arr = [];
-                          if (parsed && parsed.intro) {
-                            arr = Array.isArray(parsed.intro) ? parsed.intro.map((b) => ({ ...b, _id: b._id || genId() })) : typeof parsed.intro === "string" ? [{ _id: genId(), type: "paragraph", text: parsed.intro }] : [];
-                          }
-                          
-                          if (!arr.some((b) => b && b._id)) arr = arr.map((b) => ({ ...b, _id: genId() }));
-                          setTurnkeyBlocks(arr);
-                          setTurnkeyContentEditor(blocksToPlainText(arr));
-                          setEditingTurnkey(true);
-                        }}
-                        className="mt-3 px-3 py-1 border rounded"
-                      >
-                        Edit
-                      </button>
-                    </div>
-                  )}
                 </>
               )}
             </div>
@@ -827,19 +831,23 @@ export default function TurnkeySolutions() {
 
       {showModal && <RequestConsultation modal onClose={() => setShowModal(false)} />}
 
-      <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+      {!editingTurnkey && (
+        <>
+          <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
 
-      <GetAdvice />
+          <GetAdvice />
 
-      <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+          <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
 
-      <Features />
+          <Features />
 
-      <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+          <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
 
-      <ContactCase />
+          <ContactCase />
 
-      <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+          <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+        </>
+      )}
     </div>
   );
 }

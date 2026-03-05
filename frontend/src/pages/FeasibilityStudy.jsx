@@ -27,7 +27,7 @@ function renderBlockFeasibility(block, index) {
         return (
           <div key={index} className="mb-4">
             {block.title && !hideTitle && <h2 className="text-[56px] font-semibold text-[#222222] mb-3">{block.title}</h2>}
-            <ul className="list-disc list-inside space-y-2 text-[15px] text-[#444444] pl-4">
+            <ul style={{ listStyle: 'disc', marginLeft: '1.5rem' }} className="mt-4 space-y-2 text-[15px] text-[#444444]">
               {items.map((item, i) => (
                 <li key={i}>{item}</li>
               ))}
@@ -61,10 +61,10 @@ function renderBlockFeasibility(block, index) {
       const ListTag = block.style === "decimal" ? "ol" : "ul";
       const isScope = block.style === "decimal";
       
-      // Strip semicolons from items if they end with semicolon (for _isSemicolonList)
+      // Strip semicolons from items for Process blocks
       const displayItems = (block.items || []).map(item => {
-        if (block._isSemicolonList && item && item.endsWith(";")) {
-          return item.slice(0, -1);
+        if (block.title && block.title.toLowerCase() === "process" && item && typeof item === 'string') {
+          return item.replace(/;+$/, '').trim();
         }
         return item;
       });
@@ -84,7 +84,7 @@ function renderBlockFeasibility(block, index) {
       
       return (
         <div key={index} className="mb-4">
-          {block.title && !hideTitle && <h2 className="text-[40px] font-semibold text-[#222222] mb-2">{block.title}</h2>}
+          {block.title && !hideTitle && <h2 className={`${block.title === "Process" ? "text-[56px]" : "text-[40px]"} font-semibold text-[#222222] mb-3`}>{block.title}</h2>}
           {block.extraText && block.extraText.length > 0 && (
             <div className="mb-3 text-[15px] text-[#444444]">
               {block.extraText.map((text, i) => (
@@ -92,9 +92,9 @@ function renderBlockFeasibility(block, index) {
               ))}
             </div>
           )}
-          <ListTag className="mt-4 list-disc list-inside space-y-2 text-[15px] pl-6">
+          <ListTag style={ListTag === 'ul' ? { listStyleType: 'disc', marginLeft: '1.5rem' } : undefined} className="mt-4 space-y-2 text-[15px] text-[#444444]">
             {displayItems.map((item, i) => (
-              <li key={i} className="text-[#444444] mb-2">{item}</li>
+              <li key={i} className="mb-2">{item}</li>
             ))}
           </ListTag>
         </div>
@@ -221,16 +221,18 @@ export default function Feasibility() {
 
       <section className="bg-white">
         <div className="max-w-6xl mx-auto px-6 py-16">
-          <div className="grid md:grid-cols-2 gap-12 items-start">
-            <div>
-              <div className="mt-4 text-[#444444] text-[15px]">
-                {feasibility && feasibility.parsedContent && Array.isArray(feasibility.parsedContent.intro) && feasibility.parsedContent.intro.map((block, idx) => {
-                  if (block.type === "list" && block.style === "decimal") return null;
-                  if (block.title && block.title.toLowerCase() === "process") return null;
-                  return renderBlockFeasibility(block, idx);
-                })}
+          <div className={editingFeasibility ? "w-full" : "grid md:grid-cols-2 gap-12 items-start"}>
+            {!editingFeasibility && (
+              <div>
+                <div className="mt-4 text-[#444444] text-[15px]">
+                  {feasibility && feasibility.parsedContent && Array.isArray(feasibility.parsedContent.intro) && feasibility.parsedContent.intro.map((block, idx) => {
+                    if (block.type === "list" && block.style === "decimal") return null;
+                    if (block.title && block.title.toLowerCase() === "process") return null;
+                    return renderBlockFeasibility(block, idx);
+                  })}
+                </div>
               </div>
-            </div>
+            )}
             <div>
               {editingFeasibility ? (
                 <div className="mt-4">
@@ -243,7 +245,7 @@ export default function Feasibility() {
                             <div className="mb-2 text-sm text-gray-600">
                               Block #{index + 1} — <span className="font-mono">{block.title ? (block.title.charAt(0).toLowerCase() + block.title.slice(1).toLowerCase()) : block.type}</span>
                             </div>
-                            {block.type === "paragraph" && !(block.title && String(block.title).toLowerCase().includes("images")) && (
+                            {block.type === "paragraph" && !(block.title && String(block.title).toLowerCase().includes("images") && !String(block.title).toLowerCase().includes("image text")) && (
                               <>
                                 <textarea
                                   value={block.text || ""}
@@ -325,85 +327,10 @@ export default function Feasibility() {
                                 </div>
                               </>
                             )}
-                            {block.type === "paragraph" && block.title && String(block.title).toLowerCase().includes("images") && (
-                              <>
-                                {block.images && block.images.length > 0 && (
-                                  <div className="mt-2 space-y-2">
-                                    {block.images.map((img, imgIndex) => (
-                                      <div key={imgIndex} className="border rounded p-2 bg-gray-50">
-                                        {img && <img src={img} alt="uploaded" className="w-full h-24 object-cover rounded mb-1" />}
-                                        <button
-                                          className="px-2 py-1 rounded border text-xs"
-                                          onClick={() => {
-                                            const id = block._id;
-                                            setFeasibilityBlocks((previous) => {
-                                              const array = (previous || []).slice();
-                                              const idx = array.findIndex((b) => b._id === id);
-                                              if (idx === -1) return previous;
-                                              const newImages = (array[idx].images || []).filter((_, i) => i !== imgIndex);
-                                              array[idx] = { ...array[idx], images: newImages };
-                                              return array;
-                                            });
-                                          }}
-                                        >
-                                          Remove image
-                                        </button>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                                <div className="mt-2 flex gap-2">
-                                  {(!block.images || block.images.length < 3) && (
-                                    <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
-                                      Add image
-                                      <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(event) => {
-                                          const file = event.target.files && event.target.files[0];
-                                          if (!file) return;
-                                          const id = block._id;
-                                          const reader = new FileReader();
-                                          reader.onload = (e) => {
-                                            const dataUrl = e.target.result;
-                                            setFeasibilityBlocks((previous) => {
-                                              const array = (previous || []).slice();
-                                              const idx = array.findIndex((b) => b._id === id);
-                                              if (idx === -1) return previous;
-                                              const images = [...(array[idx].images || []), dataUrl];
-                                              if (images.length > 3) {
-                                                alert("Maximum 3 images allowed");
-                                                return previous;
-                                              }
-                                              array[idx] = { ...array[idx], images };
-                                              return array;
-                                            });
-                                          };
-                                          reader.readAsDataURL(file);
-                                        }}
-                                        className="hidden"
-                                      />
-                                    </label>
-                                  )}
-                                  {block.images && block.images.length >= 3 && (
-                                    <div className="text-xs text-gray-500">Max 3 images reached</div>
-                                  )}
-                                  <button
-                                    className="px-2 py-1 rounded border text-sm"
-                                    onClick={() => {
-                                      const id = block._id;
-                                      setFeasibilityBlocks((previous) => (previous || []).filter((b) => b._id !== id));
-                                    }}
-                                  >
-                                    Remove block
-                                  </button>
-                                </div>
-                              </>
-                            )}
                             {block.type === "list" && (
                               <>
                                 <label className="text-xs text-gray-600 block">
-                                  {block._isSemicolonList ? "Text and items (items end with ;)" : (block.style === "decimal" ? "Scope items (one per line)" : "List items (one per line)")}
+                                  {block.title && block.title.toLowerCase() === "process" ? "Items (one per line, end with ;)" : (block._isSemicolonList ? "Text and items (items end with ;)" : (block.style === "decimal" ? "Scope items (one per line)" : "List items (one per line)"))}
                                 </label>
                                 <textarea
                                   value={block._editorValue !== undefined ? block._editorValue : (
@@ -461,7 +388,35 @@ export default function Feasibility() {
                                   rows={6}
                                   className="w-full p-2 border rounded text-sm font-mono"
                                 />
-                                <div className="mt-2 flex gap-2">
+                                <div className="mt-2 flex gap-2 flex-wrap">
+                                  {index > 0 && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setFeasibilityBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index - 1], array[index]] = [array[index], array[index - 1]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move up
+                                    </button>
+                                  )}
+                                  {index < (feasibilityBlocks.length - 1) && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setFeasibilityBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index], array[index + 1]] = [array[index + 1], array[index]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move down
+                                    </button>
+                                  )}
                                   <button
                                     className="px-2 py-1 rounded border text-sm"
                                     onClick={() => {
@@ -536,7 +491,35 @@ export default function Feasibility() {
                                   className="w-full p-2 border rounded text-sm"
                                 />
                                 <div className="mt-2">{block.src ? <img src={block.src} alt={block.alt || ""} className="object-contain w-full h-36 rounded" /> : <div className="text-sm text-gray-400">No image</div>}</div>
-                                <div className="mt-2 flex gap-2">
+                                <div className="mt-2 flex gap-2 flex-wrap">
+                                  {index > 0 && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setFeasibilityBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index - 1], array[index]] = [array[index], array[index - 1]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move up
+                                    </button>
+                                  )}
+                                  {index < (feasibilityBlocks.length - 1) && (
+                                    <button
+                                      className="px-2 py-1 rounded border text-sm"
+                                      onClick={() => {
+                                        setFeasibilityBlocks((previous) => {
+                                          const array = (previous || []).slice();
+                                          [array[index], array[index + 1]] = [array[index + 1], array[index]];
+                                          return array;
+                                        });
+                                      }}
+                                    >
+                                      Move down
+                                    </button>
+                                  )}
                                   <button
                                     className="px-2 py-1 rounded border text-sm"
                                     onClick={() => {
@@ -553,17 +536,8 @@ export default function Feasibility() {
                         ))}
                         <div className="flex gap-2 flex-wrap">
                           <button
-                            className="bg-indigo-600 text-white px-3 py-1 rounded text-sm"
-                            onClick={() => {
-                              const copy = (feasibilityBlocks || []).slice();
-                              copy.push({ _id: genId(), type: "paragraph", text: "" });
-                              setFeasibilityBlocks(copy);
-                            }}
-                          >
-                            Add paragraph
-                          </button>
-                          <button
-                            className="bg-white border px-3 py-1 rounded text-sm"
+                            className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={feasibilityBlocks?.some(b => b.type === "image")}
                             onClick={() => {
                               const copy = (feasibilityBlocks || []).slice();
                               copy.push({ _id: genId(), type: "image", src: "", alt: "", _autoAlt: true });
@@ -573,27 +547,30 @@ export default function Feasibility() {
                             Add image
                           </button>
                           <button
-                            className="bg-white border px-3 py-1 rounded text-sm"
+                            className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={feasibilityBlocks?.some(b => b.type === "paragraph" && b.title && b.title.toLowerCase() === "image text")}
                             onClick={() => {
                               const copy = (feasibilityBlocks || []).slice();
-                              copy.push({ _id: genId(), type: "list", title: "Process", style: "disc", items: [""], _isSemicolonList: true });
+                              copy.push({ _id: genId(), type: "paragraph", title: "image text", text: "", images: [] });
+                              setFeasibilityBlocks(copy);
+                            }}
+                          >
+                            Add image text
+                          </button>
+                          <button
+                            className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={feasibilityBlocks?.some(b => b.type === "list" && b.title && b.title.toLowerCase() === "process")}
+                            onClick={() => {
+                              const copy = (feasibilityBlocks || []).slice();
+                              copy.push({ _id: genId(), type: "list", title: "Process", style: "disc", items: [], _isSemicolonList: true });
                               setFeasibilityBlocks(copy);
                             }}
                           >
                             Add process
                           </button>
                           <button
-                            className="bg-white border px-3 py-1 rounded text-sm"
-                            onClick={() => {
-                              const copy = (feasibilityBlocks || []).slice();
-                              copy.push({ _id: genId(), type: "paragraph", title: "Deliverables Images", text: "", images: [] });
-                              setFeasibilityBlocks(copy);
-                            }}
-                          >
-                            Add deliverables images
-                          </button>
-                          <button
-                            className="bg-white border px-3 py-1 rounded text-sm"
+                            className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={feasibilityBlocks?.some(b => b.type === "list" && b.style === "decimal")}
                             onClick={() => {
                               const copy = (feasibilityBlocks || []).slice();
                               copy.push({ _id: genId(), type: "list", style: "decimal", items: [""] });
@@ -625,24 +602,8 @@ export default function Feasibility() {
                 </div>
               ) : (
                 <>
-                  {feasibility && feasibility.parsedContent && Array.isArray(feasibility.parsedContent.intro) && (() => {
-                    const processBlock = feasibility.parsedContent.intro.find((b) => b && b.title && b.title.toLowerCase() === "process");
-                    const scopeBlock = feasibility.parsedContent.intro.find((b) => b && b.type === "list" && b.style === "decimal");
-                    return (
-                      <>
-                        {processBlock && renderBlockFeasibility(processBlock, "process")}
-                        <div className="mt-0 flex justify-start">
-                          <button onClick={() => setShowModal(true)} className="text-black px-6 py-3 border border-black uppercase">
-                            Request a Feasibility Study
-                          </button>
-                        </div>
-                        {scopeBlock && renderBlockFeasibility(scopeBlock, "scope")}
-                      </>
-                    );
-                  })()}
-
                   {adminToken && !editingFeasibility && (
-                    <div className="mt-4">
+                    <div className="mb-4">
                       <button
                         onClick={() => {
                           setFeasibilityTitle(feasibility?.title || "Feasibility Study");
@@ -657,12 +618,31 @@ export default function Feasibility() {
                           setFeasibilityContentEditor(blocksToPlainText(arr));
                           setEditingFeasibility(true);
                         }}
-                        className="mt-3 px-3 py-1 border rounded"
+                        className="px-3 py-1 border rounded"
                       >
                         Edit
                       </button>
                     </div>
                   )}
+                  {feasibility && feasibility.parsedContent && Array.isArray(feasibility.parsedContent.intro) && feasibility.parsedContent.intro.map((block, idx) => {
+                    if (block.title && block.title.toLowerCase() === "process") {
+                      return renderBlockFeasibility(block, idx);
+                    }
+                    return null;
+                  })}
+
+                  <div className="mt-6 flex justify-start">
+                    <button onClick={() => setShowModal(true)} className="text-black px-6 py-3 border border-black uppercase">
+                      Request a Feasibility Study
+                    </button>
+                  </div>
+
+                  {feasibility && feasibility.parsedContent && Array.isArray(feasibility.parsedContent.intro) && feasibility.parsedContent.intro.map((block, idx) => {
+                    if (block.type === "list" && block.style === "decimal") {
+                      return renderBlockFeasibility(block, idx);
+                    }
+                    return null;
+                  })}
                 </>
               )}
             </div>
@@ -674,19 +654,23 @@ export default function Feasibility() {
 
       {showModal && <RequestConsultation modal onClose={() => setShowModal(false)} />}
 
-      <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+      {!editingFeasibility && (
+        <>
+          <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
 
-      <GetAdvice />
+          <GetAdvice />
 
-      <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+          <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
 
-      <Features />
+          <Features />
 
-      <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+          <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
 
-      <ContactCase />
+          <ContactCase />
 
-      <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+          <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
+        </>
+      )}
     </div>
   );
 }
