@@ -26,3 +26,18 @@ export function blocksToPlainText(content) {
   }
   return typeof content === "string" ? content : "";
 }
+
+// Basic renderBlock implementation for Contact.jsx usage
+export function renderBlock(block, key) {
+  if (!block) return null;
+  switch (block.type) {
+    case "image":
+      return <img src={block.url} alt={block.alt || ""} key={key} style={{ maxWidth: "100%" }} />;
+    case "paragraph":
+      return <p key={key}>{block.text}</p>;
+    case "heading":
+      return <h3 key={key}>{block.text}</h3>;
+    default:
+      return null;
+  }
+}
