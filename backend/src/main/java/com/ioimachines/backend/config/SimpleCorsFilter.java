@@ -18,7 +18,10 @@ public class SimpleCorsFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+        String origin = request.getHeader("Origin");
+        if ("http://localhost:5173".equals(origin) || "https://jolly-moss-0569eee03.4.azurestaticapps.net".equals(origin)) {
+            response.setHeader("Access-Control-Allow-Origin", origin);
+        }
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, X-ADMIN-TOKEN");
         response.setHeader("Access-Control-Allow-Credentials", "true");
