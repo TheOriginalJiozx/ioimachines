@@ -69,7 +69,7 @@ export default function TurnkeySolutions() {
         if (!json) return;
         try {
           const parsed = json.content ? JSON.parse(json.content) : null;
-          setTurnkey({ ...(json || {}), parsedContent: parsed });
+            setTurnkey({ ...json, parsedContent: parsed });
         } catch {
           setTurnkey(json);
         }

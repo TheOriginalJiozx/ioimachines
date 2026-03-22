@@ -521,7 +521,7 @@ const [perfBody2, setPerfBody2] = useState("");
           }}
           onSave={async (card1, card2, card3, card4, card4List, card4ListIcons, card4Footer) => {
             const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
-            const adminToken = window.adminToken || localStorage.getItem("adminToken") || "";
+            const adminToken = globalThis.adminToken || localStorage.getItem("adminToken") || "";
             const cardContent = {
               card1Title: card1.title,
               card1Body: card1.text,
@@ -715,7 +715,7 @@ const [perfBody2, setPerfBody2] = useState("");
             perfBody2
           ) => {
             const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
-            const adminToken = window.adminToken || localStorage.getItem("adminToken") || "";
+            const adminToken = globalThis.adminToken || localStorage.getItem("adminToken") || "";
             const sectionData = {
               title: whyTitle,
               content: JSON.stringify({
