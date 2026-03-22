@@ -23,18 +23,18 @@ export default function Nav() {
   const isAdmin = !!adminToken;
 
   // Derive active index from location synchronously
-  const pathname = location.pathname.replace(/^\/+|\/+$/g, "");
+  const pathname = location.pathname.replaceAll(/^\/+|\/+$/g, "");
   const slug = pathname.split("/")[0];
   let active = 0;
   const serviceIndex = navDropdown["Services"].findIndex((item) => {
-    const itemSlug = item.path.replace(/^\/+|\/+$/g, "").split("/")[0];
+    const itemSlug = item.path.replaceAll(/^\/+|\/+$/g, "").split("/")[0];
     return itemSlug === slug;
   });
   if (serviceIndex >= 0) {
     active = navLinks.indexOf("Services");
   } else {
     const index = navLinks.findIndex((nav) => {
-      const linkSlug = nav === "Home" ? "" : nav.toLowerCase().replaceAll(" ", "-").replace(/\/+$/g, "");
+      const linkSlug = nav === "Home" ? "" : nav.toLowerCase().replaceAll(" ", "-").replaceAll(/\/+$/g, "");
       return linkSlug === slug;
     });
     active = index >= 0 ? index : 0;
@@ -60,7 +60,7 @@ export default function Nav() {
         <div className="hidden md:flex items-center ml-auto justify-end text-[14px] text-[#444444] font-semibold">
           {navLinks.map((link, index) => {
             if (link === "Admin" && isAdmin) return null;
-            const path = link === "Home" ? "/" : `/${link.toLowerCase().replaceAll(" ", "-").replaceAll("/", "-").replace(/\/+$/g, "")}`;
+            const path = link === "Home" ? "/" : `/${link.toLowerCase().replaceAll(" ", "-").replaceAll("/", "-").replaceAll(/\/+$/g, "")}`;
 
             if (link === "Services") {
               return (
@@ -109,7 +109,7 @@ export default function Nav() {
         <div className="md:hidden bg-white border-t">
           <div className="px-4 py-3 space-y-1">
             {navLinks.map((link) => {
-              const path = link === "Home" ? "/" : `/${link.toLowerCase().replaceAll(" ", "-").replace(/\/+$/, "")}`;
+              const path = link === "Home" ? "/" : `/${link.toLowerCase().replaceAll(" ", "-").replaceAll(/\/+$/, "")}`;
               return (
                 <a
                   key={link}

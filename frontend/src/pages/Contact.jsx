@@ -325,7 +325,7 @@ export default function Contact() {
                                     <>
                                       <h3 className="mt-6 text-xl font-semibold">E-mail</h3>
                                       <div className="mt-3 text-sm">
-                                        <a href={`mailto:${(section.email || '').replace(/^"|"$/g, '')}`} className="text-[#444444] underline">{(section.email || '').replace(/^"|"$/g, '')}</a>
+                                        <a href={`mailto:${(section.email || '').replaceAll(/^"|"$/g, '')}`} className="text-[#444444] underline">{(section.email || '').replaceAll(/^"|"$/g, '')}</a>
                                       </div>
                                     </>
                                   )}
@@ -340,7 +340,7 @@ export default function Contact() {
                                   {section?.phone && (
                                     <>
                                       <h3 className="mt-6 text-xl font-semibold">Phone</h3>
-                                      <div className="mt-3 text-sm">{(section.phone || '').replace(/^"|"$/g, '')}</div>
+                                      <div className="mt-3 text-sm">{(section.phone || '').replaceAll(/^"|"$/g, '')}</div>
                                     </>
                                   )}
                                 </div>
