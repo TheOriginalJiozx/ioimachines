@@ -4,7 +4,7 @@ import { genId } from '../lib/blocks';
 export function canAddBlock(blocks, type) {
   if (!Array.isArray(blocks)) return true;
   if (type === 'image') return !blocks.some(b => b.type === 'image');
-  if (type === 'paragraph-image-text') return !blocks.some(b => b.type === 'paragraph' && b.title && String(b.title).toLowerCase().includes('image text'));
+  if (type === 'paragraph-image-text') return !blocks.some(b => b.type === 'paragraph' && b.title?.toLowerCase().includes('image text'));
   if (type === 'list-process') return !blocks.some(b => b.type === 'list' && b.title === 'Process');
   if (type === 'list-scope') return !blocks.some(b => b.type === 'list' && b.style === 'decimal');
   if (type === 'image-inhouse') return !blocks.some(b => b.type === 'image' && b.title === 'Inhouse Competencies Image');

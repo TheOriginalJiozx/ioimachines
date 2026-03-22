@@ -58,7 +58,7 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
           {block.type === "list" && (
             <>
               <label htmlFor={`feasibility-list-items-${index}`} className="text-xs text-gray-600 block">
-                {block.title && block.title.toLowerCase() === "process"
+                {block.title?.toLowerCase() === "process"
                   ? "Items (one per line, end with ;)"
                   : block._isSemicolonList
                   ? "Text and items (items end with ;)"

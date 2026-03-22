@@ -5,7 +5,7 @@ export function canAddBlock(blocks, type) {
 	if (!Array.isArray(blocks)) return true;
 	if (type === 'image') return !blocks.some(b => b.type === 'image' && b.title !== 'Image' && b.title !== 'Signature Algorithm Images');
 	if (type === 'image-signature-algorithm') return !blocks.some(b => b.type === 'image' && b.title === 'Signature Algorithm Images');
-	if (type === 'paragraph-image-text') return !blocks.some(b => b.type === 'paragraph' && b.title && String(b.title).toLowerCase().includes('image text'));
+	if (type === 'paragraph-image-text') return !blocks.some(b => b.type === 'paragraph' && b.title?.toLowerCase().includes('image text'));
 	if (type === 'paragraph-signature-algorithm') return !blocks.some(b => b.type === 'paragraph' && b.title === 'Signature Algorithm');
 	if (type === 'list-gui-functions') return !blocks.some(b => b.type === 'list' && b.title === 'GUI Functions');
 	if (type === 'list-process') return !blocks.some(b => b.type === 'list' && b.title === 'Process');

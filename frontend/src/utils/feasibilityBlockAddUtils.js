@@ -5,10 +5,10 @@ import { genId } from '../lib/blocks';
 export function canAddBlock(blocks, type) {
   if (!Array.isArray(blocks)) return true;
   if (type === 'image') return !blocks.some(b => b.type === 'image');
-  if (type === 'paragraph-image-text') return !blocks.some(b => b.type === 'paragraph' && b.title && String(b.title).toLowerCase() === 'image text');
-  if (type === 'list-process') return !blocks.some(b => b.type === 'list' && b.title && b.title.toLowerCase() === 'process');
+  if (type === 'paragraph-image-text') return !blocks.some(b => b.type === 'paragraph' && b.title?.toLowerCase() === 'image text');
+  if (type === 'list-process') return !blocks.some(b => b.type === 'list' && b.title?.toLowerCase() === 'process');
   if (type === 'list-scope') return !blocks.some(b => b.type === 'list' && b.style === 'decimal');
-  if (type === 'list-deliverables') return !blocks.some(b => b.type === 'list' && b.title && b.title.toLowerCase() === 'deliverables');
+  if (type === 'list-deliverables') return !blocks.some(b => b.type === 'list' && b.title?.toLowerCase() === 'deliverables');
   return true;
 }
 
