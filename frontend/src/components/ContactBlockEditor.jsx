@@ -38,12 +38,8 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
                 className="w-full p-2 border rounded text-sm font-mono"
               />
               <div className="mt-2 flex flex-wrap gap-2 items-center">
-                {index > 0 && (
-                  <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(prev => moveBlockUp(prev, block._id))}>Move up</button>
-                )}
-                {index < blocks.length - 1 && (
-                  <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(prev => moveBlockDown(prev, block._id))}>Move down</button>
-                )}
+                <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(prev => moveBlockUp(prev, block._id))} disabled={index > 0 ? false : true}>Move up</button>
+                <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(prev => moveBlockDown(prev, block._id))} disabled={index < blocks.length - 1 ? false : true}>Move down</button>
                 <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(prev => deleteBlock(prev, block._id))}>Remove block</button>
               </div>
             </>

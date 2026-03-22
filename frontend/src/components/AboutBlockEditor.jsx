@@ -59,8 +59,8 @@ export default function AboutBlockEditor({ blocks, setBlocks, title, setTitle, c
                   </div>
                 )}
                 <div className="mt-2 flex gap-2">
-                  <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(moveUpBlock(blocks, index))} disabled={index === 0}>Move up</button>
-                  <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(moveDownBlock(blocks, index))} disabled={index >= blocks.length - 1}>Move down</button>
+                  <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(moveUpBlock(blocks, index))} disabled={index > 0 ? false : true}>Move up</button>
+                  <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(moveDownBlock(blocks, index))} disabled={index < blocks.length - 1 ? false : true}>Move down</button>
                   <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(removeBlock(blocks, index))}>Remove block</button>
                 </div>
               </div>
