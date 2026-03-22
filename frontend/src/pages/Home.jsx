@@ -643,7 +643,7 @@ const [perfBody2, setPerfBody2] = useState("");
    <section className="max-w-6xl mx-auto px-6 py-12">
     <div className="grid md:grid-cols-2 gap-8 items-center">
      <div className="max-w-xl">
-      {!editWhy ? (
+      {editWhy === false ? (
         <>
           <button
             className="mt-2 mb-4 bg-white text-[#444444] border border-[#444444] px-4 py-2 rounded"

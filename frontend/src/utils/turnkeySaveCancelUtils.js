@@ -28,11 +28,11 @@ export async function saveSection(key, title, blocks, setEditing, setState, extr
       }
     }
 
-    const parsedPayload = { ...(extraParsed || {}), intro: blocksCopy || [] };
+    const parsedPayload = { ...extraParsed, intro: blocksCopy || [] };
     const payload = { title: title, content: JSON.stringify(parsedPayload) };
     const res = await fetch(`${API_BASE}/sections/${key}`, { method: "PUT", headers, body: JSON.stringify(payload) });
     if (!res.ok) throw new Error("save failed");
-    setState((prev) => ({ ...(prev || {}), title: title, content: JSON.stringify(parsedPayload), parsedContent: parsedPayload }));
+    setState((prev) => ({ ...prev, title: title, content: JSON.stringify(parsedPayload), parsedContent: parsedPayload }));
       setState((prev) => ({ ...prev, title: title, content: JSON.stringify(parsedPayload), parsedContent: parsedPayload }));
     setEditing(false);
   } catch (error) {

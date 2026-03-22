@@ -29,7 +29,7 @@ export async function saveContactSection(sectionKey, title, blocks, setEditing, 
       }
 
       if (blocksCopy.length === 0 || blocksCopy[0].type !== 'title') {
-        blocksCopy.unshift({ _id: (typeof crypto!=='undefined'?crypto.randomUUID():Math.random().toString()), type: 'title', text: title });
+        blocksCopy.unshift({ _id: (typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString()), type: 'title', text: title });
       } else {
         blocksCopy[0] = { ...blocksCopy[0], text: title };
       }
