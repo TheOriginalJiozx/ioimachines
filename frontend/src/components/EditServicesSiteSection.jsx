@@ -41,7 +41,7 @@ export default function EditServicesSiteSection({
       />
       <div className="mb-4">
         {localBody2.map((item) => (
-          <div key={item.id || item._id || item.text || item.icon || window.crypto.randomUUID()} className="flex items-center gap-2 mb-2">
+          <div key={item.id || item._id || item.text || item.icon || globalThis.crypto.randomUUID()} className="flex items-center gap-2 mb-2">
             <input
               type="text"
               value={item.icon}

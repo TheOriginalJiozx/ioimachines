@@ -30,7 +30,7 @@ export default function EditMaintenanceOwnership({
         />
         <div className="mb-4">
           {localMaintenance.maintenanceList.map((item) => (
-            <div key={item.id || item._id || item || window.crypto.randomUUID()} className="flex items-center gap-2 mb-2">
+            <div key={item.id || item._id || item || globalThis.crypto.randomUUID()} className="flex items-center gap-2 mb-2">
               <input
                 type="text"
                 value={item}
@@ -80,7 +80,7 @@ export default function EditMaintenanceOwnership({
         />
         <div className="mb-4">
           {localOwnership.ownershipList.map((item) => (
-            <div key={item.id || item._id || item || window.crypto.randomUUID()} className="flex items-center gap-2 mb-2">
+            <div key={item.id || item._id || item || globalThis.crypto.randomUUID()} className="flex items-center gap-2 mb-2">
               <input
                 type="text"
                 value={item}
