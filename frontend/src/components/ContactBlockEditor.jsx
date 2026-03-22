@@ -67,13 +67,15 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
               <label htmlFor={`contact-block-image-alt-${index}`} className="text-xs text-gray-600">Alt text</label>
               <input id={`contact-block-image-alt-${index}`} value={block.alt||''} onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, alt: event.target.value }))} className="w-full p-2 border rounded text-sm" />
               <div className="mt-2">
-                {block?._file ? (
-                  <img src={URL.createObjectURL(block._file)} alt={block.alt||''} className="object-contain w-full h-36" />
-                ) : block?.src ? (
-                  <img src={block.src} alt={block.alt||''} className="object-contain w-full h-36" />
-                ) : (
-                  <div className="text-sm text-gray-400">No image</div>
-                )}
+                {(() => {
+                  if (block?._file) {
+                    return <img src={URL.createObjectURL(block._file)} alt={block.alt||''} className="object-contain w-full h-36" />;
+                  }
+                  if (block?.src) {
+                    return <img src={block.src} alt={block.alt||''} className="object-contain w-full h-36" />;
+                  }
+                  return <div className="text-sm text-gray-400">No image</div>;
+                })()}
               </div>
               <div className="mt-2"><button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(prev => deleteBlock(prev, block._id))}>Remove block</button></div>
             </div>

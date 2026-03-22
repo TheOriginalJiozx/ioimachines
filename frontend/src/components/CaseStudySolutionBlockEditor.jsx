@@ -39,21 +39,29 @@ export default function CaseStudySolutionBlockEditor({ block, onChange, onMoveUp
             className="w-full p-2 border rounded text-sm font-mono"
             placeholder="Image URL"
           />
-          {block?._file ? (
-            <img
-              src={URL.createObjectURL(block._file)}
-              alt={block.alt || ''}
-              className="object-contain w-full max-h-40 rounded border"
-              style={{ marginTop: 8 }}
-            />
-          ) : (block?.src || block?.url) ? (
-            <img
-              src={block.src || block.url}
-              alt={block.alt || ''}
-              className="object-contain w-full max-h-40 rounded border"
-              style={{ marginTop: 8 }}
-            />
-          ) : null}
+          {(() => {
+            if (block?._file) {
+              return (
+                <img
+                  src={URL.createObjectURL(block._file)}
+                  alt={block.alt || ''}
+                  className="object-contain w-full max-h-40 rounded border"
+                  style={{ marginTop: 8 }}
+                />
+              );
+            }
+            if (block?.src || block?.url) {
+              return (
+                <img
+                  src={block.src || block.url}
+                  alt={block.alt || ''}
+                  className="object-contain w-full max-h-40 rounded border"
+                  style={{ marginTop: 8 }}
+                />
+              );
+            }
+            return null;
+          })()}
           <input
             type="text"
             value={block.alt || ""}
