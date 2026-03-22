@@ -134,7 +134,7 @@ export default function TurnkeySolutions() {
               {editingTurnkey ? (
                 <div className="mt-4">
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                    <label htmlFor="turnkey-content" className="block text-sm font-medium text-gray-700 mb-1">Content</label>
                     {turnkeyBlocks && Array.isArray(turnkeyBlocks) && turnkeyBlocks.map((block, index) => (
                       <TurnkeyBlockEditor
                         key={block._id || index}

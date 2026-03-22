@@ -20,7 +20,8 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
         <div className="mb-2 text-sm text-gray-600">
           Block #{index + 1} — <span className="font-mono">{block.title ? (block.title.charAt(0).toLowerCase() + block.title.slice(1).toLowerCase()) : block.type}</span>
         </div>
-        <textarea value={block.text || ""}
+        <label htmlFor={`turnkey-paragraph-${index}`} className="sr-only">Paragraph</label>
+        <textarea id={`turnkey-paragraph-${index}`} value={block.text || ""}
           onChange={event => setBlocks(blocks => updateBlock(blocks, block._id, { ...block, text: event.target.value }))}
           rows={6}
           className="w-full p-2 border rounded text-sm font-mono"
@@ -147,10 +148,10 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
   if (block.type === "list") {
     return (
       <div className="border rounded p-3">
-        <label className="text-xs text-gray-600 block">
+        <label htmlFor={`turnkey-list-items-${index}`} className="text-xs text-gray-600 block">
           {block._isSemicolonList ? "Text and items (items end with ;)" : "List items (one per line)"}
         </label>
-        <textarea value={getListBlockEditorValue(block)}
+        <textarea id={`turnkey-list-items-${index}`} value={getListBlockEditorValue(block)}
           onChange={event => setBlocks(blocks => updateBlock(blocks, block._id, { ...block, _editorValue: event.target.value }))}
           onBlur={event => {
             const parsed = parseListBlockEditorValue(block, event.target.value);
@@ -175,11 +176,11 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
   if (block.type === "image") {
     return (
       <div className="border rounded p-3">
-        <label className="text-xs text-gray-600">Replace image (upload)</label>
+        <label htmlFor={`turnkey-image-upload-${index}`} className="text-xs text-gray-600">Replace image (upload)</label>
         <div className="flex items-center gap-2">
-          <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
+          <label htmlFor={`turnkey-image-upload-input-${index}`} className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
             Choose image
-            <input type="file"
+            <input id={`turnkey-image-upload-input-${index}`} type="file"
               accept="image/*"
               onChange={event => {
                 const file = event.target.files && event.target.files[0];
@@ -195,13 +196,13 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
             />
           </label>
         </div>
-        <label className="text-xs text-gray-600">Or image URL</label>
-        <input value={block.src || ""}
+        <label htmlFor={`turnkey-image-url-${index}`} className="text-xs text-gray-600">Or image URL</label>
+        <input id={`turnkey-image-url-${index}`} value={block.src || ""}
           onChange={event => setBlocks(blocks => updateBlock(blocks, block._id, { ...block, src: event.target.value || "", alt: block.alt || "image", _autoAlt: false }))}
           className="w-full p-2 border rounded text-sm"
         />
-        <label className="text-xs text-gray-600">Alt text</label>
-        <input value={block.alt || ""}
+        <label htmlFor={`turnkey-image-alt-${index}`} className="text-xs text-gray-600">Alt text</label>
+        <input id={`turnkey-image-alt-${index}`} value={block.alt || ""}
           onChange={event => setBlocks(blocks => updateBlock(blocks, block._id, { ...block, alt: event.target.value, _autoAlt: false }))}
           className="w-full p-2 border rounded text-sm"
         />
