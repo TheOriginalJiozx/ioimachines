@@ -7,13 +7,13 @@ export function renderBlockTurnkey(block, index) {
     case "paragraph": {
       const hideTitle = block.title && (block.title.toLowerCase().includes("image text") || block.title.toLowerCase().includes("images"));
       return (
-        <div key={index} className="mb-4">
+        <div key={block._id || block.id || index} className="mb-4">
           {block.title && !hideTitle && <h3 className="text-[24px] font-semibold text-[#222222] mb-2">{block.title}</h3>}
           <div className="whitespace-pre-wrap text-[15px] text-[#444444]">{block.text}</div>
           {block.images && block.images.length > 0 && (
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
               {block.images.map((img, i) => (
-                <img key={i} src={img} alt={`image-${i}`} className="w-full h-28 sm:h-32 md:h-40 object-contain bg-white p-2 rounded" />
+                <img key={img._id || img.id || i} src={img} alt={`image-${i}`} className="w-full h-28 sm:h-32 md:h-40 object-contain bg-white p-2 rounded" />
               ))}
             </div>
           )}
@@ -22,7 +22,7 @@ export function renderBlockTurnkey(block, index) {
     }
     case "image":
       return (
-        <div key={index} className="mb-4">
+        <div key={block._id || block.id || index} className="mb-4">
           <img src={block.src} alt={block.alt || ""} className="w-full rounded shadow" />
         </div>
       );
@@ -30,18 +30,18 @@ export function renderBlockTurnkey(block, index) {
       // Explicit cases for known list types
       if (block.title && block.title.toLowerCase() === "process") {
         return (
-          <div key={index} className="mb-4">
+          <div key={block._id || block.id || index} className="mb-4">
             <h2 className="text-[56px] font-semibold text-[#222222] mb-3">Process</h2>
             {block.extraText && block.extraText.length > 0 && (
               <div className="mb-3 text-[15px] text-[#444444]">
                 {block.extraText.map((text, i) => (
-                  <p key={i} className="mb-2">{text}</p>
+                  <p key={text._id || text.id || i} className="mb-2">{text}</p>
                 ))}
               </div>
             )}
             <ul className="mt-4 list-disc list-inside space-y-2 text-[15px] pl-6">
               {(block.items || []).map((item, i) => (
-                <li key={i} className="text-[#444444] mb-2">{item}</li>
+                <li key={item._id || item.id || i} className="text-[#444444] mb-2">{item}</li>
               ))}
             </ul>
           </div>
@@ -49,18 +49,18 @@ export function renderBlockTurnkey(block, index) {
       }
       if (block.title && block.title.toLowerCase() === "deliverables") {
         return (
-          <div key={index} className="mb-4">
+          <div key={block._id || block.id || index} className="mb-4">
             <h2 className="text-[40px] font-semibold text-[#222222] mb-3">Deliverables</h2>
             {block.extraText && block.extraText.length > 0 && (
               <div className="mb-3 text-[15px] text-[#444444]">
                 {block.extraText.map((text, i) => (
-                  <p key={i} className="mb-2">{text}</p>
+                  <p key={text._id || text.id || i} className="mb-2">{text}</p>
                 ))}
               </div>
             )}
             <ul className="mt-4 list-disc list-inside space-y-2 text-[15px] pl-6">
               {(block.items || []).map((item, i) => (
-                <li key={i} className="text-[#444444] mb-2">{item}</li>
+                <li key={item._id || item.id || i} className="text-[#444444] mb-2">{item}</li>
               ))}
             </ul>
           </div>
@@ -68,12 +68,12 @@ export function renderBlockTurnkey(block, index) {
       }
       if (block.title && block.title.toLowerCase() === "service description") {
         return (
-          <div key={index} className="mb-4">
+          <div key={block._id || block.id || index} className="mb-4">
             <h2 className="text-[40px] font-semibold text-[#222222] mb-3">Service Description</h2>
             {block.extraText && block.extraText.length > 0 && (
               <div className="mb-3 text-[15px] text-[#444444]">
                 {block.extraText.map((text, i) => (
-                  <p key={i} className="mb-2">{text}</p>
+                  <p key={text._id || text.id || i} className="mb-2">{text}</p>
                 ))}
               </div>
             )}

@@ -14,7 +14,7 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
 
   if (!block) return null;
 
-  if (block.type === "paragraph" && !(block.title && (String(block.title).toLowerCase().includes("signature") || String(block.title).toLowerCase().includes("image")))) {
+    if (block.type === "paragraph" && !(block.title?.toLowerCase().includes("signature") || block.title?.toLowerCase().includes("image"))) {
     return (
       <div className="border rounded p-3">
         <div className="mb-2 text-sm text-gray-600">
@@ -47,7 +47,7 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
           {index > 0 && (
             <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(blocks => moveBlockUp(blocks, block._id))}>Move up</button>
           )}
-          {!hideMoveDown && (
+            {hideMoveDown !== true && (
             <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(blocks => moveBlockDown(blocks, block._id))} disabled={index === blockCount - 1}>Move down</button>
           )}
           <button className="px-2 py-1 rounded border text-sm text-red-600 border-red-600" onClick={() => setBlocks(blocks => deleteBlock(blocks, block._id))}>Remove block</button>
@@ -234,43 +234,43 @@ export function TurnkeyBlockAddButtons({ blocks, setBlocks }) {
   return (
     <div className="mt-4 flex flex-wrap gap-2 border-t pt-4">
       <button
-        className={`px-2 py-1 rounded border text-sm ${!canAddBlock(blocks, "list-inhouse") ? disabledClass : ""}`}
-        disabled={!canAddBlock(blocks, "list-inhouse")}
+        className={`px-2 py-1 rounded border text-sm ${canAddBlock(blocks, "list-inhouse") ? "" : disabledClass}`}
+        disabled={canAddBlock(blocks, "list-inhouse") ? false : true}
         onClick={() => setBlocks(addBlock(blocks, "list-inhouse"))}
       >
         Add Inhouse Competencies
       </button>
       <button
-        className={`px-2 py-1 rounded border text-sm ${!canAddBlock(blocks, "list-service") ? disabledClass : ""}`}
-        disabled={!canAddBlock(blocks, "list-service")}
+        className={`px-2 py-1 rounded border text-sm ${canAddBlock(blocks, "list-service") ? "" : disabledClass}`}
+        disabled={canAddBlock(blocks, "list-service") ? false : true}
         onClick={() => setBlocks(addBlock(blocks, "list-service"))}
       >
         Add Service Description
       </button>
       <button
-        className={`px-2 py-1 rounded border text-sm ${!canAddBlock(blocks, "list-scope") ? disabledClass : ""}`}
-        disabled={!canAddBlock(blocks, "list-scope")}
+        className={`px-2 py-1 rounded border text-sm ${canAddBlock(blocks, "list-scope") ? "" : disabledClass}`}
+        disabled={canAddBlock(blocks, "list-scope") ? false : true}
         onClick={() => setBlocks(addBlock(blocks, "list-scope"))}
       >
         Add Scope & Approach
       </button>
       <button
-        className={`px-2 py-1 rounded border text-sm ${!canAddBlock(blocks, "paragraph-image-text") ? disabledClass : ""}`}
-        disabled={!canAddBlock(blocks, "paragraph-image-text")}
+        className={`px-2 py-1 rounded border text-sm ${canAddBlock(blocks, "paragraph-image-text") ? "" : disabledClass}`}
+        disabled={canAddBlock(blocks, "paragraph-image-text") ? false : true}
         onClick={() => setBlocks(addBlock(blocks, "paragraph-image-text"))}
       >
         Add Image Text
       </button>
       <button
-        className={`px-2 py-1 rounded border text-sm ${!canAddBlock(blocks, "image") ? disabledClass : ""}`}
-        disabled={!canAddBlock(blocks, "image")}
+        className={`px-2 py-1 rounded border text-sm ${canAddBlock(blocks, "image") ? "" : disabledClass}`}
+        disabled={canAddBlock(blocks, "image") ? false : true}
         onClick={() => setBlocks(addBlock(blocks, "image"))}
       >
         Add Image
       </button>
       <button
-        className={`px-2 py-1 rounded border text-sm ${!canAddBlock(blocks, "list-process") ? disabledClass : ""}`}
-        disabled={!canAddBlock(blocks, "list-process")}
+        className={`px-2 py-1 rounded border text-sm ${canAddBlock(blocks, "list-process") ? "" : disabledClass}`}
+        disabled={canAddBlock(blocks, "list-process") ? false : true}
         onClick={() => setBlocks(addBlock(blocks, "list-process"))}
       >
         Add Process
