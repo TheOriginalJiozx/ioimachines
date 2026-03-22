@@ -56,7 +56,7 @@ export default function Feasibility() {
             ...(adminToken ? { Authorization: 'Bearer ' + adminToken } : {}),
           },
         }).catch(() => null);
-        const json = res && res.ok ? await res.json().catch(() => null) : null;
+        const json = res?.ok ? await res.json().catch(() => null) : null;
         if (!json) return;
         try {
           const parsed = json.content ? JSON.parse(json.content) : null;

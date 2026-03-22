@@ -65,7 +65,7 @@ export default function TurnkeySolutions() {
       try {
       const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
         const res = await fetch(`${API_BASE}/sections/turnkey`).catch(() => null);
-        const json = res && res.ok ? await res.json().catch(() => null) : null;
+        const json = res?.ok ? await res.json().catch(() => null) : null;
         if (!json) return;
         try {
           const parsed = json.content ? JSON.parse(json.content) : null;

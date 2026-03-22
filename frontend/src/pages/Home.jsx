@@ -85,7 +85,7 @@ const [perfBody2, setPerfBody2] = useState("");
       const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
       try {
         const res = await fetch(`${API_BASE}/sections/home-why-ioimachines`);
-        const json = res && res.ok ? await res.json() : null;
+        const json = res?.ok ? await res.json() : null;
         if (json && json.content) {
           let parsed = {};
           try {
@@ -114,7 +114,7 @@ const [perfBody2, setPerfBody2] = useState("");
         try {
           const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
           const res = await fetch(`${API_BASE}/sections/home-why-ioimachines`);
-          const json = res && res.ok ? await res.json() : null;
+          const json = res?.ok ? await res.json() : null;
           if (json) {
             setWhyTitle(json.title || "");
             if (json.content) {
@@ -146,7 +146,7 @@ const [perfBody2, setPerfBody2] = useState("");
    try {
     const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
     const res = await fetch(`${API_BASE}/sections/home-what-we-do`);
-    const json = res && res.ok ? await res.json() : null;
+    const json = res?.ok ? await res.json() : null;
     if (json) {
      setSiteSectionTitle(json.title || siteSectionTitle);
      if (json.content) {
@@ -175,7 +175,7 @@ const [perfBody2, setPerfBody2] = useState("");
    try {
     const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
     const res = await fetch(`${API_BASE}/sections/home-cards`);
-    const json = res && res.ok ? await res.json() : null;
+    const json = res?.ok ? await res.json() : null;
     if (json && json.content) {
      let parsed = {};
      try {
@@ -211,7 +211,7 @@ const [perfBody2, setPerfBody2] = useState("");
    try {
     const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
     const res = await fetch(`${API_BASE}/modals/home`);
-    const json = res && res.ok ? await res.json() : null;
+    const json = res?.ok ? await res.json() : null;
     setModalTexts(Array.isArray(json) ? json : []);
    } catch {
     setModalTexts([]);
@@ -429,7 +429,7 @@ const [perfBody2, setPerfBody2] = useState("");
             
             try {
               const res = await fetch(`${API_BASE}/sections/home-what-we-do`);
-              const json = res && res.ok ? await res.json() : null;
+              const json = res?.ok ? await res.json() : null;
               if (json) {
                 setSiteSectionTitle(json.title || title);
                 if (json.content) {
@@ -555,7 +555,7 @@ const [perfBody2, setPerfBody2] = useState("");
             
             try {
               const res = await fetch(`${API_BASE}/sections/home-cards`);
-              const json = res && res.ok ? await res.json() : null;
+              const json = res?.ok ? await res.json() : null;
               if (json && json.content) {
                 let parsed = {};
                 try {
@@ -819,7 +819,7 @@ const [perfBody2, setPerfBody2] = useState("");
                });
                if (saveRes.ok) {
                  const res = await fetch(`${API_BASE}/modals/home`);
-                 const json = res && res.ok ? await res.json() : null;
+                 const json = res?.ok ? await res.json() : null;
                  setModalTexts(Array.isArray(json) ? json : []);
                }
              } catch (error) {

@@ -213,7 +213,7 @@ export default function Services() {
                             const API_BASE =
                               import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
                             const res = await fetch(`${API_BASE}/modals/services`);
-                            const json = res && res.ok ? await res.json() : null;
+                            const json = res?.ok ? await res.json() : null;
                             setModalTexts(json || {});
                             setModalTitle(title);
                             setModalBody((json && json[title] && json[title].body) || "");
@@ -602,7 +602,7 @@ export default function Services() {
                   });
                   if (saveRes.ok) {
                     const res = await fetch(`${API_BASE}/modals/services`);
-                    const json = res && res.ok ? await res.json() : null;
+                    const json = res?.ok ? await res.json() : null;
                     setModalTexts(json || {});
                   }
                 } catch (error) {

@@ -27,7 +27,7 @@ export async function fetchSection(setters, adminToken) {
         ...(adminToken ? { Authorization: 'Bearer ' + adminToken } : {}),
       },
     });
-    const json = res && res.ok ? await res.json() : null;
+    const json = res?.ok ? await res.json() : null;
     if (json && json.content) {
       const parsed = JSON.parse(json.content);
       if (setters.setMaintenanceTitle) setters.setMaintenanceTitle(parsed.maintenanceTitle || "");
@@ -55,7 +55,7 @@ export async function fetchModalTexts(setModalTexts, adminToken) {
         ...(adminToken ? { Authorization: 'Bearer ' + adminToken } : {}),
       },
     });
-    const json = res && res.ok ? await res.json() : null;
+    const json = res?.ok ? await res.json() : null;
     setModalTexts(json);
   } catch (e) {
     console.error("Failed to fetch modal texts", e);

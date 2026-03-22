@@ -33,7 +33,7 @@ export default function Contact() {
       try {
         const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
         const res = await fetch(`${API_BASE}/sections/contact`).catch(() => null);
-        const json = res && res.ok ? await res.json().catch(() => null) : null;
+        const json = res?.ok ? await res.json().catch(() => null) : null;
         let parsed = null;
         try {
           parsed = json && json.content ? JSON.parse(json.content) : null;
