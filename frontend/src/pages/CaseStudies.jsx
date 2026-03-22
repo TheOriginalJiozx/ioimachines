@@ -141,12 +141,12 @@ export default function CaseStudies() {
               <div>
                 <h2 className="text-2xl font-bold mb-4">{isCreating ? "Creating New Case Study" : `Editing: ${caseData?.title}`}</h2>
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                  <input value={titleEditor} onChange={(event) => setTitleEditor(event.target.value)} className="w-full p-2 border rounded" />
+                  <label htmlFor="case-title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                  <input id="case-title" value={titleEditor} onChange={(event) => setTitleEditor(event.target.value)} className="w-full p-2 border rounded" />
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                  <label htmlFor="case-content" className="block text-sm font-medium text-gray-700 mb-1">Content</label>
                   {editingBlocks && Array.isArray(editingBlocks) ? (
                     <div className="space-y-4">
                       {editingBlocks.map((block, index) => (
@@ -176,7 +176,7 @@ export default function CaseStudies() {
                       </div>
                     </div>
                   ) : (
-                    <textarea value={contentEditor} onChange={(event) => setContentEditor(event.target.value)} rows={10} className="w-full p-3 border rounded text-sm font-mono" />
+                    <textarea id="case-content" value={contentEditor} onChange={(event) => setContentEditor(event.target.value)} rows={10} className="w-full p-3 border rounded text-sm font-mono" />
                   )}
                 </div>
                 <div className="flex gap-2">
@@ -298,13 +298,13 @@ export default function CaseStudies() {
                 {isEditing && (
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Solution title</label>
-                      <input value={solutionTitleEditor} onChange={(event) => setSolutionTitleEditor(event.target.value)} className="w-full p-2 border rounded" />
+                      <label htmlFor="solution-title" className="block text-sm font-medium text-gray-700 mb-1">Solution title</label>
+                      <input id="solution-title" value={solutionTitleEditor} onChange={(event) => setSolutionTitleEditor(event.target.value)} className="w-full p-2 border rounded" />
                     </div>
 
                     {editingSolutionBlocks && Array.isArray(editingSolutionBlocks) ? (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Solution blocks</label>
+                        <label htmlFor="solution-blocks" className="block text-sm font-medium text-gray-700 mb-1">Solution blocks</label>
                         <div className="space-y-3">
                           {editingSolutionBlocks.map((block, studyIndex) => (
                             <CaseStudySolutionBlockEditor
@@ -335,8 +335,8 @@ export default function CaseStudies() {
                       </div>
                     ) : (
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Solution</label>
-                        <textarea value={solutionEditor} onChange={(event) => setSolutionEditor(event.target.value)} rows={12} className="w-full p-2 border rounded text-sm font-mono" />
+                        <label htmlFor="solution-editor" className="block text-sm font-medium text-gray-700 mb-1">Solution</label>
+                        <textarea id="solution-editor" value={solutionEditor} onChange={(event) => setSolutionEditor(event.target.value)} rows={12} className="w-full p-2 border rounded text-sm font-mono" />
                       </div>
                     )}
                   </div>
