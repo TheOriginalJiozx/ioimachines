@@ -55,116 +55,71 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
               </div>
             </>
           )}
-          {block.type === "list" && (
-            <>
-              <label htmlFor={`feasibility-list-items-${index}`} className="text-xs text-gray-600 block">
-                {block.title?.toLowerCase() === "process"
-                  ? "Items (one per line, end with ;)"
-                  : block._isSemicolonList
-                  ? "Text and items (items end with ;)"
-                  : block.style === "decimal"
-                  ? "Scope items (one per line)"
-                  : "List items (one per line)"}
-              </label>
-              <textarea
-                id={`feasibility-list-items-${index}`}
-                value={getListBlockEditorValue(block)}
-                onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, _editorValue: event.target.value }))}
-                onBlur={event => {
-                  const parsed = parseListBlockEditorValue(block, event.target.value);
-                  setBlocks(prev => updateBlock(prev, block._id, { ...block, ...parsed, _editorValue: undefined }));
-                }}
-                rows={6}
-                className="w-full p-2 border rounded text-sm font-mono"
-              />
-              <div className="mt-2 flex gap-2 flex-wrap">
-                {index > 0 && (
-                  <button
-                    className="px-2 py-1 rounded border text-sm"
-                    onClick={() => setBlocks(prev => moveBlockUp(prev, block._id))}
-                  >
-                    Move up
-                  </button>
-                )}
-                {!hideMoveDown && (
-                  <button
-                    className="px-2 py-1 rounded border text-sm"
-                    onClick={() => setBlocks(prev => moveBlockDown(prev, block._id))}
-                    disabled={index === blocks.length - 1}
-                  >
-                    Move down
-                  </button>
-                )}
-                <button
-                  className="px-2 py-1 rounded border text-sm"
-                  onClick={() => setBlocks(prev => deleteBlock(prev, block._id))}
-                >
-                  Remove block
-                </button>
-              </div>
-            </>
-          )}
-          {block.type === "image" && (
-            <div className="grid grid-cols-1 gap-2">
-              <label htmlFor={`feasibility-image-upload-${index}`} className="text-xs text-gray-600">Replace image (upload)</label>
-              <div className="flex items-center gap-2">
-                <label htmlFor={`feasibility-image-upload-input-${index}`} className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
-                  Choose image
-                  <input
-                    id={`feasibility-image-upload-input-${index}`}
-                    type="file"
-                    accept="image/*"
-                    onChange={event => {
-                      const file = event.target.files && event.target.files[0];
-                      if (!file) return;
-                      const preview = URL.createObjectURL(file);
-                      setBlocks(prev => updateBlock(prev, block._id, { ...block, _file: file, src: preview }));
-                    }}
-                    className="hidden"
-                  />
+          {block.type === "list" && (() => {
+            let label = "List items (one per line)";
+            if (block.title?.toLowerCase() === "process") {
+              label = "Items (one per line, end with ;)";
+            } else if (block._isSemicolonList) {
+              label = "Text and items (items end with ;)";
+            } else if (block.style === "decimal") {
+              label = "Scope items (one per line)";
+            }
+
+            return (
+              <>
+                <label htmlFor={`feasibility-list-items-${index}`} className="text-xs text-gray-600 block">
+                  {label}
                 </label>
-              </div>
-              <label htmlFor={`feasibility-image-url-${index}`} className="text-xs text-gray-600 mt-2">Or image URL</label>
-              <input
-                id={`feasibility-image-url-${index}`}
-                value={block.src || ""}
-                onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, src: event.target.value || "" }))}
-                className="w-full p-2 border rounded text-sm"
-              />
-              <label htmlFor={`feasibility-image-alt-${index}`} className="text-xs text-gray-600">Alt text</label>
-              <input
-                id={`feasibility-image-alt-${index}`}
-                value={block.alt || ""}
-                onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, alt: event.target.value }))}
-                className="w-full p-2 border rounded text-sm"
-              />
-              <div className="mt-2">{block.src ? <img src={block.src} alt={block.alt && block.alt.trim() !== "" ? block.alt : "Feasibility image"} className="object-contain w-full h-36 rounded" /> : <div className="text-sm text-gray-400">No image</div>}</div>
-              <div className="mt-2 flex gap-2 flex-wrap">
-                {index > 0 && (
+
+                <textarea
+                  id={`feasibility-list-items-${index}`}
+                  value={getListBlockEditorValue(block)}
+                  onChange={event =>
+                    setBlocks(prev =>
+                      updateBlock(prev, block._id, { ...block, _editorValue: event.target.value })
+                    )
+                  }
+                  onBlur={event => {
+                    const parsed = parseListBlockEditorValue(block, event.target.value);
+                    setBlocks(prev =>
+                      updateBlock(prev, block._id, { ...block, ...parsed, _editorValue: undefined })
+                    );
+                  }}
+                  rows={6}
+                  className="w-full p-2 border rounded text-sm font-mono"
+                />
+
+                {/* ✅ FIXED: properly opened AND closed */}
+                <div className="mt-2 flex gap-2 flex-wrap">
+                  {index > 0 && (
+                    <button
+                      className="px-2 py-1 rounded border text-sm"
+                      onClick={() => setBlocks(prev => moveBlockUp(prev, block._id))}
+                    >
+                      Move up
+                    </button>
+                  )}
+
+                  {!hideMoveDown && (
+                    <button
+                      className="px-2 py-1 rounded border text-sm"
+                      onClick={() => setBlocks(prev => moveBlockDown(prev, block._id))}
+                      disabled={index === blocks.length - 1}
+                    >
+                      Move down
+                    </button>
+                  )}
+
                   <button
                     className="px-2 py-1 rounded border text-sm"
-                    onClick={() => setBlocks(prev => moveBlockUp(prev, block._id))}
+                    onClick={() => setBlocks(prev => deleteBlock(prev, block._id))}
                   >
-                    Move up
+                    Remove block
                   </button>
-                )}
-                {index < blocks.length - 1 && (
-                  <button
-                    className="px-2 py-1 rounded border text-sm"
-                    onClick={() => setBlocks(prev => moveBlockDown(prev, block._id))}
-                  >
-                    Move down
-                  </button>
-                )}
-                <button
-                  className="px-2 py-1 rounded border text-sm"
-                  onClick={() => setBlocks(prev => deleteBlock(prev, block._id))}
-                >
-                  Remove block
-                </button>
-              </div>
-            </div>
-          )}
+                </div>
+              </>
+            );
+          })()}
         </div>
       ))}
       <FeasibilityBlockAddButtons blocks={blocks} setBlocks={setBlocks} />

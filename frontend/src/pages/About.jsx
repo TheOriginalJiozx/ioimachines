@@ -79,6 +79,36 @@ export default function About() {
     load();
   }, []);
 
+  function parseAndInitBlocks(parsedContent, content) {
+    let parsed = parsedContent;
+    if (!parsed && content) {
+      try {
+        parsed = JSON.parse(content);
+      } catch {
+        parsed = null;
+      }
+    }
+    let arr = [];
+    if (parsed && parsed.intro) {
+      arr = Array.isArray(parsed.intro)
+        ? parsed.intro.map((b) => ({ ...b, _id: b._id || genId() }))
+        : typeof parsed.intro === 'string'
+          ? [{ _id: genId(), type: 'paragraph', text: parsed.intro }]
+          : [];
+    } else if (parsed) {
+      arr = Array.isArray(parsed)
+        ? parsed.map((b) => ({ ...b, _id: b._id || genId() }))
+        : typeof parsed === 'string'
+          ? [{ _id: genId(), type: 'paragraph', text: parsed }]
+          : [];
+    } else if (content) {
+      arr = [{ _id: genId(), type: 'paragraph', text: content }];
+    }
+    if (!arr.some((b) => b && b.type === 'paragraph')) arr.push({ _id: genId(), type: 'paragraph', text: '' });
+    if (arr.length === 0) arr = [{ _id: genId(), type: 'paragraph', text: '' }];
+    return arr;
+  }
+  
   return (
     <div className="min-h-screen bg-white text-[#444444] font-sans" aria-label="About page">
       <section className="relative w-full" aria-label="About hero">
@@ -200,36 +230,6 @@ export default function About() {
                     setWhyContentEditor(blocksToPlainText(arr));
                     setEditingWhy(true);
                   }} className="px-3 py-1 rounded border">Edit</button></div>}
-                // Helper to parse and initialize blocks for edit mode
-                function parseAndInitBlocks(parsedContent, content) {
-                  let parsed = parsedContent;
-                  if (!parsed && content) {
-                    try {
-                      parsed = JSON.parse(content);
-                    } catch {
-                      parsed = null;
-                    }
-                  }
-                  let arr = [];
-                  if (parsed && parsed.intro) {
-                    arr = Array.isArray(parsed.intro)
-                      ? parsed.intro.map((b) => ({ ...b, _id: b._id || genId() }))
-                      : typeof parsed.intro === 'string'
-                        ? [{ _id: genId(), type: 'paragraph', text: parsed.intro }]
-                        : [];
-                  } else if (parsed) {
-                    arr = Array.isArray(parsed)
-                      ? parsed.map((b) => ({ ...b, _id: b._id || genId() }))
-                      : typeof parsed === 'string'
-                        ? [{ _id: genId(), type: 'paragraph', text: parsed }]
-                        : [];
-                  } else if (content) {
-                    arr = [{ _id: genId(), type: 'paragraph', text: content }];
-                  }
-                  if (!arr.some((b) => b && b.type === 'paragraph')) arr.push({ _id: genId(), type: 'paragraph', text: '' });
-                  if (arr.length === 0) arr = [{ _id: genId(), type: 'paragraph', text: '' }];
-                  return arr;
-                }
                 </>
               )}
             </div>

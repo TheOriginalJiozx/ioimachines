@@ -94,6 +94,37 @@ export default function CaseStudies() {
     }
   }, [titleEditor, editingBlocks, editingSolutionBlocks]);
 
+  function BlockEditorList({ blocks, setBlocks, genId, BlockEditor }) {
+    return (
+      <div className="space-y-4">
+        {blocks.map((block, index) => (
+          <BlockEditor
+            key={block._id || index}
+            block={block}
+            index={index}
+            onChange={(id, newBlock) => setBlocks((prev) => prev.map(b => b._id === id ? newBlock : b))}
+            onMoveUp={id => setBlocks(prev => moveBlockUp(prev, id))}
+            onMoveDown={id => setBlocks(prev => moveBlockDown(prev, id))}
+            onDelete={id => setBlocks(prev => deleteBlock(prev, id))}
+          />
+        ))}
+        <div className="flex gap-2 mt-2">
+          <button
+            className="bg-indigo-600 text-white px-3 py-1 rounded"
+            onClick={() => setBlocks(blocks => addParagraphBlock(blocks, genId))}
+          >
+            Add paragraph
+          </button>
+          <button
+            className="bg-white border px-3 py-1 rounded"
+            onClick={() => setBlocks(blocks => addImageBlock(blocks, genId))}
+          >
+            Add image
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-white text-[#444444] font-sans" aria-label="Case studies page">
       <section className="relative w-full mb-16">
@@ -148,66 +179,8 @@ export default function CaseStudies() {
                 <div className="mb-4">
                   <label htmlFor="case-content" className="block text-sm font-medium text-gray-700 mb-1">Content</label>
                   {editingBlocks && Array.isArray(editingBlocks) ? (
-                    <div className="space-y-4">
-                      {editingBlocks.map((block, index) => (
-                        <CaseStudyBlockEditor
-                          key={block._id || index}
-                          block={block}
-                          index={index}
-                          onChange={(id, newBlock) => setEditingBlocks((prev) => prev.map(b => b._id === id ? newBlock : b))}
-                          onMoveUp={id => setEditingBlocks(prev => moveBlockUp(prev, id))}
-                          onMoveDown={id => setEditingBlocks(prev => moveBlockDown(prev, id))}
-                          onDelete={id => setEditingBlocks(prev => deleteBlock(prev, id))}
-                        />
-                      ))}
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          className="bg-indigo-600 text-white px-3 py-1 rounded"
-                          onClick={() => setEditingBlocks(blocks => addParagraphBlock(blocks, genId))}
-                        >
-                          Add paragraph
-                        </button>
-                        <button
-                          className="bg-white border px-3 py-1 rounded"
-                          onClick={() => setEditingBlocks(blocks => addImageBlock(blocks, genId))}
-                        >
-                          Add image
-                        </button>
-                      </div>
-                    </div>
+                    <BlockEditorList blocks={editingBlocks} setBlocks={setEditingBlocks} genId={genId} BlockEditor={CaseStudyBlockEditor} />
                   ) : (
-                          // Helper component for rendering a list of block editors
-                          function BlockEditorList({ blocks, setBlocks, genId, BlockEditor }) {
-                            return (
-                              <div className="space-y-4">
-                                {blocks.map((block, index) => (
-                                  <BlockEditor
-                                    key={block._id || index}
-                                    block={block}
-                                    index={index}
-                                    onChange={(id, newBlock) => setBlocks((prev) => prev.map(b => b._id === id ? newBlock : b))}
-                                    onMoveUp={id => setBlocks(prev => moveBlockUp(prev, id))}
-                                    onMoveDown={id => setBlocks(prev => moveBlockDown(prev, id))}
-                                    onDelete={id => setBlocks(prev => deleteBlock(prev, id))}
-                                  />
-                                ))}
-                                <div className="flex gap-2 mt-2">
-                                  <button
-                                    className="bg-indigo-600 text-white px-3 py-1 rounded"
-                                    onClick={() => setBlocks(blocks => addParagraphBlock(blocks, genId))}
-                                  >
-                                    Add paragraph
-                                  </button>
-                                  <button
-                                    className="bg-white border px-3 py-1 rounded"
-                                    onClick={() => setBlocks(blocks => addImageBlock(blocks, genId))}
-                                  >
-                                    Add image
-                                  </button>
-                                </div>
-                              </div>
-                            );
-                          }
                     <textarea id="case-content" value={contentEditor} onChange={(event) => setContentEditor(event.target.value)} rows={10} className="w-full p-3 border rounded text-sm font-mono" />
                   )}
                 </div>
