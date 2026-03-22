@@ -8,8 +8,8 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
   return (
     <div className="editing-feasibility">
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-        <input value={title} onChange={e => setTitle(e.target.value)} className="w-full p-2 border rounded" />
+        <label htmlFor="contact-title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+        <input id="contact-title" value={title} onChange={e => setTitle(e.target.value)} className="w-full p-2 border rounded" />
       </div>
       {blocks.map((block, index) => (
         <div key={block._id || index} className="border rounded p-3">
@@ -17,8 +17,8 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
           {block.type === "paragraph" && (
             <>
               <div className="mb-2 flex gap-2">
-                <label className="text-xs text-gray-600">Contact field</label>
-                <select value={block.contactType || ''} onChange={event => {
+                <label htmlFor={`contact-block-type-${index}`} className="text-xs text-gray-600">Contact field</label>
+                <select id={`contact-block-type-${index}`} value={block.contactType || ''} onChange={event => {
                   const val = event.target.value || null;
                   setBlocks(prev => updateBlock(prev, block._id, { ...block, contactType: val }));
                 }} className="p-1 border rounded text-sm">
@@ -29,7 +29,9 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
                   <option value="timing">Timing</option>
                 </select>
               </div>
+              <label htmlFor={`contact-block-text-${index}`} className="text-xs text-gray-600">Text</label>
               <textarea
+                id={`contact-block-text-${index}`}
                 value={block.text || ''}
                 onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, text: event.target.value }))}
                 rows={4}
@@ -48,11 +50,11 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
           )}
           {block.type === "image" && (
             <div className="grid grid-cols-1 gap-2">
-              <label className="text-xs text-gray-600">Replace image (upload)</label>
+              <label htmlFor={`contact-block-image-upload-${index}`} className="text-xs text-gray-600">Replace image (upload)</label>
               <div className="flex gap-2">
                 <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
                   Choose image
-                  <input type="file" accept="image/*" onChange={event => {
+                  <input id={`contact-block-image-upload-${index}`} type="file" accept="image/*" onChange={event => {
                     const file = event.target.files && event.target.files[0];
                     if (!file) return;
                     setBlocks(prev => updateBlock(prev, block._id, { ...block, _file: file }));
@@ -60,10 +62,10 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
                 </label>
                 <div className="text-sm text-gray-600">or paste URL below</div>
               </div>
-              <label className="text-xs text-gray-600">Or image URL</label>
-              <input value={block.src || ''} onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, src: event.target.value }))} className="w-full p-2 border rounded text-sm" />
-              <label className="text-xs text-gray-600">Alt text</label>
-              <input value={block.alt||''} onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, alt: event.target.value }))} className="w-full p-2 border rounded text-sm" />
+              <label htmlFor={`contact-block-image-url-${index}`} className="text-xs text-gray-600">Or image URL</label>
+              <input id={`contact-block-image-url-${index}`} value={block.src || ''} onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, src: event.target.value }))} className="w-full p-2 border rounded text-sm" />
+              <label htmlFor={`contact-block-image-alt-${index}`} className="text-xs text-gray-600">Alt text</label>
+              <input id={`contact-block-image-alt-${index}`} value={block.alt||''} onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, alt: event.target.value }))} className="w-full p-2 border rounded text-sm" />
               <div className="mt-2">
                 {block._file ? (
                   <img src={URL.createObjectURL(block._file)} alt={block.alt||''} className="object-contain w-full h-36" />

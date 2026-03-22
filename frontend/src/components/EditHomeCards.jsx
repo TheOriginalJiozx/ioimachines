@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useState } from "react";
 
 export default function EditHomeCards({
@@ -166,3 +167,22 @@ export default function EditHomeCards({
     </div>
   );
 }
+
+EditHomeCards.propTypes = {
+  card1: PropTypes.object,
+  card2: PropTypes.object,
+  card3: PropTypes.object,
+  card4: PropTypes.object,
+  setCard1: PropTypes.func,
+  setCard2: PropTypes.func,
+  setCard3: PropTypes.func,
+  setCard4: PropTypes.func,
+  card4List: PropTypes.array,
+  setCard4List: PropTypes.func,
+  card4ListIcons: PropTypes.array,
+  setCard4ListIcons: PropTypes.func,
+  card4Footer: PropTypes.string,
+  setCard4Footer: PropTypes.func,
+  onCancel: PropTypes.func,
+  onSave: PropTypes.func,
+};

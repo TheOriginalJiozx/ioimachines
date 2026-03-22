@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useState } from "react";
 
 export default function EditMaintenanceOwnership({
@@ -123,3 +124,13 @@ export default function EditMaintenanceOwnership({
     </div>
   );
 }
+
+EditMaintenanceOwnership.propTypes = {
+  maintenance: PropTypes.string,
+  setMaintenance: PropTypes.func,
+  ownership: PropTypes.string,
+  setOwnership: PropTypes.func,
+  onCancel: PropTypes.func,
+  onSave: PropTypes.func,
+  saving: PropTypes.bool,
+};

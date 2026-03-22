@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useState } from "react";
 
 export default function EditModalText({
@@ -63,3 +64,15 @@ export default function EditModalText({
     </div>
   );
 }
+
+EditModalText.propTypes = {
+  modalTitle: PropTypes.string,
+  modalBody: PropTypes.string,
+  modalIconClass: PropTypes.string,
+  setModalTitle: PropTypes.func,
+  setModalBody: PropTypes.func,
+  setModalIconClass: PropTypes.func,
+  onCancel: PropTypes.func,
+  onSave: PropTypes.func,
+  saving: PropTypes.bool,
+};
