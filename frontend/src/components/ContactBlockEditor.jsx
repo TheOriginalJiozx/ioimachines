@@ -84,14 +84,14 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
         <button
           className={`px-3 py-1 border rounded${canAddBlock(blocks, 'paragraph') ? '' : ' bg-gray-200 text-gray-400 cursor-not-allowed opacity-60'}`}
           onClick={() => setBlocks(prev => addBlock(prev, 'paragraph'))}
-          disabled={canAddBlock(blocks, 'paragraph') ? false : true}
+          disabled={!canAddBlock(blocks, 'paragraph')}
         >
           Add paragraph
         </button>
         <button
           className={`px-3 py-1 border rounded${canAddBlock(blocks, 'image') ? '' : ' bg-gray-200 text-gray-400 cursor-not-allowed opacity-60'}`}
           onClick={() => setBlocks(prev => addBlock(prev, 'image'))}
-          disabled={canAddBlock(blocks, 'image') ? false : true}
+          disabled={!canAddBlock(blocks, 'image')}
         >
           Add image
         </button>
