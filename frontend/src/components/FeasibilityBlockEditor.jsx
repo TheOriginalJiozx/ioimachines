@@ -182,7 +182,7 @@ FeasibilityBlockEditor.propTypes = {
 
 function FeasibilityBlockAddButtons({ blocks, setBlocks }) {
   return (
-    <div class="mt-4 flex flex-wrap gap-2 border-t pt-4">
+    <div className="mt-4 flex flex-wrap gap-2 border-t pt-4">
       <button
         className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={!canAddBlock(blocks, "image")}
