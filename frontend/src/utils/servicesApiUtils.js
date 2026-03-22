@@ -1,5 +1,3 @@
-// API and data helpers for Services page
-
 export async function fetchHero(setHero, adminToken) {
   try {
     const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;

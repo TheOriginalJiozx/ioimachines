@@ -1,4 +1,3 @@
-// Utility for adding blocks in Contact section
 import { genId } from '../lib/blocks';
 
 export function canAddBlock(blocks, type) {

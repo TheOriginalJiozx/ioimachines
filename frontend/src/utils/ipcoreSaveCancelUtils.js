@@ -8,7 +8,7 @@ export async function saveSection(key, title, blocks, setEditing, setState, extr
     if (blocksCopy) {
       for (let i = 0; i < blocksCopy.length; i++) {
         const b = blocksCopy[i];
-        // Enkel billed-upload (legacy) - kun hvis _file findes
+        
         if (b && b._file) {
           try {
             const formData = new FormData();
@@ -47,7 +47,7 @@ export async function saveSection(key, title, blocks, setEditing, setState, extr
             }
           }
           blocksCopy[i] = { ...blocksCopy[i], images: newImages };
-          // Fjern evt. src hvis den findes, så kun images-array bruges
+          
           if (blocksCopy[i].src) delete blocksCopy[i].src;
         }
       }
@@ -79,7 +79,7 @@ export function handleIPCoreSave({
   adminToken,
 }) {
   saveSection(
-    setSection({ ...section, parsedContent: parsed });
+    "ipcore",
     ipcoreTitle,
     ipcoreBlocks || (ipcoreContentEditor ? [{ _id: genId(), type: "paragraph", text: ipcoreContentEditor }] : []),
     setEditingIPCore,

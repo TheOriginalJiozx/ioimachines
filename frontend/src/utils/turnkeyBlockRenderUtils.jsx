@@ -1,4 +1,4 @@
-// Utility for rendering Turnkey blocks (read-only)
+
 import React from "react";
 
 export function renderBlockTurnkey(block, index) {
@@ -27,7 +27,7 @@ export function renderBlockTurnkey(block, index) {
         </div>
       );
     case "list": {
-      // Explicit cases for known list types
+      
       if (block.title && block.title.toLowerCase() === "process") {
         return (
           <div key={block._id || block.id || index} className="mb-4">
@@ -116,7 +116,7 @@ export function renderBlockTurnkey(block, index) {
           </div>
         );
       }
-      // fallback for other lists
+      
       const hideTitle = block.title && block.title.toLowerCase() === "gui functions";
       const ListTag = block.style === "decimal" ? "ol" : "ul";
       return (

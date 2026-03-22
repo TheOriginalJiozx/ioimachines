@@ -1,5 +1,3 @@
-// Utility functions for block editing in TurnkeySolutions
-
 export function moveBlockUp(blocks, id) {
   const idx = blocks.findIndex(b => b._id === id);
   if (idx > 0) {

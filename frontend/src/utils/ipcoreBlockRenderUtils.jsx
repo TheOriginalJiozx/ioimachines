@@ -1,4 +1,3 @@
-// Utility for rendering IPCore blocks (read-only)
 import React from "react";
 
 export function renderBlockIPCore(block, index) {

@@ -1,4 +1,3 @@
-// Utility functions for saving/cancelling in Feasibility Study
 export async function saveSection(
   key,
   title,

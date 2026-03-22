@@ -1,4 +1,3 @@
-// General helpers for Contact section
 export function getContactFieldLabel(type) {
   switch (type) {
     case 'address': return 'Address';

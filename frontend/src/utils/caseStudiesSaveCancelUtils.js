@@ -1,5 +1,3 @@
-// Utility functions for save and cancel logic in CaseStudies
-
 export async function handleSave({
   caseData,
   isCreating,

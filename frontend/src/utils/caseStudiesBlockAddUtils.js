@@ -1,5 +1,3 @@
-// Utility functions for adding blocks
-
 export function addParagraphBlock(blocks, genId) {
   const copy = (blocks || []).slice();
   copy.push({ _id: genId(), type: "paragraph", text: "" });

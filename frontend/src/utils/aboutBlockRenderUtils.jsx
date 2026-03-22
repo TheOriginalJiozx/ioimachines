@@ -1,4 +1,3 @@
-// Custom About block renderer (migrated from About.jsx)
 import React from "react";
 
 export function renderBlockAbout(block, index) {

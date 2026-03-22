@@ -1,4 +1,3 @@
-// Utility for rendering contact blocks
 import React from "react";
 
 export function renderContactBlock(block, i) {

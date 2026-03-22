@@ -11,7 +11,7 @@ import { renderBlockIPCore } from "../utils/ipcoreBlockRenderUtils.jsx";
 import { handleIPCoreSave, handleIPCoreCancel, saveSection } from "../utils/ipcoreSaveCancelUtils";
 
 export default function IPCoreLicensing() {
-    // --- HERO STATE ---
+    
     const [hero, setHero] = useState({ title: "", imageUrl: "" });
     const handleSaveHero = async (draft) => {
       try {
@@ -100,7 +100,7 @@ export default function IPCoreLicensing() {
         if (!json) return;
         try {
           const parsed = json.content ? JSON.parse(json.content) : null;
-          setIPCore({ ...(json || {}), parsedContent: parsed });
+          setIPCore(json ? { ...json, parsedContent: parsed } : null);
         } catch {
           setIPCore(json);
         }

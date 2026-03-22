@@ -1,4 +1,3 @@
-// Utility functions for list blocks in Feasibility Study
 export function getListBlockEditorValue(block) {
   if (!block) return '';
   if (block._editorValue !== undefined) return block._editorValue;

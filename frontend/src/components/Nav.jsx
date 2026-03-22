@@ -19,10 +19,8 @@ export default function Nav() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Derive isAdmin directly from adminToken
   const isAdmin = !!adminToken;
 
-  // Derive active index from location synchronously
   const pathname = location.pathname.replaceAll(/^\/+|\/+$/g, "");
   const slug = pathname.split("/")[0];
   let active = 0;

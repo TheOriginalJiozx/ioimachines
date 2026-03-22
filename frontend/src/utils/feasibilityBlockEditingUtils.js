@@ -1,4 +1,3 @@
-// Utility functions for editing blocks in Feasibility Study
 export function updateBlock(blocks, id, newBlock) {
   return (blocks || []).map(b => (b._id === id ? { ...b, ...newBlock } : b));
 }

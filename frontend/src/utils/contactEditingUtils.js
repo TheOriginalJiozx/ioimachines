@@ -1,4 +1,3 @@
-// Utility for editing blocks in Contact section
 export function updateBlock(blocks, id, newBlock) {
   return (blocks || []).map(b => (b._id === id ? { ...b, ...newBlock } : b));
 }

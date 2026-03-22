@@ -1,5 +1,3 @@
-// Utility functions for CaseStudies logic
-
 export async function fetchHeroData(apiBase) {
   try {
     const res = await fetch(`${apiBase}/page-heros/case-studies`);
@@ -20,13 +18,13 @@ export function normalizeEntry(entry) {
   try {
     content = typeof content === "string" ? JSON.parse(content) : content;
   } catch {
-    // ignore JSON parse error, fallback to original content
+    
   }
   let solutionContent = entry.solution_content_json || entry.solutionContentJson || entry.solutionContent || "";
   try {
     solutionContent = typeof solutionContent === "string" ? JSON.parse(solutionContent) : solutionContent;
   } catch {
-    // ignore JSON parse error, fallback to original solutionContent
+    
   }
   const solutionTitle = entry.solution_title || entry.solutionTitle || "";
   return { slug: entry.slug, title, image, content, solutionTitle, solutionContent };

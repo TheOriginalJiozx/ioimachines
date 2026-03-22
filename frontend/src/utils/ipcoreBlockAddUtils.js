@@ -1,4 +1,3 @@
-// Utility functions for adding blocks in IPCoreLicensing
 import { genId } from '../lib/blocks';
 
 export function canAddBlock(blocks, type) {

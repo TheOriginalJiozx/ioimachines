@@ -1,4 +1,3 @@
-// General About section utilities
 export function getAboutSectionTitle(section) {
   return section?.title || '';
 }

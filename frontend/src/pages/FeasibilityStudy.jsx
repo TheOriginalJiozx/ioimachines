@@ -16,7 +16,7 @@ export default function Feasibility() {
       globalThis.setPageTitle("Feasibility Study");
     }
   }, []);
-    // --- HERO STATE ---
+    
     const [hero, setHero] = useState({ title: "", imageUrl: "" });
 
   const [showModal, setShowModal] = useState(false);
@@ -158,10 +158,10 @@ export default function Feasibility() {
                     </button>
                     <button
                       onClick={() => {
-                        // You can use handleFeasibilitySave here if you want, but keeping saveSection as requested
+                        
                         saveSection("feasibility", feasibilityTitle, feasibilityBlocks || (feasibilityContentEditor ? [{ _id: genId(), type: "paragraph", text: feasibilityContentEditor }] : []), setEditingFeasibility, setFeasibility);
-                        // Example usage of handleFeasibilitySave (not active):
-                        // handleFeasibilitySave({ key: "feasibility", title: feasibilityTitle, blocks: feasibilityBlocks, setEditing: setEditingFeasibility, setState: setFeasibility, adminToken });
+                        
+                        
                       }}
                       className="px-4 py-2 rounded bg-indigo-600 text-white"
                     >

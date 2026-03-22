@@ -1,5 +1,3 @@
-// Utils for handling list block editing in TurnkeySolutions
-
 export function getListBlockEditorValue(block) {
   if (block._editorValue !== undefined) return block._editorValue;
   if (block._isSemicolonList) {
