@@ -35,8 +35,7 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
               <div className="mt-2 flex flex-wrap gap-2 items-center">
                 <label htmlFor={`feasibility-block-image-upload-${index}`} className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
                   Add image
-                  <input
-                    id={`feasibility-block-image-upload-${index}`}
+                  <input id={`feasibility-block-image-upload-${index}`}
                     type="file"
                     accept="image/*"
                     onChange={event => {
@@ -58,7 +57,7 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
           )}
           {block.type === "list" && (
             <>
-              <label className="text-xs text-gray-600 block">
+              <label htmlFor={`feasibility-list-items-${index}`} className="text-xs text-gray-600 block">
                 {block.title && block.title.toLowerCase() === "process"
                   ? "Items (one per line, end with ;)"
                   : block._isSemicolonList
@@ -68,6 +67,7 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
                   : "List items (one per line)"}
               </label>
               <textarea
+                id={`feasibility-list-items-${index}`}
                 value={getListBlockEditorValue(block)}
                 onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, _editorValue: event.target.value }))}
                 onBlur={event => {
@@ -106,11 +106,12 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
           )}
           {block.type === "image" && (
             <div className="grid grid-cols-1 gap-2">
-              <label className="text-xs text-gray-600">Replace image (upload)</label>
+              <label htmlFor={`feasibility-image-upload-${index}`} className="text-xs text-gray-600">Replace image (upload)</label>
               <div className="flex items-center gap-2">
-                <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
+                <label htmlFor={`feasibility-image-upload-input-${index}`} className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
                   Choose image
                   <input
+                    id={`feasibility-image-upload-input-${index}`}
                     type="file"
                     accept="image/*"
                     onChange={event => {
@@ -123,14 +124,16 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
                   />
                 </label>
               </div>
-              <label className="text-xs text-gray-600">Or image URL</label>
+              <label htmlFor={`feasibility-image-url-${index}`} className="text-xs text-gray-600">Or image URL</label>
               <input
+                id={`feasibility-image-url-${index}`}
                 value={block.src || ""}
                 onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, src: event.target.value || "" }))}
                 className="w-full p-2 border rounded text-sm"
               />
-              <label className="text-xs text-gray-600">Alt text</label>
+              <label htmlFor={`feasibility-image-alt-${index}`} className="text-xs text-gray-600">Alt text</label>
               <input
+                id={`feasibility-image-alt-${index}`}
                 value={block.alt || ""}
                 onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, alt: event.target.value }))}
                 className="w-full p-2 border rounded text-sm"

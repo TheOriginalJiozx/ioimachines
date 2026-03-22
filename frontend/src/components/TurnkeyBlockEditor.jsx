@@ -20,8 +20,7 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
         <div className="mb-2 text-sm text-gray-600">
           Block #{index + 1} — <span className="font-mono">{block.title ? (block.title.charAt(0).toLowerCase() + block.title.slice(1).toLowerCase()) : block.type}</span>
         </div>
-        <textarea
-          value={block.text || ""}
+        <textarea value={block.text || ""}
           onChange={event => setBlocks(blocks => updateBlock(blocks, block._id, { ...block, text: event.target.value }))}
           rows={6}
           className="w-full p-2 border rounded text-sm font-mono"
@@ -30,8 +29,7 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
         <div className="mt-2 flex flex-wrap gap-2 items-center">
           <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
             Add image
-            <input
-              type="file"
+            <input type="file"
               accept="image/*"
               onChange={event => {
                 const file = event.target.files && event.target.files[0];
@@ -105,8 +103,7 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
         <div className="mb-2 text-sm text-gray-600">
           Block #{index + 1} — <span className="font-mono">{block.title}</span>
         </div>
-        <textarea
-          value={block.text || ""}
+        <textarea value={block.text || ""}
           onChange={event => setBlocks(blocks => updateBlock(blocks, block._id, { ...block, text: event.target.value }))}
           rows={6}
           className="w-full p-2 border rounded text-sm font-mono"
@@ -128,8 +125,7 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
   if (block.type === "heading") {
     return (
       <div className="border rounded p-3">
-        <input
-          type="text"
+        <input type="text"
           value={block.text || ""}
           onChange={event => setBlocks(blocks => updateBlock(blocks, block._id, { ...block, text: event.target.value }))}
           className="w-full p-2 border rounded text-sm"
@@ -154,8 +150,7 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
         <label className="text-xs text-gray-600 block">
           {block._isSemicolonList ? "Text and items (items end with ;)" : "List items (one per line)"}
         </label>
-        <textarea
-          value={getListBlockEditorValue(block)}
+        <textarea value={getListBlockEditorValue(block)}
           onChange={event => setBlocks(blocks => updateBlock(blocks, block._id, { ...block, _editorValue: event.target.value }))}
           onBlur={event => {
             const parsed = parseListBlockEditorValue(block, event.target.value);
@@ -184,8 +179,7 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
         <div className="flex items-center gap-2">
           <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
             Choose image
-            <input
-              type="file"
+            <input type="file"
               accept="image/*"
               onChange={event => {
                 const file = event.target.files && event.target.files[0];
@@ -202,14 +196,12 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
           </label>
         </div>
         <label className="text-xs text-gray-600">Or image URL</label>
-        <input
-          value={block.src || ""}
+        <input value={block.src || ""}
           onChange={event => setBlocks(blocks => updateBlock(blocks, block._id, { ...block, src: event.target.value || "", alt: block.alt || "image", _autoAlt: false }))}
           className="w-full p-2 border rounded text-sm"
         />
         <label className="text-xs text-gray-600">Alt text</label>
-        <input
-          value={block.alt || ""}
+        <input value={block.alt || ""}
           onChange={event => setBlocks(blocks => updateBlock(blocks, block._id, { ...block, alt: event.target.value, _autoAlt: false }))}
           className="w-full p-2 border rounded text-sm"
         />

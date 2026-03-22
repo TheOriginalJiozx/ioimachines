@@ -48,8 +48,7 @@ export default function IPCoreBlockEditor({ block, index, blocks, setBlocks, hid
           <div className="flex items-center gap-2 mb-1">
             <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
               Choose image
-              <input
-                id={`ipcore-block-image-upload-${index}`}
+              <input id={`ipcore-block-image-upload-${index}`}
                 type="file"
                 accept="image/*"
                 className="hidden"
