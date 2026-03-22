@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useState } from "react";
 
 
@@ -14,9 +15,13 @@ export default function HeroEditor({ hero, adminToken, onSave, hideTitleInput })
       {editHero && heroDraft.imageUrl && (
         <img src={heroDraft.imageUrl} alt="hero" className="object-cover w-full h-full" />
       )}
+      <label htmlFor="hero-image-url-initial" className="block mb-2 font-semibold">Image URL</label>
       <input
+        id="hero-image-url-initial"
         value={heroDraft?.imageUrl || ""}
         onChange={e => setHeroDraft(prev => ({ ...prev, imageUrl: e.target.value }))}
+        className="w-full border rounded p-2 mb-2"
+        placeholder="Image URL"
       />
       {adminToken && !editHero && (
         <button
@@ -55,8 +60,9 @@ export default function HeroEditor({ hero, adminToken, onSave, hideTitleInput })
                 }}
               />
             </div>
-            <label className="block mb-2 font-semibold">Or enter image URL</label>
+            <label htmlFor="hero-image-url-modal" className="block mb-2 font-semibold">Or enter image URL</label>
             <input
+              id="hero-image-url-modal"
               type="text"
               className="w-full border rounded p-2 mb-2"
               value={heroDraft.imageUrl}
@@ -65,8 +71,9 @@ export default function HeroEditor({ hero, adminToken, onSave, hideTitleInput })
             />
             {!hideTitleInput && (
               <>
-                <label className="block mb-2 font-semibold">Title</label>
+                <label htmlFor="hero-title-modal" className="block mb-2 font-semibold">Title</label>
                 <input
+                  id="hero-title-modal"
                   type="text"
                   className="w-full border rounded p-2 mb-2"
                   value={heroDraft.title}
@@ -131,3 +138,13 @@ export default function HeroEditor({ hero, adminToken, onSave, hideTitleInput })
     </div>
   );
 }
+
+HeroEditor.propTypes = {
+  hero: PropTypes.shape({
+    title: PropTypes.string,
+    imageUrl: PropTypes.string,
+  }),
+  adminToken: PropTypes.string,
+  onSave: PropTypes.func,
+  hideTitleInput: PropTypes.bool,
+};

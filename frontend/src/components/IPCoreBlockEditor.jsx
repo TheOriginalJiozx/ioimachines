@@ -44,11 +44,12 @@ export default function IPCoreBlockEditor({ block, index, blocks, setBlocks, hid
 
       {block.type === "image" && !Array.isArray(block.images) && (
         <div className="mb-2 flex flex-col items-start gap-2">
-          <label className="text-xs text-gray-600">Replace image (upload)</label>
+          <label htmlFor={`ipcore-block-image-upload-${index}`} className="text-xs text-gray-600">Replace image (upload)</label>
           <div className="flex items-center gap-2 mb-1">
             <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
               Choose image
               <input
+                id={`ipcore-block-image-upload-${index}`}
                 type="file"
                 accept="image/*"
                 className="hidden"
@@ -60,16 +61,18 @@ export default function IPCoreBlockEditor({ block, index, blocks, setBlocks, hid
               />
             </label>
           </div>
-          <label className="text-xs text-gray-600">Or image URL</label>
+          <label htmlFor={`ipcore-block-image-url-${index}`} className="text-xs text-gray-600">Or image URL</label>
           <input
+            id={`ipcore-block-image-url-${index}`}
             value={block.src || ""}
             onChange={(e) =>
               setBlocks(updateBlock(blocks, block._id, { ...block, src: e.target.value || "" }))
             }
             className="w-full p-2 border rounded text-sm mb-1"
           />
-          <label className="text-xs text-gray-600">Alt text</label>
+          <label htmlFor={`ipcore-block-image-alt-${index}`} className="text-xs text-gray-600">Alt text</label>
           <input
+            id={`ipcore-block-image-alt-${index}`}
             value={block.alt || ""}
             onChange={(e) =>
               setBlocks(updateBlock(blocks, block._id, { ...block, alt: e.target.value }))
@@ -144,7 +147,7 @@ export default function IPCoreBlockEditor({ block, index, blocks, setBlocks, hid
           </div>
         )}
 
-      <div className="mt-2 flex gap-2 flex-wrap">
+      <div className="mt-2 flex flex-wrap gap-2 items-center">
         {index > 0 && (
           <button
             className="px-2 py-1 rounded border text-sm"

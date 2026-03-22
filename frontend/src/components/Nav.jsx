@@ -60,7 +60,7 @@ export default function Nav() {
         <div className="hidden md:flex items-center ml-auto justify-end text-[14px] text-[#444444] font-semibold">
           {navLinks.map((link, index) => {
             if (link === "Admin" && isAdmin) return null;
-            const path = link === "Home" ? "/" : `/${link.toLowerCase().replace(/\s+/g, "-").replace(/\/+$/g, "")}`;
+            const path = link === "Home" ? "/" : `/${link.toLowerCase().replace(/\s+/g, "-").replaceAll("/", "-").replace(/\/+$/g, "")}`;
 
             if (link === "Services") {
               return (
