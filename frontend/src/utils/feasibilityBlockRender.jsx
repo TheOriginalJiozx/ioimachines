@@ -1,11 +1,19 @@
 
 import React from "react";
+import PropTypes from "prop-types";
 
 function RenderTitle({ title, hideTitle, as = "h3", className = "" }) {
   if (!title || hideTitle) return null;
   const Tag = as;
   return <Tag className={className}>{title}</Tag>;
 }
+
+RenderTitle.propTypes = {
+  title: PropTypes.string,
+  hideTitle: PropTypes.bool,
+  as: PropTypes.string,
+  className: PropTypes.string,
+};
 
 function RenderImages({ images }) {
   if (!images || images.length === 0) return null;
@@ -18,6 +26,10 @@ function RenderImages({ images }) {
   );
 }
 
+RenderImages.propTypes = {
+  images: PropTypes.arrayOf(PropTypes.string),
+};
+
 function RenderList({ items, ordered, className = "", style = {} }) {
   const Tag = ordered ? "ol" : "ul";
   return (
@@ -28,6 +40,13 @@ function RenderList({ items, ordered, className = "", style = {} }) {
     </Tag>
   );
 }
+
+RenderList.propTypes = {
+  items: PropTypes.array.isRequired,
+  ordered: PropTypes.bool,
+  className: PropTypes.string,
+  style: PropTypes.object,
+};
 
 export function feasibilityBlockRender(block, index) {
   if (!block) return null;
