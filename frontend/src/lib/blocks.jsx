@@ -16,7 +16,7 @@ export function blocksToPlainText(content) {
     return array
       .map((block) => {
         try {
-          return block && block.type === "paragraph" && block.text ? block.text : "";
+          return block?.type === "paragraph" && block?.text ? block.text : "";
         } catch {
           return "";
         }

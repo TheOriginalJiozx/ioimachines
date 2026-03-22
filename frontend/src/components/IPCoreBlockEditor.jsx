@@ -63,7 +63,7 @@ export default function IPCoreBlockEditor({ block, index, blocks, setBlocks, hid
           <label htmlFor={`ipcore-block-image-url-${index}`} className="text-xs text-gray-600 mt-2">Or image URL</label>
           <input
             id={`ipcore-block-image-url-${index}`}
-            value={block.src || ""}
+            value={block?.src ?? ""}
             onChange={(e) =>
               setBlocks(updateBlock(blocks, block._id, { ...block, src: e.target.value || "" }))
             }
@@ -72,7 +72,7 @@ export default function IPCoreBlockEditor({ block, index, blocks, setBlocks, hid
           <label htmlFor={`ipcore-block-image-alt-${index}`} className="text-xs text-gray-600">Alt text</label>
           <input
             id={`ipcore-block-image-alt-${index}`}
-            value={block.alt || ""}
+            value={block?.alt ?? ""}
             onChange={(e) =>
               setBlocks(updateBlock(blocks, block._id, { ...block, alt: e.target.value }))
             }
