@@ -176,9 +176,9 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
   if (block.type === "image") {
     return (
       <div className="border rounded p-3">
-        <label htmlFor={`turnkey-image-upload-${index}`} className="text-xs text-gray-600">Replace image (upload)</label>
+        <label htmlFor={`turnkey-image-upload-${index}`} className="text-xs text-gray-600 mb-2">Replace image (upload)</label>
         <div className="flex items-center gap-2">
-          <label htmlFor={`turnkey-image-upload-input-${index}`} className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
+          <label htmlFor={`turnkey-image-upload-input-${index}`} className="bg-white border px-3 py-1 rounded text-sm cursor-pointer mb-2">
             Choose image
             <input id={`turnkey-image-upload-input-${index}`} type="file"
               accept="image/*"

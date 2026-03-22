@@ -47,7 +47,7 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
                   />
                 </label>
                 <button
-                  className="px-2 py-1 rounded border text-sm mt-1"
+                  className="px-2 py-1 rounded border text-sm mt-2"
                   onClick={() => setBlocks(prev => deleteBlock(prev, block._id))}
                 >
                   Remove block
@@ -124,7 +124,7 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
                   />
                 </label>
               </div>
-              <label htmlFor={`feasibility-image-url-${index}`} className="text-xs text-gray-600">Or image URL</label>
+              <label htmlFor={`feasibility-image-url-${index}`} className="text-xs text-gray-600 mt-2">Or image URL</label>
               <input
                 id={`feasibility-image-url-${index}`}
                 value={block.src || ""}

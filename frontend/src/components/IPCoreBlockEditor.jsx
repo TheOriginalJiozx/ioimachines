@@ -60,7 +60,7 @@ export default function IPCoreBlockEditor({ block, index, blocks, setBlocks, hid
               />
             </label>
           </div>
-          <label htmlFor={`ipcore-block-image-url-${index}`} className="text-xs text-gray-600">Or image URL</label>
+          <label htmlFor={`ipcore-block-image-url-${index}`} className="text-xs text-gray-600 mt-2">Or image URL</label>
           <input
             id={`ipcore-block-image-url-${index}`}
             value={block.src || ""}
