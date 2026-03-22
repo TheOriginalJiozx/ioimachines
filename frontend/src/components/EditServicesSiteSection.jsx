@@ -40,8 +40,8 @@ export default function EditServicesSiteSection({
         className="w-full text-sm mb-2 border rounded p-2 focus:outline-none focus:border-[#444444]"
       />
       <div className="mb-4">
-        {localBody2.map((item, idx) => (
-          <div key={idx} className="flex items-center gap-2 mb-2">
+        {localBody2.map((item) => (
+          <div key={item.id || item._id || item.text || item.icon || window.crypto.randomUUID()} className="flex items-center gap-2 mb-2">
             <input
               type="text"
               value={item.icon}

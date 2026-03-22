@@ -29,8 +29,8 @@ export default function EditMaintenanceOwnership({
           className="w-full text-sm mb-2 border rounded p-2 focus:outline-none focus:border-[#444444]"
         />
         <div className="mb-4">
-          {localMaintenance.maintenanceList.map((item, idx) => (
-            <div key={idx} className="flex items-center gap-2 mb-2">
+          {localMaintenance.maintenanceList.map((item) => (
+            <div key={item.id || item._id || item || window.crypto.randomUUID()} className="flex items-center gap-2 mb-2">
               <input
                 type="text"
                 value={item}
@@ -79,8 +79,8 @@ export default function EditMaintenanceOwnership({
           className="w-full font-semibold text-base mb-2 border-b border-gray-200 focus:outline-none focus:border-[#444444] bg-transparent"
         />
         <div className="mb-4">
-          {localOwnership.ownershipList.map((item, idx) => (
-            <div key={idx} className="flex items-center gap-2 mb-2">
+          {localOwnership.ownershipList.map((item) => (
+            <div key={item.id || item._id || item || window.crypto.randomUUID()} className="flex items-center gap-2 mb-2">
               <input
                 type="text"
                 value={item}

@@ -20,8 +20,8 @@ export default function EditHomeCards({
 
   return (
     <div>
-      {[localCard1, localCard2, localCard3].map((card, idx) => (
-        <div key={idx} className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up mb-4" style={{ "--i": idx }}>
+      {[localCard1, localCard2, localCard3].map((card) => (
+        <div key={card.id || card._id || card.title || card.icon || window.crypto.randomUUID()} className="bg-white rounded-lg p-6 shadow flex items-start space-x-4 enter-up mb-4" style={{ "--i": card.id || card._id || card.title || card.icon }}>
           <div className="w-12 h-12 rounded-lg bg-[#F1F7FB] flex items-center justify-center text-[#0471AB]">
             <i className={card.icon}></i>
           </div>
@@ -90,7 +90,7 @@ export default function EditHomeCards({
           />
           <div className="mb-4">
             {localCard4List.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-2 mb-2">
+              <div key={item.id || item._id || item || window.crypto.randomUUID()} className="flex items-center gap-2 mb-2">
                 <input
                   type="text"
                   value={item}
