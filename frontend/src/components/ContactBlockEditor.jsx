@@ -16,7 +16,7 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
           <div className="mb-2 text-sm text-gray-600">Block #{index + 1} — <span className="font-mono">{block.type}</span></div>
           {block.type === "paragraph" && (
             <>
-              <div className="mb-2 flex gap-2">
+              <div className="mb-2 flex flex-wrap gap-2 items-center">
                 <label htmlFor={`contact-block-type-${index}`} className="text-xs text-gray-600">Contact field</label>
                 <select id={`contact-block-type-${index}`} value={block.contactType || ''} onChange={event => {
                   const val = event.target.value || null;

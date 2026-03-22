@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useState } from "react";
 
 export default function RequestConsultation({ onClose, modal = false, variant = "default" }) {
@@ -74,9 +75,12 @@ export default function RequestConsultation({ onClose, modal = false, variant = 
             }}
           >
           <div className="space-y-4">
-            <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Full Name" className={variant === "contact" ? "w-full px-4 py-3 rounded border border-white bg-transparent text-white placeholder-white/70" : "w-full px-4 py-3 rounded border border-gray-300 bg-white text-[#444444] placeholder-gray-400"} />
-            <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" type="email" className={variant === "contact" ? "w-full px-4 py-3 rounded border border-white bg-transparent text-white placeholder-white/70" : "w-full px-4 py-3 rounded border border-gray-300 bg-white text-[#444444] placeholder-gray-400"} />
-            <textarea value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Enter your message here" rows={5} className={variant === "contact" ? "w-full px-4 py-3 rounded border border-white bg-transparent text-white placeholder-white/70" : "w-full px-4 py-3 rounded border border-gray-300 bg-white text-[#444444] placeholder-gray-400"} />
+            <label htmlFor="consultation-name" className="sr-only">Full Name</label>
+            <input id="consultation-name" value={name} onChange={(event) => setName(event.target.value)} placeholder="Full Name" className={variant === "contact" ? "w-full px-4 py-3 rounded border border-white bg-transparent text-white placeholder-white/70" : "w-full px-4 py-3 rounded border border-gray-300 bg-white text-[#444444] placeholder-gray-400"} />
+            <label htmlFor="consultation-email" className="sr-only">Email address</label>
+            <input id="consultation-email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" type="email" className={variant === "contact" ? "w-full px-4 py-3 rounded border border-white bg-transparent text-white placeholder-white/70" : "w-full px-4 py-3 rounded border border-gray-300 bg-white text-[#444444] placeholder-gray-400"} />
+            <label htmlFor="consultation-message" className="sr-only">Message</label>
+            <textarea id="consultation-message" value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Enter your message here" rows={5} className={variant === "contact" ? "w-full px-4 py-3 rounded border border-white bg-transparent text-white placeholder-white/70" : "w-full px-4 py-3 rounded border border-gray-300 bg-white text-[#444444] placeholder-gray-400"} />
 
             <div className="flex items-center justify-between">
               <div className={"flex items-center space-x-4 text-sm " + (variant === "contact" ? "text-white" : "text-[#444444]")}>
@@ -84,7 +88,8 @@ export default function RequestConsultation({ onClose, modal = false, variant = 
                 <div className="ml-2">
                   {captchaA} + {captchaB} =
                 </div>
-                <input value={captchaAnswer} onChange={(event) => setCaptchaAnswer(event.target.value)} className={variant === "contact" ? "w-16 px-2 py-1 rounded text-black" : "w-16 px-2 py-1 rounded border border-gray-300"} />
+                <label htmlFor="consultation-captcha" className="sr-only">Captcha answer</label>
+                <input id="consultation-captcha" value={captchaAnswer} onChange={(event) => setCaptchaAnswer(event.target.value)} className={variant === "contact" ? "w-16 px-2 py-1 rounded text-black" : "w-16 px-2 py-1 rounded border border-gray-300"} />
               </div>
 
               <div>
@@ -113,3 +118,9 @@ export default function RequestConsultation({ onClose, modal = false, variant = 
 
   return content;
 }
+
+RequestConsultation.propTypes = {
+  onClose: PropTypes.func,
+  modal: PropTypes.bool,
+  variant: PropTypes.string,
+};

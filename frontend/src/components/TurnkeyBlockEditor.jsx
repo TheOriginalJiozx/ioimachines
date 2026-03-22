@@ -27,7 +27,7 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
           className="w-full p-2 border rounded text-sm font-mono"
         />
 
-        <div className="mt-2 flex gap-2 flex-wrap">
+        <div className="mt-2 flex flex-wrap gap-2 items-center">
           <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
             Add image
             <input
