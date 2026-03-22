@@ -60,7 +60,7 @@ export default function Feasibility() {
         if (!json) return;
         try {
           const parsed = json.content ? JSON.parse(json.content) : null;
-          setFeasibility({ ...(json || {}), parsedContent: parsed });
+          setFeasibility({ ...json, parsedContent: parsed });
         } catch {
           setFeasibility(json);
         }
