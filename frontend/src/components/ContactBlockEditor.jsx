@@ -82,16 +82,16 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
       ))}
       <div className="flex gap-2 mt-4">
         <button
-          className={`px-3 py-1 border rounded${!canAddBlock(blocks, 'paragraph') ? ' bg-gray-200 text-gray-400 cursor-not-allowed opacity-60' : ''}`}
+          className={`px-3 py-1 border rounded${canAddBlock(blocks, 'paragraph') ? '' : ' bg-gray-200 text-gray-400 cursor-not-allowed opacity-60'}`}
           onClick={() => setBlocks(prev => addBlock(prev, 'paragraph'))}
-          disabled={!canAddBlock(blocks, 'paragraph')}
+          disabled={canAddBlock(blocks, 'paragraph') ? false : true}
         >
           Add paragraph
         </button>
         <button
-          className={`px-3 py-1 border rounded${!canAddBlock(blocks, 'image') ? ' bg-gray-200 text-gray-400 cursor-not-allowed opacity-60' : ''}`}
+          className={`px-3 py-1 border rounded${canAddBlock(blocks, 'image') ? '' : ' bg-gray-200 text-gray-400 cursor-not-allowed opacity-60'}`}
           onClick={() => setBlocks(prev => addBlock(prev, 'image'))}
-          disabled={!canAddBlock(blocks, 'image')}
+          disabled={canAddBlock(blocks, 'image') ? false : true}
         >
           Add image
         </button>
