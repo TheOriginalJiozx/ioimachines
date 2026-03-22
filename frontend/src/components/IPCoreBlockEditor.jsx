@@ -194,31 +194,31 @@ export function IPCoreBlockAddButtons({ blocks, setBlocks }) {
       </button>
       <button
         className={`px-2 py-1 rounded border text-sm ${canAddBlock(blocks, "paragraph-image-text") ? "" : disabledClass}`}
-        disabled={canAddBlock(blocks, "paragraph-image-text") ? false : true}
+        disabled={!canAddBlock(blocks, "paragraph-image-text")}
         onClick={() => setBlocks(addBlock(blocks, "paragraph-image-text"))}>
         Add Image Text
       </button>
       <button
         className={`px-2 py-1 rounded border text-sm ${canAddBlock(blocks, "list-process") ? "" : disabledClass}`}
-        disabled={canAddBlock(blocks, "list-process") ? false : true}
+        disabled={!canAddBlock(blocks, "list-process")}
         onClick={() => setBlocks(addBlock(blocks, "list-process"))}>
         Add Process
       </button>
       <button
         className={`px-2 py-1 rounded border text-sm ${canAddBlock(blocks, "list-scope") ? "" : disabledClass}`}
-        disabled={canAddBlock(blocks, "list-scope") ? false : true}
+        disabled={!canAddBlock(blocks, "list-scope")}
         onClick={() => setBlocks(addBlock(blocks, "list-scope"))}>
         Add Scope & Approach
       </button>
       <button
         className={`px-2 py-1 rounded border text-sm ${canAddBlock(blocks, "list-gui-functions") ? "" : disabledClass}`}
-        disabled={canAddBlock(blocks, "list-gui-functions") ? false : true}
+        disabled={!canAddBlock(blocks, "list-gui-functions")}
         onClick={() => setBlocks(addBlock(blocks, "list-gui-functions"))}>
         Add GUI Functions
       </button>
       <button
         className={`px-2 py-1 rounded border text-sm ${canAddBlock(blocks, "image-signature-algorithm") ? "" : disabledClass}`}
-        disabled={canAddBlock(blocks, "image-signature-algorithm") ? false : true}
+        disabled={!canAddBlock(blocks, "image-signature-algorithm")}
         onClick={() => setBlocks(addBlock(blocks, "image-signature-algorithm"))}>
         Add Signature Algorithm Images
       </button>
