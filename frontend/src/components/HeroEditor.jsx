@@ -18,7 +18,7 @@ export default function HeroEditor({ hero, adminToken, onSave, hideTitleInput })
       <label htmlFor="hero-image-url-initial" className="block mb-2 font-semibold">Image URL</label>
       <input
         id="hero-image-url-initial"
-        value={heroDraft?.imageUrl ?? ""}
+          value={heroDraft?.imageUrl || ""}
         onChange={e => setHeroDraft(prev => ({ ...prev, imageUrl: e.target.value }))}
         className="w-full border rounded p-2 mb-2"
         placeholder="Image URL"

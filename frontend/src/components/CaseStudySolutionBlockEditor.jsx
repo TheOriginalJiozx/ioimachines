@@ -39,7 +39,7 @@ export default function CaseStudySolutionBlockEditor({ block, onChange, onMoveUp
             className="w-full p-2 border rounded text-sm font-mono"
             placeholder="Image URL"
           />
-          {/* sonar: prefer-optional-chain L27 */}
+          
           {(() => {
             if (block?._file) {
               return (

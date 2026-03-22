@@ -13,9 +13,9 @@ export default function Footer() {
     }
     setLoading(true);
     try {
-      // sonar: prefer-optional-chain L10
       const API_BASE = import.meta.env?.VITE_API_BASE || import.meta.env?.VITE_API_BASE_ONLINE;
-      const res = await fetch(`${API_BASE}/newsletter`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+        const res = await fetch(`${API_BASE}/newsletter`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+      
       const text = await res.text();
       let json = {};
       try {
