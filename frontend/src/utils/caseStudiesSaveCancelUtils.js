@@ -1,3 +1,47 @@
+
+async function uploadBlocks(blocks, API_BASE, adminToken, isSolution = false) {
+  if (!blocks || !Array.isArray(blocks)) return blocks;
+  const uploaded = await Promise.all(blocks.map(async (block) => {
+    if (block && block._file) {
+      try {
+        const formData = new FormData();
+        formData.append("file", block._file);
+        const headers = {};
+        if (adminToken) headers["Authorization"] = "Bearer " + adminToken;
+        const upRes = await fetch(`${API_BASE}/uploads`, { method: "POST", body: formData, headers });
+        if (!upRes.ok) throw new Error("upload failed");
+        const upJson = await upRes.json();
+        const url = upJson.url || upJson.path || "";
+        const newBlock = { ...block, src: url };
+        delete newBlock._file;
+        return newBlock;
+      } catch (error) {
+        console.error(isSolution ? "Solution image upload failed" : "upload failed", error);
+        alert((isSolution ? "Solution image upload failed: " : "Image upload failed: ") + (error.message || error));
+        return block;
+      }
+    }
+    return block;
+  }));
+  return uploaded;
+}
+
+function toJsonString(text) {
+  if (typeof text !== "string") return JSON.stringify([]);
+  try {
+    const parsed = JSON.parse(text);
+    return JSON.stringify(parsed, null, 2);
+  } catch {
+    const lines = text
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+    if (lines.length === 0) return JSON.stringify([]);
+    const blocks = lines.map((l) => ({ type: "paragraph", text: l }));
+    return JSON.stringify(blocks, null, 2);
+  }
+}
+
 export async function handleSave({
   caseData,
   isCreating,
@@ -18,48 +62,16 @@ export async function handleSave({
   setSaving,
   selectedIndex,
 }) {
-  function toJsonString(text) {
-    if (typeof text !== "string") return JSON.stringify([]);
-    try {
-      const parsed = JSON.parse(text);
-      return JSON.stringify(parsed, null, 2);
-    } catch {
-      const lines = text
-        .split(/\r?\n/)
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0);
-      if (lines.length === 0) return JSON.stringify([]);
-      const blocks = lines.map((l) => ({ type: "paragraph", text: l }));
-      return JSON.stringify(blocks, null, 2);
-    }
-  }
+  const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
+  setSaving(true);
+  let contentBlocks = editingBlocks;
+  let solutionBlocks = editingSolutionBlocks;
+  let contentPayload, solutionPayload;
 
-  let contentPayload;
   if (editingBlocks && Array.isArray(editingBlocks)) {
-    const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
-    const blocksCopy = editingBlocks.slice();
-    for (let i = 0; i < blocksCopy.length; i++) {
-      const block = blocksCopy[i];
-      if (block && block._file) {
-        try {
-          const formData = new FormData();
-          formData.append("file", block._file);
-          const headers = {};
-          if (adminToken) headers["Authorization"] = "Bearer " + adminToken;
-          const upRes = await fetch(`${API_BASE}/uploads`, { method: "POST", body: formData, headers });
-          if (!upRes.ok) throw new Error("upload failed");
-          const upJson = await upRes.json();
-          const url = upJson.url || upJson.path || "";
-          blocksCopy[i] = { ...blocksCopy[i], src: url };
-          delete blocksCopy[i]._file;
-        } catch (error) {
-          console.error("upload failed", error);
-          alert("Image upload failed: " + (error.message || error));
-        }
-      }
-    }
-    setEditingBlocks(blocksCopy);
-    contentPayload = JSON.stringify(blocksCopy, null, 2);
+    contentBlocks = await uploadBlocks(editingBlocks, API_BASE, adminToken, false);
+    setEditingBlocks(contentBlocks);
+    contentPayload = JSON.stringify(contentBlocks, null, 2);
   } else {
     const paragraphJson = toJsonString(contentEditor);
     let paragraphBlocks = [];
@@ -71,32 +83,10 @@ export async function handleSave({
     contentPayload = JSON.stringify(paragraphBlocks, null, 2);
   }
 
-  let solutionPayload;
   if (editingSolutionBlocks && Array.isArray(editingSolutionBlocks)) {
-    const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
-    const solCopy = editingSolutionBlocks.slice();
-    for (let i = 0; i < solCopy.length; i++) {
-      const block = solCopy[i];
-      if (block && block._file) {
-        try {
-          const formData = new FormData();
-          formData.append("file", block._file);
-          const headers = {};
-          if (adminToken) headers["Authorization"] = "Bearer " + adminToken;
-          const upRes = await fetch(`${API_BASE}/uploads`, { method: "POST", body: formData, headers });
-          if (!upRes.ok) throw new Error("upload failed");
-          const upJson = await upRes.json();
-          const url = upJson.url || upJson.path || "";
-          solCopy[i] = { ...solCopy[i], src: url };
-          delete solCopy[i]._file;
-        } catch (error) {
-          console.error("upload failed", error);
-          alert("Solution image upload failed: " + (error.message || error));
-        }
-      }
-    }
-    setEditingSolutionBlocks(solCopy);
-    solutionPayload = JSON.stringify(solCopy, null, 2);
+    solutionBlocks = await uploadBlocks(editingSolutionBlocks, API_BASE, adminToken, true);
+    setEditingSolutionBlocks(solutionBlocks);
+    solutionPayload = JSON.stringify(solutionBlocks, null, 2);
   } else {
     const solutionParagraphJson = toJsonString(solutionEditor);
     let solutionParagraphBlocks = [];
@@ -108,9 +98,7 @@ export async function handleSave({
     solutionPayload = JSON.stringify(solutionParagraphBlocks, null, 2);
   }
 
-  setSaving(true);
   try {
-    const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
     const headers = { "Content-Type": "application/json" };
     if (adminToken) headers["Authorization"] = "Bearer " + adminToken;
     const payload = { content: contentPayload, solution_content_json: solutionPayload, title: titleEditor, solution_title: solutionTitleEditor };
@@ -131,9 +119,9 @@ export async function handleSave({
       const created = {
         slug: result.slug || (titleEditor ? titleEditor.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-') : ''),
         title: titleEditor,
-        content: editingBlocks || [],
+        content: contentBlocks || [],
         solutionTitle: solutionTitleEditor,
-        solutionContent: editingSolutionBlocks || [],
+        solutionContent: solutionBlocks || [],
       };
       setCaseList(list => [...list, created]);
       setCaseData(created);
@@ -153,16 +141,16 @@ export async function handleSave({
       const updated = {
         ...caseData,
         title: titleEditor,
-        content: editingBlocks || [],
+        content: contentBlocks || [],
         solutionTitle: solutionTitleEditor,
-        solutionContent: editingSolutionBlocks || [],
+        solutionContent: solutionBlocks || [],
       };
       setCaseData(updated);
       setCaseList(list => list.map((c, idx) => idx === selectedIndex ? { ...c, ...updated } : c));
       setIsEditing(false);
     }
-  } catch {
-    console.error("Save failed");
+  } catch (err) {
+    console.error("Save failed", err);
   }
   setSaving(false);
 }
