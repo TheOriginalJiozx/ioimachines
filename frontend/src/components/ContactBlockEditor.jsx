@@ -50,7 +50,7 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
           )}
           {block.type === "image" && (
             <div className="grid grid-cols-1 gap-2">
-              <label htmlFor={`contact-block-image-upload-${index}`} className="text-xs text-gray-600 mb-1">Replace image (upload)</label>
+              <label htmlFor={`contact-block-image-upload-${index}`} className="text-xs text-gray-600 mb-2">Replace image (upload)</label>
               <div className="flex gap-2 items-center">
                 <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
                   Choose image

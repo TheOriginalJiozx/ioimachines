@@ -33,7 +33,7 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
                 </div>
               )}
               <div className="mt-2 flex flex-wrap gap-2 items-center">
-                <label htmlFor={`feasibility-block-image-upload-${index}`} className="bg-white border px-3 py-1 rounded text-sm cursor-pointer mb-1">
+                <label htmlFor={`feasibility-block-image-upload-${index}`} className="bg-white border px-3 py-1 rounded text-sm cursor-pointer mb-2">
                   Add image
                   <input id={`feasibility-block-image-upload-${index}`}
                     type="file"
