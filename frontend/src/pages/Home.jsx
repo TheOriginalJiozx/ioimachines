@@ -778,7 +778,19 @@ const [perfBody2, setPerfBody2] = useState("");
 
    {modalOpen && (
      <div className="fixed inset-0 z-50 flex items-center justify-center">
-       <div className="absolute inset-0 bg-black/50" onClick={() => { setModalOpen(false); setModalEdit(false); }} />
+       <div
+         className="absolute inset-0 bg-black/50"
+         role="button"
+         tabIndex={0}
+         aria-label="Close modal"
+         onClick={() => { setModalOpen(false); setModalEdit(false); }}
+         onKeyDown={e => {
+           if (e.key === 'Enter' || e.key === ' ') {
+             setModalOpen(false);
+             setModalEdit(false);
+           }
+         }}
+       />
        {modalEdit ? (
          <EditModalText
            modalTitle={modalTitle}
@@ -823,7 +835,7 @@ const [perfBody2, setPerfBody2] = useState("");
              <h3 className="text-lg font-semibold text-gray-800">{modalTitle}</h3>
              <button onClick={() => { setModalOpen(false); setModalEdit(false); }} className="text-gray-500 hover:text-gray-700">✕</button>
            </div>
-           <div className="mt-4 text-sm text-gray-700 whitespace-pre-line">{typeof modalBody === "string" ? modalBody.replaceAll(/<NL>/g, "\n") : modalBody}</div>
+           <div className="mt-4 text-sm text-gray-700 whitespace-pre-line">{typeof modalBody === "string" ? modalBody.replaceAll('<NL>', "\n") : modalBody}</div>
            <div className="mt-6 flex justify-end gap-2">
              <button
                onClick={() => {
