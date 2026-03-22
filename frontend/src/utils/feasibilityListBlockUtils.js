@@ -15,11 +15,11 @@ export function parseListBlockEditorValue(block, value) {
   let items = [];
   let extra = [];
   if (block._isSemicolonList) {
-    const lines = value.split('\n').map(s => s.replace(/\u00A0/g, ' ').replace(/\t/g, ' '));
+    const lines = value.split('\n').map(s => s.replaceAll(/\u00A0/g, ' ').replaceAll(/\t/g, ' '));
     lines.forEach(line => {
-      const trimmedEnd = line.replace(/\s+$/g, '');
+      const trimmedEnd = line.replaceAll(/\s+$/g, '');
       if (trimmedEnd.endsWith(';')) {
-        const itemText = trimmedEnd.replace(/;\s*$/, '').trim();
+        const itemText = trimmedEnd.replaceAll(/;\s*$/, '').trim();
         if (itemText) items.push(itemText);
       } else if (line.trim()) {
         extra.push(line.trim());

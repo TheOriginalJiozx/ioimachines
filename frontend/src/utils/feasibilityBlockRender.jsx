@@ -46,7 +46,7 @@ export function feasibilityBlockRender(block, index) {
       const isScope = block.style === "decimal";
       const displayItems = (block.items || []).map(item => {
         if (block.title && block.title.toLowerCase() === "process" && item && typeof item === 'string') {
-          return item.replace(/;+$/, '').trim();
+          return item.replaceAll(/;+$/, '').trim();
         }
         return item;
       });

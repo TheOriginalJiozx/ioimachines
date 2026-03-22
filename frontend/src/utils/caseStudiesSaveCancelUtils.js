@@ -118,7 +118,7 @@ export async function handleSave({
     const payload = { content: contentPayload, solution_content_json: solutionPayload, title: titleEditor, solution_title: solutionTitleEditor };
     let res;
     if (isCreating) {
-      const slug = titleEditor ? titleEditor.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-') : '';
+      const slug = titleEditor ? titleEditor.toLowerCase().trim().replaceAll(/[^a-z0-9]+/g, '-') : '';
       const createBody = { ...payload, slug };
       res = await fetch(`${API_BASE}/case-studies`, {
         method: "POST",
@@ -131,7 +131,7 @@ export async function handleSave({
       }
       const result = await res.json().catch(() => ({}));
       const created = {
-        slug: result.slug || (titleEditor ? titleEditor.toLowerCase().replace(/[^a-z0-9]+/g, '-') : ''),
+        slug: result.slug || (titleEditor ? titleEditor.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-') : ''),
         title: titleEditor,
         content: editingBlocks || [],
         solutionTitle: solutionTitleEditor,

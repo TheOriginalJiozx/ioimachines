@@ -13,7 +13,7 @@ export default defineConfig({
         target: process.env.VITE_API_BASE || process.env.VITE_API_BASE_ONLINE,
         changeOrigin: true,
         secure: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path) => path.replaceAll(/^\/api/, ''),
       }
     }
   }

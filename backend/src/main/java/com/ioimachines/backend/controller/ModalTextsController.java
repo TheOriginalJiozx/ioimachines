@@ -48,7 +48,7 @@ public class ModalTextsController {
             @RequestBody Map<String, ModalTextEntry> texts) {
         for (Map.Entry<String, ModalTextEntry> entry : texts.entrySet()) {
             System.out.println("Saving modal text: key=" + entry.getKey() + ", body="
-                    + entry.getValue().getBody().replace("\n", "<NL>"));
+                    + entry.getValue().getBody().replaceAll("\n", "<NL>"));
         }
         if ("home".equals(section) || "services".equals(section)) {
             

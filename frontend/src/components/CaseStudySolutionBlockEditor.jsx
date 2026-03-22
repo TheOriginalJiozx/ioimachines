@@ -28,7 +28,7 @@ export default function CaseStudySolutionBlockEditor({ block, onChange, onMoveUp
                 const file = e.target.files && e.target.files[0];
                 if (!file) return;
                 let alt = block.alt || '';
-                if (!alt && file.name) alt = file.name.replace(/\.[^/.]+$/, '').replaceAll('-', ' ').replaceAll('_', ' ');
+                if (!alt && file.name) alt = file.name.replaceAll(/\.[^/.]+$/, '').replaceAll('-', ' ').replaceAll('_', ' ');
                 onChange(block._id, { ...block, _file: file, alt, _autoAlt: true });
               }}
             />
