@@ -17,101 +17,91 @@ export default function Contact() {
   }, []);
 
   const [section, setSection] = useState(null);
-  const { adminToken } = useAppState();
-  const [editing, setEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState("");
-  const [editAddress, setEditAddress] = useState("");
-  const [editEmail, setEditEmail] = useState("");
-  const [editTiming, setEditTiming] = useState("");
-  const [editPhone, setEditPhone] = useState("");
-  const [editingBlocks, setEditingBlocks] = useState(null);
-  const [contentEditor, setContentEditor] = useState("");
-
-  useEffect(() => {
-    async function loadSection() {
-      try {
-        const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
-        const res = await fetch(`${API_BASE}/sections/contact`).catch(() => null);
-        const json = res?.ok ? await res.json().catch(() => null) : null;
-        let parsed = null;
-        try {
-          parsed = json && json.content ? JSON.parse(json.content) : null;
-        } catch {
-          parsed = null;
-        }
-        setSection({ ...json, parsedContent: parsed });
-
-        try {
-          const a = json && json.address ? (function() {
-            try {
-              return JSON.parse(json.address)
-            } catch {
-              return json.address
-            }
-          })() : null;
-          setEditAddress(a);
-        } catch {
-          setEditAddress();
-        }
-        try {
-          const m = json && json.email ? (function() {
-            try {
-              return JSON.parse(json.email)
-            } catch {
-              return json.email
-            }
-          })() : null;
-          setEditEmail(m);
-        } catch {
-          setEditEmail();
-        }
-        try {
-          const t = json && json.timing ? (function() {
-            try {
-              return JSON.parse(json.timing)
-            } catch {
-              return json.timing
-            }
-          })() : null;
-          setEditTiming(t);
-        } catch { setEditTiming(); }
-        try {
-          const p = json && json.phone ? (function() {
-            try {
-              return JSON.parse(json.phone)
-            } catch {
-              return json.phone
-            }
-          })() : null;
-          setEditPhone(p);
-        } catch { setEditPhone(); }
-      } catch (error) {
-        console.error("Failed to load contact section", error);
-      }
-    }
-    loadSection();
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-white text-[#444444] font-sans" aria-label="Contact page">
-      <div className="top-0 left-0 right-0 bg-[#EBEBEB] z-50 border-b"></div>
-
-      <section className="bg-white" aria-label="Contact intro section">
-        <div className="max-w-6xl mx-auto px-6 py-16">
-          <div className={editing ? "justify-center" : ""}>
-            <div className={editing ? "md:col-span-1" : ""}>
-              {editing ? (
-                <ContactBlockEditor
-                  blocks={editingBlocks}
-                  setBlocks={setEditingBlocks}
-                  title={editTitle}
-                  setTitle={setEditTitle}
-                  onCancel={() => handleContactCancel(setEditing)}
-                  onSave={() => saveContactSection(
-                    'contact',
-                    editTitle,
-                    editingBlocks,
-                    setEditing,
+                                <button onClick={() => {
+                                  const {
+                                    blocks,
+                                    content,
+                                    address,
+                                    email,
+                                    timing,
+                                    phone
+                                  } = parseAndInitContactBlocks(section, genId);
+                                  setEditTitle(section?.title);
+                                  setEditingBlocks(blocks);
+                                  setContentEditor(content);
+                                  setEditAddress(address);
+                                  setEditEmail(email);
+                                  setEditTiming(timing);
+                                  setEditPhone(phone);
+                                  setEditing(true);
+                                }} className="px-3 py-1 rounded border">Edit</button></div>}
+                    // Helper to parse and initialize blocks and contact fields for edit mode
+                    function parseAndInitContactBlocks(section, genId) {
+                      const parsed = section?.parsedContent || (section && section.content ? (() => {
+                        try {
+                          return JSON.parse(section.content)
+                        } catch {
+                          return null
+                        }
+                      })() : null);
+                      let blocks = [];
+                      let content = "";
+                      if (parsed && parsed.intro) {
+                        if (Array.isArray(parsed.intro)) {
+                          const filteredBlocks = parsed.intro.filter((b) => b.type !== 'title');
+                          blocks = filteredBlocks.map((b) => ({ ...b, _id: b._id || genId(), contactType: b.contactType || null }));
+                          content = blocksToPlainText(filteredBlocks);
+                        } else if (typeof parsed.intro === 'string') {
+                          blocks = [{ _id: genId(), type: 'paragraph', text: parsed.intro, contactType: null }];
+                          content = parsed.intro;
+                        } else {
+                          blocks = [{ _id: genId(), type: 'paragraph', text: '', contactType: null }];
+                          content = "";
+                        }
+                      } else if (section && section.content) {
+                        try {
+                          const maybe = JSON.parse(section.content);
+                          if (Array.isArray(maybe)) {
+                            blocks = maybe.map((b) => ({ ...b, _id: b._id || genId(), contactType: b.contactType || null }));
+                            content = blocksToPlainText(maybe);
+                          } else if (typeof maybe === 'string') {
+                            blocks = [{ _id: genId(), type: 'paragraph', text: maybe, contactType: null }];
+                            content = maybe;
+                          } else {
+                            blocks = [{ _id: genId(), type: 'paragraph', text: '', contactType: null }];
+                            content = "";
+                          }
+                          if (maybe && typeof maybe === 'object') {
+                            if (maybe.address) blocks = (blocks || []).concat([{ _id: genId(), type: 'paragraph', text: maybe.address, contactType: 'address' }]);
+                            if (maybe.email) blocks = (blocks || []).concat([{ _id: genId(), type: 'paragraph', text: maybe.email, contactType: 'email' }]);
+                            if (maybe.timing) blocks = (blocks || []).concat([{ _id: genId(), type: 'paragraph', text: maybe.timing, contactType: 'timing' }]);
+                            if (maybe.phone) blocks = (blocks || []).concat([{ _id: genId(), type: 'paragraph', text: maybe.phone, contactType: 'phone' }]);
+                          }
+                        } catch {
+                          blocks = [{ _id: genId(), type: 'paragraph', text: section.content, contactType: null }];
+                          content = section.content || "";
+                        }
+                      } else {
+                        blocks = [{ _id: genId(), type: 'paragraph', text: '', contactType: null }];
+                        content = "";
+                      }
+                      function parseField(field) {
+                        if (!field) return undefined;
+                        try {
+                          return JSON.parse(field);
+                        } catch {
+                          return field;
+                        }
+                      }
+                      return {
+                        blocks,
+                        content,
+                        address: parseField(section && section.address),
+                        email: parseField(section && section.email),
+                        timing: parseField(section && section.timing),
+                        phone: parseField(section && section.phone),
+                      };
+                    }
                     setSection,
                     adminToken,
                     editAddress,

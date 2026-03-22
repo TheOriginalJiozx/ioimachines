@@ -176,6 +176,38 @@ export default function CaseStudies() {
                       </div>
                     </div>
                   ) : (
+                          // Helper component for rendering a list of block editors
+                          function BlockEditorList({ blocks, setBlocks, genId, BlockEditor }) {
+                            return (
+                              <div className="space-y-4">
+                                {blocks.map((block, index) => (
+                                  <BlockEditor
+                                    key={block._id || index}
+                                    block={block}
+                                    index={index}
+                                    onChange={(id, newBlock) => setBlocks((prev) => prev.map(b => b._id === id ? newBlock : b))}
+                                    onMoveUp={id => setBlocks(prev => moveBlockUp(prev, id))}
+                                    onMoveDown={id => setBlocks(prev => moveBlockDown(prev, id))}
+                                    onDelete={id => setBlocks(prev => deleteBlock(prev, id))}
+                                  />
+                                ))}
+                                <div className="flex gap-2 mt-2">
+                                  <button
+                                    className="bg-indigo-600 text-white px-3 py-1 rounded"
+                                    onClick={() => setBlocks(blocks => addParagraphBlock(blocks, genId))}
+                                  >
+                                    Add paragraph
+                                  </button>
+                                  <button
+                                    className="bg-white border px-3 py-1 rounded"
+                                    onClick={() => setBlocks(blocks => addImageBlock(blocks, genId))}
+                                  >
+                                    Add image
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          }
                     <textarea id="case-content" value={contentEditor} onChange={(event) => setContentEditor(event.target.value)} rows={10} className="w-full p-3 border rounded text-sm font-mono" />
                   )}
                 </div>

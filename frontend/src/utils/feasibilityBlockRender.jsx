@@ -107,7 +107,12 @@ export function feasibilityBlockRender(block, index) {
             ))}
           </div>
         )}
-        <RenderList items={displayItems} ordered={!ordered ? false : true} className="mt-4 space-y-2 text-[15px] text-[#444444]" style={!ordered ? { listStyleType: 'disc', marginLeft: '1.5rem' } : undefined} />
+        <RenderList
+          items={displayItems}
+          ordered={ordered}
+          className="mt-4 space-y-2 text-[15px] text-[#444444]"
+          style={ordered ? undefined : { listStyleType: 'disc', marginLeft: '1.5rem' }}
+        />
       </div>
     );
   }

@@ -138,34 +138,9 @@ export default function About() {
                 </div>
                 {adminToken && <div className="mt-4"><button onClick={() => {
                   setMissionTitle(mission?.title || "");
-                  const parsed = mission?.parsedContent || (mission && mission.content ? (() => {
-                    try {
-                      return JSON.parse(mission.content)
-                    } catch {
-                      return null
-                    }
-                  })() : null);
-                  if (parsed && parsed.intro) {
-                    let arr = Array.isArray(parsed.intro) ? parsed.intro.map((b) => ({ ...b, _id: b._id || genId() })) : (typeof parsed.intro === 'string' ? [{ _id: genId(), type: 'paragraph', text: parsed.intro }] : []);
-                    if (!arr.some((b) => b && b.type === 'paragraph')) arr.push({ _id: genId(), type: 'paragraph', text: '' });
-                    setMissionBlocks(arr);
-                    setMissionContentEditor(blocksToPlainText(arr));
-                  } else if (mission && mission.content) {
-                    try {
-                      const maybe = JSON.parse(mission.content);
-                      let arr = Array.isArray(maybe) ? maybe.map((b) => ({ ...b, _id: b._id || genId() })) : (typeof maybe === 'string' ? [{ _id: genId(), type: 'paragraph', text: maybe }] : []);
-                      if (!arr.some((b) => b && b.type === 'paragraph')) arr.push({ _id: genId(), type: 'paragraph', text: '' });
-                      setMissionBlocks(arr);
-                      setMissionContentEditor(blocksToPlainText(arr));
-                    } catch {
-                      const arr = [{ _id: genId(), type: 'paragraph', text: mission.content }];
-                      setMissionBlocks(arr);
-                      setMissionContentEditor(blocksToPlainText(arr));
-                    }
-                  } else {
-                    setMissionBlocks([{ _id: genId(), type: 'paragraph', text: '' }]);
-                    setMissionContentEditor("");
-                  }
+                  const arr = parseAndInitBlocks(mission?.parsedContent, mission?.content);
+                  setMissionBlocks(arr);
+                  setMissionContentEditor(blocksToPlainText(arr));
                   setEditingMission(true);
                 }} className="px-3 py-1 rounded border">Edit</button></div>}
               </>
@@ -220,36 +195,41 @@ export default function About() {
                   </div>
                   {adminToken && <div className="mt-4"><button onClick={() => {
                     setWhyTitle(why?.title || "");
-                    const parsed = why?.parsedContent || (why && why.content ? (() => {
-                      try {
-                        return JSON.parse(why.content)
-                      } catch {
-                      return null
-                    }
-                  })() : null);
-                    if (parsed && parsed.intro) {
-                      let arr = Array.isArray(parsed.intro) ? parsed.intro.map((b) => ({ ...b, _id: b._id || genId() })) : (typeof parsed.intro === 'string' ? [{ _id: genId(), type: 'paragraph', text: parsed.intro }] : []);
-                      if (!arr.some((b) => b && b.type === 'paragraph')) arr.push({ _id: genId(), type: 'paragraph', text: '' });
-                      setWhyBlocks(arr);
-                      setWhyContentEditor(blocksToPlainText(arr));
-                    } else if (why && why.content) {
-                      try {
-                        const maybe = JSON.parse(why.content);
-                        let arr = Array.isArray(maybe) ? maybe.map((b) => ({ ...b, _id: b._id || genId() })) : (typeof maybe === 'string' ? [{ _id: genId(), type: 'paragraph', text: maybe }] : []);
-                        if (!arr.some((b) => b && b.type === 'paragraph')) arr.push({ _id: genId(), type: 'paragraph', text: '' });
-                        setWhyBlocks(arr);
-                        setWhyContentEditor(blocksToPlainText(arr));
-                      } catch {
-                        const arr = [{ _id: genId(), type: 'paragraph', text: why.content || '' }];
-                        setWhyBlocks(arr);
-                        setWhyContentEditor(blocksToPlainText(arr));
-                      }
-                    } else {
-                      setWhyBlocks([{ _id: genId(), type: 'paragraph', text: '' }]);
-                      setWhyContentEditor("");
-                    }
+                    const arr = parseAndInitBlocks(why?.parsedContent, why?.content);
+                    setWhyBlocks(arr);
+                    setWhyContentEditor(blocksToPlainText(arr));
                     setEditingWhy(true);
                   }} className="px-3 py-1 rounded border">Edit</button></div>}
+                // Helper to parse and initialize blocks for edit mode
+                function parseAndInitBlocks(parsedContent, content) {
+                  let parsed = parsedContent;
+                  if (!parsed && content) {
+                    try {
+                      parsed = JSON.parse(content);
+                    } catch {
+                      parsed = null;
+                    }
+                  }
+                  let arr = [];
+                  if (parsed && parsed.intro) {
+                    arr = Array.isArray(parsed.intro)
+                      ? parsed.intro.map((b) => ({ ...b, _id: b._id || genId() }))
+                      : typeof parsed.intro === 'string'
+                        ? [{ _id: genId(), type: 'paragraph', text: parsed.intro }]
+                        : [];
+                  } else if (parsed) {
+                    arr = Array.isArray(parsed)
+                      ? parsed.map((b) => ({ ...b, _id: b._id || genId() }))
+                      : typeof parsed === 'string'
+                        ? [{ _id: genId(), type: 'paragraph', text: parsed }]
+                        : [];
+                  } else if (content) {
+                    arr = [{ _id: genId(), type: 'paragraph', text: content }];
+                  }
+                  if (!arr.some((b) => b && b.type === 'paragraph')) arr.push({ _id: genId(), type: 'paragraph', text: '' });
+                  if (arr.length === 0) arr = [{ _id: genId(), type: 'paragraph', text: '' }];
+                  return arr;
+                }
                 </>
               )}
             </div>
