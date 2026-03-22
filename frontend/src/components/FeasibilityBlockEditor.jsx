@@ -11,9 +11,9 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
       {blocks.map((block, index) => (
         <div key={block._id || index} className="border rounded p-3">
           <div className="mb-2 text-sm text-gray-600">
-              Block #{index + 1} — <span className="font-mono">{block.title ? (block.title.charAt(0).toLowerCase() + block.title.slice(1).toLowerCase()) : block.type}</span>
-            </div>
-            {block.type === "paragraph" && !(block.title?.toLowerCase().includes("images") && !block.title?.toLowerCase().includes("image text")) && (
+            Block #{index + 1} — <span className="font-mono">{block.title ? (block.title.charAt(0).toLowerCase() + block.title.slice(1).toLowerCase()) : block.type}</span>
+          </div>
+          {block.type === "paragraph" && !(block.title && String(block.title).toLowerCase().includes("images") && !String(block.title).toLowerCase().includes("image text")) && (
             <>
               <textarea
                 value={block.text || ""}
@@ -58,7 +58,7 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
           {block.type === "list" && (
             <>
               <label htmlFor={`feasibility-list-items-${index}`} className="text-xs text-gray-600 block">
-                {block.title?.toLowerCase() === "process"
+                {block.title && block.title.toLowerCase() === "process"
                   ? "Items (one per line, end with ;)"
                   : block._isSemicolonList
                   ? "Text and items (items end with ;)"

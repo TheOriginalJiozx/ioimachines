@@ -63,8 +63,8 @@ export default function CaseStudyBlockEditor({ block, onChange, onMoveUp, onMove
         </div>
       )}
       <div className="mt-2 flex flex-wrap gap-2 items-center">
-        <button className="px-2 py-1 rounded border text-sm" onClick={() => onMoveUp(block._id)} disabled={index > 0 ? false : true}>Move up</button>
-        <button className="px-2 py-1 rounded border text-sm" onClick={() => onMoveDown(block._id)} disabled={typeof index === 'number' && index < Number.MAX_SAFE_INTEGER ? false : true}>Move down</button>
+        <button className="px-2 py-1 rounded border text-sm" onClick={() => onMoveUp(block._id)}>Move up</button>
+        <button className="px-2 py-1 rounded border text-sm" onClick={() => onMoveDown(block._id)}>Move down</button>
         <button className="px-2 py-1 rounded border text-sm text-red-600 border-red-600" onClick={() => onDelete(block._id)}>Delete</button>
       </div>
     </div>
