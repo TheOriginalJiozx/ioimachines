@@ -37,7 +37,7 @@ export default function Nav() {
       const linkSlug = nav === "Home" ? "" : nav.toLowerCase().replaceAll(" ", "-").replaceAll(/\/+$/g, "");
       return linkSlug === slug;
     });
-    active = index >= 0 ? index : 0;
+    active = Math.max(index, 0);
   }
 
   function logout() {

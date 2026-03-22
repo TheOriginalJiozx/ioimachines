@@ -60,7 +60,7 @@ export default function RequestConsultation({ onClose, modal = false, variant = 
             <h3 className={variant === "contact" ? "text-lg font-semibold text-white" : "text-lg font-semibold text-gray-800"}>
               Request A Consultation
             </h3>
-            <button onClick={() => onClose && onClose()} className="text-gray-500 hover:text-gray-700">
+            <button onClick={() => onClose?.()} className="text-gray-500 hover:text-gray-700">
               ✕
             </button>
           </div>
@@ -110,17 +110,11 @@ export default function RequestConsultation({ onClose, modal = false, variant = 
   if (modal) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div
+        <button
+          type="button"
           className="absolute inset-0 bg-black/50"
-          role="button"
-          tabIndex={0}
           aria-label="Close modal"
-          onClick={() => onClose && onClose()}
-          onKeyDown={e => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              onClose && onClose();
-            }
-          }}
+          onClick={() => onClose?.()}
         />
         {content}
       </div>
