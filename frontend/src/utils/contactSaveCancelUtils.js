@@ -28,10 +28,10 @@ export async function saveContactSection(sectionKey, title, blocks, setEditing, 
         }
       }
 
-      if (blocksCopy[0].type !== 'title') {
-        blocksCopy.unshift({ _id: (typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString()), type: 'title', text: title });
-      } else {
+      if (blocksCopy[0].type === 'title') {
         blocksCopy[0] = { ...blocksCopy[0], text: title };
+      } else {
+        blocksCopy.unshift({ _id: (typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString()), type: 'title', text: title });
       }
       blocksResult = blocksCopy;
     } else if (contentEditor && contentEditor.trim()) {
@@ -41,12 +41,15 @@ export async function saveContactSection(sectionKey, title, blocks, setEditing, 
       ];
     }
 
-    const introBlocks = (blocksResult || []).filter((b) => !b.contactType);
+    const introBlocks = (blocksResult || []).filter((b) => b.contactType === undefined || b.contactType === null);
     const contentObj = { intro: introBlocks };
 
     const findContact = (type) => {
       const b = (blocksResult || []).find((x) => x.contactType === type);
-      return b && b.text ? b.text : null;
+      if (b && b.text) {
+        return b.text;
+      }
+      return null;
     };
 
     const addressVal = findContact('address') || editAddress || null;
