@@ -1,3 +1,7 @@
+import PropTypes from 'prop-types';
+AppStateProvider.propTypes = {
+  children: PropTypes.node
+};
 
 import React, { useEffect, useState } from 'react';
 import { AppStateContext } from './AppStateContext.js';

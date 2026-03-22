@@ -44,9 +44,9 @@ export default function IPCoreBlockEditor({ block, index, blocks, setBlocks, hid
 
       {block.type === "image" && !Array.isArray(block.images) && (
         <div className="mb-2 flex flex-col items-start gap-2">
-          <label htmlFor={`ipcore-block-image-upload-${index}`} className="text-xs text-gray-600">Replace image (upload)</label>
+          <label htmlFor={`ipcore-block-image-upload-${index}`} className="text-xs text-gray-600 mb-1">Replace image (upload)</label>
           <div className="flex items-center gap-2 mb-1">
-            <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
+            <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer mb-1">
               Choose image
               <input id={`ipcore-block-image-upload-${index}`}
                 type="file"

@@ -20,8 +20,7 @@ export default function CaseStudySolutionBlockEditor({ block, onChange, onMoveUp
         <div className="flex flex-col gap-2">
           <label className="bg-transparent border border-black text-black px-3 py-1 rounded cursor-pointer w-fit transition hover:bg-black/10">
             Upload image
-            <input
-              type="file"
+            <input type="file"
               accept="image/*"
               style={{ display: 'none' }}
               onChange={e => {

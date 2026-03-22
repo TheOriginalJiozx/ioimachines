@@ -180,8 +180,8 @@ export default function Services() {
                 return aOrder - bOrder;
               });
               return entries.map((entry, i) => {
-                const title = Array.isArray(entry) ? entry[0] : entry[0];
-                const modalObj = Array.isArray(entry) ? entry[1] : entry[1];
+                const title = entry[0];
+                const modalObj = entry[1];
                 return (
                   <div
                     key={title}
@@ -572,7 +572,19 @@ export default function Services() {
 
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => { setModalOpen(false); setEditMode(null); }} />
+          <div
+            className="absolute inset-0 bg-black/50"
+            role="button"
+            tabIndex={0}
+            aria-label="Close modal"
+            onClick={() => { setModalOpen(false); setEditMode(null); }}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setModalOpen(false);
+                setEditMode(null);
+              }
+            }}
+          />
           {editMode === "modal" ? (
             <EditModalText
               modalTitle={modalTitle}

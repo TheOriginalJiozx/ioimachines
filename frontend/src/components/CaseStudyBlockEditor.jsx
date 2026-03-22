@@ -20,8 +20,7 @@ export default function CaseStudyBlockEditor({ block, onChange, onMoveUp, onMove
         <div className="flex flex-col gap-2">
           <label htmlFor={`case-block-image-upload-${index}`} className="bg-transparent border border-black text-black px-3 py-1 rounded cursor-pointer w-fit transition hover:bg-black/10">
             Upload image
-            <input
-              id={`case-block-image-upload-${index}`}
+            <input id={`case-block-image-upload-${index}`}
               type="file"
               accept="image/*"
               style={{ display: 'none' }}

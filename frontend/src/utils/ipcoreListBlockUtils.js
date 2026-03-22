@@ -15,7 +15,7 @@ export function parseListBlockEditorValue(block, value) {
 	let items = [];
 	let extra = [];
 	if (block._isSemicolonList) {
-		const lines = value.split("\n").map(s => s.replaceAll(/\u00A0/g, " ").replaceAll("\t", "\t"));
+		const lines = value.split("\n").map(s => s.replaceAll("\u00A0", " ").replaceAll("\t", "\t"));
 		lines.forEach((line) => {
 			const trimmedEnd = line.replaceAll(/\s+$/g, "");
 			if (trimmedEnd.endsWith(";")) {

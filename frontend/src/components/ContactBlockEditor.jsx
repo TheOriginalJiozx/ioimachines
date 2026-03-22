@@ -50,8 +50,8 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
           )}
           {block.type === "image" && (
             <div className="grid grid-cols-1 gap-2">
-              <label htmlFor={`contact-block-image-upload-${index}`} className="text-xs text-gray-600">Replace image (upload)</label>
-              <div className="flex gap-2">
+              <label htmlFor={`contact-block-image-upload-${index}`} className="text-xs text-gray-600 mb-1">Replace image (upload)</label>
+              <div className="flex gap-2 items-center">
                 <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
                   Choose image
                   <input id={`contact-block-image-upload-${index}`} type="file" accept="image/*" onChange={event => {
@@ -60,7 +60,7 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
                     setBlocks(prev => updateBlock(prev, block._id, { ...block, _file: file }));
                   }} className="hidden" />
                 </label>
-                <div className="text-sm text-gray-600">or paste URL below</div>
+                <div className="text-sm text-gray-600 mt-1">or paste URL below</div>
               </div>
               <label htmlFor={`contact-block-image-url-${index}`} className="text-xs text-gray-600">Or image URL</label>
               <input id={`contact-block-image-url-${index}`} value={block.src || ''} onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, src: event.target.value }))} className="w-full p-2 border rounded text-sm" />

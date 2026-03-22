@@ -110,7 +110,18 @@ export default function RequestConsultation({ onClose, modal = false, variant = 
   if (modal) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/50" onClick={() => onClose && onClose()} />
+        <div
+          className="absolute inset-0 bg-black/50"
+          role="button"
+          tabIndex={0}
+          aria-label="Close modal"
+          onClick={() => onClose && onClose()}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              onClose && onClose();
+            }
+          }}
+        />
         {content}
       </div>
     );

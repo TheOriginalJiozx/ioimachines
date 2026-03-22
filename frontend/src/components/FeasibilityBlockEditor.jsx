@@ -33,7 +33,7 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
                 </div>
               )}
               <div className="mt-2 flex flex-wrap gap-2 items-center">
-                <label htmlFor={`feasibility-block-image-upload-${index}`} className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
+                <label htmlFor={`feasibility-block-image-upload-${index}`} className="bg-white border px-3 py-1 rounded text-sm cursor-pointer mb-1">
                   Add image
                   <input id={`feasibility-block-image-upload-${index}`}
                     type="file"
@@ -47,7 +47,7 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
                   />
                 </label>
                 <button
-                  className="px-2 py-1 rounded border text-sm"
+                  className="px-2 py-1 rounded border text-sm mt-1"
                   onClick={() => setBlocks(prev => deleteBlock(prev, block._id))}
                 >
                   Remove block
