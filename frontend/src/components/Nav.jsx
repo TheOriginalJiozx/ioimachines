@@ -34,7 +34,7 @@ export default function Nav() {
     active = navLinks.indexOf("Services");
   } else {
     const index = navLinks.findIndex((nav) => {
-      const linkSlug = nav === "Home" ? "" : nav.toLowerCase().replace(/\s+/g, "-").replace(/\/+$/g, "");
+      const linkSlug = nav === "Home" ? "" : nav.toLowerCase().replaceAll(" ", "-").replace(/\/+$/g, "");
       return linkSlug === slug;
     });
     active = index >= 0 ? index : 0;
@@ -60,7 +60,7 @@ export default function Nav() {
         <div className="hidden md:flex items-center ml-auto justify-end text-[14px] text-[#444444] font-semibold">
           {navLinks.map((link, index) => {
             if (link === "Admin" && isAdmin) return null;
-            const path = link === "Home" ? "/" : `/${link.toLowerCase().replace(/\s+/g, "-").replaceAll("/", "-").replace(/\/+$/g, "")}`;
+            const path = link === "Home" ? "/" : `/${link.toLowerCase().replaceAll(" ", "-").replaceAll("/", "-").replace(/\/+$/g, "")}`;
 
             if (link === "Services") {
               return (
@@ -109,7 +109,7 @@ export default function Nav() {
         <div className="md:hidden bg-white border-t">
           <div className="px-4 py-3 space-y-1">
             {navLinks.map((link) => {
-              const path = link === "Home" ? "/" : `/${link.toLowerCase().replace(/\s+/g, "-").replace(/\/+$/, "")}`;
+              const path = link === "Home" ? "/" : `/${link.toLowerCase().replaceAll(" ", "-").replace(/\/+$/, "")}`;
               return (
                 <a
                   key={link}
