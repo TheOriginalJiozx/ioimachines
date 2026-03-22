@@ -38,8 +38,8 @@ export default function CaseStudies() {
   const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && typeof window.setPageTitle === "function") {
-      window.setPageTitle("Case Studies");
+    if (typeof globalThis !== "undefined" && typeof globalThis.setPageTitle === "function") {
+      globalThis.setPageTitle("Case Studies");
     }
 
     async function load() {

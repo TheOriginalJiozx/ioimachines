@@ -54,8 +54,8 @@ export default function IPCoreLicensing() {
       fetchHero();
     }, []);
   useEffect(() => {
-    if (typeof window !== "undefined" && typeof window.setPageTitle === "function") {
-      window.setPageTitle("IP Core Licensing");
+    if (typeof globalThis !== "undefined" && typeof globalThis.setPageTitle === "function") {
+      globalThis.setPageTitle("IP Core Licensing");
     }
   }, []);
 
@@ -69,7 +69,7 @@ export default function IPCoreLicensing() {
   const [ipcoreContentEditor, setIPCoreContentEditor] = useState("");
 
   useEffect(() => {
-    if (typeof window === "undefined" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (typeof globalThis === "undefined" || globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const observer = new IntersectionObserver(
       (entries) => {

@@ -28,8 +28,8 @@ export default function TurnkeySolutions() {
       fetchHero();
     }, []);
   useEffect(() => {
-    if (typeof window !== "undefined" && typeof window.setPageTitle === "function") {
-      window.setPageTitle("Turnkey Solutions");
+    if (typeof globalThis !== "undefined" && typeof globalThis.setPageTitle === "function") {
+      globalThis.setPageTitle("Turnkey Solutions");
     }
   }, []);
 

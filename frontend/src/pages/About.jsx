@@ -13,8 +13,8 @@ import { renderBlockMission } from "../utils/aboutMissionBlockRender.jsx";
 export default function About() {
   const [hero, setHero] = useState({ title: "", imageUrl: "" });
   useEffect(() => {
-    if (typeof window !== "undefined" && typeof window.setPageTitle === "function") {
-      window.setPageTitle("About Us");
+    if (typeof globalThis !== "undefined" && typeof globalThis.setPageTitle === "function") {
+      globalThis.setPageTitle("About Us");
     }
     async function fetchHero() {
       try {

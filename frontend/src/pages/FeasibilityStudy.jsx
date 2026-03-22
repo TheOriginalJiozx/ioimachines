@@ -12,8 +12,8 @@ import FeasibilityBlockEditor from "../components/FeasibilityBlockEditor";
 
 export default function Feasibility() {
   useEffect(() => {
-    if (typeof window !== "undefined" && typeof window.setPageTitle === "function") {
-      window.setPageTitle("Feasibility Study");
+    if (typeof globalThis !== "undefined" && typeof globalThis.setPageTitle === "function") {
+      globalThis.setPageTitle("Feasibility Study");
     }
   }, []);
     // --- HERO STATE ---
@@ -29,7 +29,7 @@ export default function Feasibility() {
   const [feasibilityContentEditor, setFeasibilityContentEditor] = useState("");
 
   useEffect(() => {
-    if (typeof window === "undefined" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (typeof globalThis === "undefined" || globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const observer = new IntersectionObserver(
       (entries) => {

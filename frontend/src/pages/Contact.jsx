@@ -12,8 +12,8 @@ import { renderContactBlock } from "../utils/contactBlockRenderUtils";
 
 export default function Contact() {
   useEffect(() => {
-    if (typeof window !== "undefined" && typeof window.setPageTitle === "function") {
-      window.setPageTitle("Contact Us");
+    if (typeof globalThis !== "undefined" && typeof globalThis.setPageTitle === "function") {
+      globalThis.setPageTitle("Contact Us");
     }
   }, []);
 

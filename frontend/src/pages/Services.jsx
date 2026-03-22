@@ -13,7 +13,7 @@ export default function Services() {
   
   const [hero, setHero] = useState({ title: "", imageUrl: "", altText: "", contentJson: "" });
   const adminToken =
-    (typeof window !== "undefined" && (window.adminToken || localStorage.getItem("adminToken"))) ||
+    (typeof globalThis !== "undefined" && (globalThis.adminToken || globalThis.localStorage.getItem("adminToken"))) ||
     "";
 
   useEffect(() => {
@@ -104,15 +104,15 @@ export default function Services() {
   }, [adminToken]);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && typeof window.setPageTitle === "function") {
-      window.setPageTitle("Services");
+    if (typeof globalThis !== "undefined" && typeof globalThis.setPageTitle === "function") {
+      globalThis.setPageTitle("Services");
     }
   }, []);
 
   useEffect(() => {
     if (
-      typeof window === "undefined" ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      typeof globalThis === "undefined" ||
+      globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches
     )
       return;
 
@@ -313,7 +313,7 @@ export default function Services() {
                     import.meta.env.VITE_API_BASE ||
                     import.meta.env.VITE_API_BASE_ONLINE;
                   const adminToken =
-                    window.adminToken || localStorage.getItem("adminToken") || "";
+                    globalThis.adminToken || globalThis.localStorage.getItem("adminToken") || "";
                   const sectionData = {
                     title,
                     content: JSON.stringify({ title, subtitle, body1, body2 }),
@@ -394,7 +394,7 @@ export default function Services() {
                     import.meta.env.VITE_API_BASE ||
                     import.meta.env.VITE_API_BASE_ONLINE;
                   const adminToken =
-                    window.adminToken || localStorage.getItem("adminToken") || "";
+                    globalThis.adminToken || globalThis.localStorage.getItem("adminToken") || "";
                   const payload = {
                     title: "Services cards",
                     content: JSON.stringify({ card1, card2, card3 }),
@@ -517,7 +517,7 @@ export default function Services() {
             }}
             onSave={async (m, o) => {
               const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
-              const adminToken = window.adminToken || localStorage.getItem("adminToken") || "";
+              const adminToken = globalThis.adminToken || globalThis.localStorage.getItem("adminToken") || "";
               const payload = {
                 title: m.maintenanceTitle,
                 content: JSON.stringify({

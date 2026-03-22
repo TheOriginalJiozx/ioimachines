@@ -62,7 +62,7 @@ const [perfBody2, setPerfBody2] = useState("");
 
  
   const [heroImage, setHeroImage] = useState("");
-  const adminToken = (typeof window !== 'undefined' && (window.adminToken || localStorage.getItem('adminToken'))) || '';
+  const adminToken = (typeof globalThis !== 'undefined' && (globalThis.adminToken || globalThis.localStorage.getItem('adminToken'))) || '';
 
   useEffect(() => {
     async function fetchHeroImage() {
@@ -221,13 +221,13 @@ const [perfBody2, setPerfBody2] = useState("");
  }, []);
 
  useEffect(() => {
-  if (typeof window !== "undefined" && typeof window.setPageTitle === "function") {
-   window.setPageTitle("Machine Intelligence for Machine Vision");
+  if (typeof globalThis !== "undefined" && typeof globalThis.setPageTitle === "function") {
+   globalThis.setPageTitle("Machine Intelligence for Machine Vision");
   }
  }, []);
 
  useEffect(() => {
-  if (typeof window === "undefined" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (typeof globalThis === "undefined" || globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   const observer = new IntersectionObserver(
    (entries) => {
@@ -405,7 +405,7 @@ const [perfBody2, setPerfBody2] = useState("");
             body4
           ) => {
             const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
-            const adminToken = window.adminToken || localStorage.getItem("adminToken") || "";
+            const adminToken = globalThis.adminToken || globalThis.localStorage.getItem("adminToken") || "";
             const sectionData = {
               title,
               content: JSON.stringify({
