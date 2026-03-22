@@ -1,6 +1,4 @@
-// Utility functions for adding blocks in Feasibility Study
 import { genId } from '../lib/blocks';
-
 
 export function canAddBlock(blocks, type) {
   if (!Array.isArray(blocks)) return true;
