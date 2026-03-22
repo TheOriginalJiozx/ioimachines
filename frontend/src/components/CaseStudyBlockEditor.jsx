@@ -42,21 +42,15 @@ export default function CaseStudyBlockEditor({ block, onChange, onMoveUp, onMove
             className="w-full p-2 border rounded text-sm font-mono"
             placeholder="Image URL"
           />
-          {block._file ? (
-            <img
-              src={URL.createObjectURL(block._file)}
-              alt={block.alt || ''}
-              className="object-contain w-full max-h-40 rounded border"
-              style={{ marginTop: 8 }}
-            />
-          ) : (block.src || block.url) && (
-            <img
-              src={block.src || block.url}
-              alt={block.alt || ''}
-              className="object-contain w-full max-h-40 rounded border"
-              style={{ marginTop: 8 }}
-            />
-          )}
+          {(() => {
+            if (block?._file) {
+              return <img src={URL.createObjectURL(block._file)} alt={block.alt || ''} className="object-contain w-full max-h-40 rounded border" style={{ marginTop: 8 }} />;
+            } else if (block?.src || block?.url) {
+              return <img src={block.src || block.url} alt={block.alt || ''} className="object-contain w-full max-h-40 rounded border" style={{ marginTop: 8 }} />;
+            } else {
+              return null;
+            }
+          })()}
           <label htmlFor={`case-block-image-alt-${index}`} className="text-xs text-gray-600">Alt text</label>
           <input
             id={`case-block-image-alt-${index}`}

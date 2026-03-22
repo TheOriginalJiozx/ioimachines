@@ -55,7 +55,7 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
                 <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
                   Choose image
                   <input id={`contact-block-image-upload-${index}`} type="file" accept="image/*" onChange={event => {
-                    const file = event.target.files && event.target.files[0];
+                    const file = event.target.files?.[0];
                     if (!file) return;
                     setBlocks(prev => updateBlock(prev, block._id, { ...block, _file: file }));
                   }} className="hidden" />

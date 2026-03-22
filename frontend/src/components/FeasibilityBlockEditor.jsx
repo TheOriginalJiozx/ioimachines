@@ -39,7 +39,7 @@ export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks
                     type="file"
                     accept="image/*"
                     onChange={event => {
-                      const file = event.target.files && event.target.files[0];
+                      const file = event.target.files?.[0];
                       if (!file) return;
                       setBlocks(prev => updateBlock(prev, block._id, { ...block, _file: file }));
                     }}

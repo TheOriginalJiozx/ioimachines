@@ -17,19 +17,17 @@ export default function AboutBlockEditor({ blocks, setBlocks, title, setTitle, c
               <div key={block._id || index} className="border rounded p-3">
                 <div className="mb-2 text-sm text-gray-600">Block #{index + 1} — <span className="font-mono">{block.type}</span></div>
                 {block.type === 'paragraph' && (
-                  <>
-                    <textarea id={`about-block-text-${index}`} value={block.text || ''} onChange={e => {
-                      const arr = [...blocks];
-                      arr[index] = { ...arr[index], text: e.target.value };
-                      setBlocks(arr);
-                    }} rows={4} className="w-full p-2 border rounded text-sm font-mono" />
-                  </>
+                  <textarea id={`about-block-text-${index}`} value={block.text || ''} onChange={e => {
+                    const arr = [...blocks];
+                    arr[index] = { ...arr[index], text: e.target.value };
+                    setBlocks(arr);
+                  }} rows={4} className="w-full p-2 border rounded text-sm font-mono" />
                 )}
                 {block.type === 'image' && (
                   <div className="grid grid-cols-1 gap-2">
                     <label htmlFor={`about-block-image-upload-${index}`} className="text-xs text-gray-600">Upload image</label>
                     <input id={`about-block-image-upload-${index}`} type="file" accept="image/*" onChange={e => {
-                      const file = e.target.files && e.target.files[0];
+                      const file = e.target.files?.[0];
                       if (!file) return;
                       const arr = [...blocks];
                       arr[index] = { ...arr[index], _file: file };
@@ -48,13 +46,15 @@ export default function AboutBlockEditor({ blocks, setBlocks, title, setTitle, c
                       setBlocks(arr);
                     }} className="w-full p-2 border rounded text-sm" />
                     <div className="mt-2">
-                      {block._file ? (
-                        <img src={URL.createObjectURL(block._file)} alt={block.alt || ''} className="object-contain w-full h-36" />
-                      ) : block.src ? (
-                        <img src={block.src} alt={block.alt || ''} className="object-contain w-full h-36" />
-                      ) : (
-                        <div className="text-sm text-gray-400">No image</div>
-                      )}
+                      {(() => {
+                        if (block._file) {
+                          return <img src={URL.createObjectURL(block._file)} alt={block.alt || ''} className="object-contain w-full h-36" />;
+                        } else if (block.src) {
+                          return <img src={block.src} alt={block.alt || ''} className="object-contain w-full h-36" />;
+                        } else {
+                          return <div className="text-sm text-gray-400">No image</div>;
+                        }
+                      })()}
                     </div>
                   </div>
                 )}
