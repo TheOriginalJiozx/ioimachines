@@ -57,7 +57,7 @@ export async function saveSection(
     });
     if (!res.ok) throw new Error("save failed");
     setState((prev) => ({
-      ...(prev || {}),
+      ...prev,
       title: title,
       content: JSON.stringify(parsedPayload),
       parsedContent: parsedPayload,

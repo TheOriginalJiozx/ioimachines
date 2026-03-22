@@ -31,7 +31,7 @@ export async function saveAboutSection(key, title, blocks, setEditing, setState,
     const payload = { title: title, content: JSON.stringify({ intro: blocksCopy || [] }) };
     const res = await fetch(`${API_BASE}/sections/${key}`, { method: 'PUT', headers, body: JSON.stringify(payload) });
     if (!res.ok) throw new Error('save failed');
-    setState((prev) => ({ ...(prev || {}), title: title, content: JSON.stringify({ intro: blocksCopy || [] }), parsedContent: { intro: blocksCopy || [] } }));
+      setState((prev) => ({ ...prev, title: title, content: JSON.stringify({ intro: blocksCopy || [] }), parsedContent: { intro: blocksCopy || [] } }));
     setEditing(false);
   } catch (error) {
     alert('Save failed: ' + (error.message || error));

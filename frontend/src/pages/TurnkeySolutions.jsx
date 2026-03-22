@@ -43,7 +43,7 @@ export default function TurnkeySolutions() {
   const [turnkeyContentEditor, setTurnkeyContentEditor] = useState("");
 
   useEffect(() => {
-    if (typeof window === "undefined" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (typeof globalThis === "undefined" || globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -200,7 +200,7 @@ export default function TurnkeySolutions() {
                   })}
 
                   <div className="mt-6 flex justify-start">
-                    <button onClick={() => (window.location.href = "/contact")} className="text-black px-6 py-3 border border-black uppercase">
+                    <button onClick={() => (globalThis.location.href = "/contact")} className="text-black px-6 py-3 border border-black uppercase">
                       Request an Evaluation License
                     </button>
                   </div>

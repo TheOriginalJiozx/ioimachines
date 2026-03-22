@@ -79,7 +79,7 @@ export function handleIPCoreSave({
   adminToken,
 }) {
   saveSection(
-    "ipcore",
+    setSection({ ...section, parsedContent: parsed });
     ipcoreTitle,
     ipcoreBlocks || (ipcoreContentEditor ? [{ _id: genId(), type: "paragraph", text: ipcoreContentEditor }] : []),
     setEditingIPCore,

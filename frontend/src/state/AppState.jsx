@@ -9,7 +9,7 @@ import { AppStateContext } from './AppStateContext.js';
 export function AppStateProvider({ children }) {
   const [adminToken, setAdminToken] = useState(() => {
     if (typeof window === 'undefined') return null;
-      return globalThis.localStorage?.getItem?.('adminToken') || globalThis.ADMIN_TOKEN || null;
+        return globalThis.localStorage.getItem('adminToken') || globalThis.ADMIN_TOKEN || null;
   });
 
   useEffect(() => {
@@ -26,8 +26,8 @@ export function AppStateProvider({ children }) {
     setAdminToken(token);
     if (typeof window !== 'undefined') {
         try {
-          if (token) globalThis.localStorage.setItem('adminToken', token);
-          else globalThis.localStorage.removeItem('adminToken');
+            if (token) globalThis.localStorage.setItem("adminToken", token);
+            else globalThis.localStorage.removeItem("adminToken");
       } catch (error) {
         console.error("Failed to update admin token in localStorage", error);
       }

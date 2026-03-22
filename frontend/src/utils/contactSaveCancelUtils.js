@@ -66,7 +66,7 @@ export async function saveContactSection(sectionKey, title, blocks, setEditing, 
     const mainRes = await fetch(`${API_BASE}/sections/contact`, { method: "PUT", headers, body: JSON.stringify(payloadWithContacts) });
     if (!mainRes.ok) throw new Error("Failed to save contact section");
 
-    setState((prev) => ({ ...(prev || {}), title: title, content: JSON.stringify(contentObj), parsedContent: contentObj, email: emailVal, phone: phoneVal, address: addressVal, timing: timingVal }));
+    setState((prev) => ({ ...prev, title: title, content: JSON.stringify(contentObj), parsedContent: contentObj, email: emailVal, phone: phoneVal, address: addressVal, timing: timingVal }));
     setEditing(false);
   } catch (error) {
     alert("Save failed: " + (error.message || error));
