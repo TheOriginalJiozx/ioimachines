@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useState } from "react";
 
 export default function EditWhySiteSection({
@@ -127,3 +128,27 @@ export default function EditWhySiteSection({
     </div>
   );
 }
+
+EditWhySiteSection.propTypes = {
+  whyTitle: PropTypes.string,
+  whySubtitle: PropTypes.string,
+  whyBody1: PropTypes.string,
+  whyBody2: PropTypes.string,
+  whyBody3: PropTypes.string,
+  perfTitle: PropTypes.string,
+  perfSubtitle: PropTypes.string,
+  perfBody1: PropTypes.string,
+  perfBody2: PropTypes.string,
+  setWhyTitle: PropTypes.func,
+  setWhySubtitle: PropTypes.func,
+  setWhyBody1: PropTypes.func,
+  setWhyBody2: PropTypes.func,
+  setWhyBody3: PropTypes.func,
+  setPerfTitle: PropTypes.func,
+  setPerfSubtitle: PropTypes.func,
+  setPerfBody1: PropTypes.func,
+  setPerfBody2: PropTypes.func,
+  onCancel: PropTypes.func,
+  onSave: PropTypes.func,
+  saving: PropTypes.bool,
+};

@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useState } from "react";
 
 export default function EditServicesSiteSection({
@@ -101,3 +102,17 @@ export default function EditServicesSiteSection({
     </div>
   );
 }
+
+EditServicesSiteSection.propTypes = {
+  title: PropTypes.string,
+  subtitle: PropTypes.string,
+  body1: PropTypes.string,
+  body2: PropTypes.string,
+  setTitle: PropTypes.func,
+  setSubtitle: PropTypes.func,
+  setBody1: PropTypes.func,
+  setBody2: PropTypes.func,
+  onCancel: PropTypes.func,
+  onSave: PropTypes.func,
+  saving: PropTypes.bool,
+};

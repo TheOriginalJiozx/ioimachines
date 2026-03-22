@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useState } from "react";
 
 export default function EditServicesCards({
@@ -71,3 +72,11 @@ export default function EditServicesCards({
     </div>
   );
 }
+
+EditServicesCards.propTypes = {
+  card1: PropTypes.object,
+  card2: PropTypes.object,
+  card3: PropTypes.object,
+  onCancel: PropTypes.func,
+  onSave: PropTypes.func,
+};

@@ -37,7 +37,7 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
                 rows={4}
                 className="w-full p-2 border rounded text-sm font-mono"
               />
-              <div className="mt-2 flex gap-2">
+              <div className="mt-2 flex flex-wrap gap-2 items-center">
                 {index > 0 && (
                   <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(prev => moveBlockUp(prev, block._id))}>Move up</button>
                 )}

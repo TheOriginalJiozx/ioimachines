@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { useState } from "react";
 
 export default function EditWhatWeDoSection({
@@ -83,3 +84,21 @@ export default function EditWhatWeDoSection({
     </div>
   );
 }
+
+EditWhatWeDoSection.propTypes = {
+  title: PropTypes.string,
+  subtitle: PropTypes.string,
+  body1: PropTypes.string,
+  body2: PropTypes.string,
+  body3: PropTypes.string,
+  body4: PropTypes.string,
+  setTitle: PropTypes.func,
+  setSubtitle: PropTypes.func,
+  setBody1: PropTypes.func,
+  setBody2: PropTypes.func,
+  setBody3: PropTypes.func,
+  setBody4: PropTypes.func,
+  saving: PropTypes.bool,
+  onCancel: PropTypes.func,
+  onSave: PropTypes.func,
+};
