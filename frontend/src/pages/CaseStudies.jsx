@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { useAppState } from "../state/useAppState";
 import ContactCase from "../components/ContactCase";
 import Features from "../components/Features";
@@ -125,6 +126,13 @@ export default function CaseStudies() {
       </div>
     );
   }
+
+  BlockEditorList.propTypes = {
+    blocks: PropTypes.array.isRequired,
+    setBlocks: PropTypes.func.isRequired,
+    genId: PropTypes.func.isRequired,
+    BlockEditor: PropTypes.elementType.isRequired,
+  };
   return (
     <div className="min-h-screen bg-white text-[#444444] font-sans" aria-label="Case studies page">
       <section className="relative w-full mb-16">
