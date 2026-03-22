@@ -135,19 +135,21 @@ export default function TurnkeySolutions() {
                 <div className="mt-4">
                   <div className="mb-4">
                     <label htmlFor="turnkey-content" className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-                    {turnkeyBlocks && Array.isArray(turnkeyBlocks) && turnkeyBlocks.map((block, index) => (
-                      <TurnkeyBlockEditor
-                        key={block._id || index}
-                        block={block}
-                        index={index}
-                        blocks={turnkeyBlocks}
-                        setBlocks={setTurnkeyBlocks}
-                      />
-                    ))}
+                    <div className="flex flex-col gap-4">
+                      {turnkeyBlocks && Array.isArray(turnkeyBlocks) && turnkeyBlocks.map((block, index) => (
+                        <TurnkeyBlockEditor
+                          key={block._id || index}
+                          block={block}
+                          index={index}
+                          blocks={turnkeyBlocks}
+                          setBlocks={setTurnkeyBlocks}
+                        />
+                      ))}
+                    </div>
                   </div>
                     <TurnkeyBlockAddButtons blocks={turnkeyBlocks} setBlocks={setTurnkeyBlocks} />
-                  <div className="flex justify-end gap-3 mt-4">
-                    <button onClick={() => handleTurnkeyCancel(setEditingTurnkey)} className="px-4 py-2 rounded border">
+                  <div className="flex justify-start gap-3 mt-4">
+                    <button onClick={() => handleTurnkeyCancel(setEditingTurnkey)} className="px-4 py-2 rounded border bg-[#444444] text-white">
                       Cancel
                     </button>
                     <button
@@ -160,7 +162,7 @@ export default function TurnkeySolutions() {
                         setTurnkey,
                         genId,
                       })}
-                      className="px-4 py-2 rounded bg-[#444444] text-white"
+                      className="px-4 py-2 rounded bg-indigo-600 text-white"
                     >
                       Save
                     </button>

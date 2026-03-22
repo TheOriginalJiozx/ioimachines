@@ -149,10 +149,10 @@ export default function Feasibility() {
                     )}
                   </div>
 
-                  <div className="flex justify-end gap-3 mt-4">
+                  <div className="flex justify-start gap-3 mt-4">
                     <button
                       onClick={() => handleFeasibilityCancel(setEditingFeasibility)}
-                      className="px-4 py-2 rounded border"
+                      className="px-4 py-2 rounded border bg-[#444444] text-white"
                     >
                       Cancel
                     </button>
@@ -163,7 +163,7 @@ export default function Feasibility() {
                         // Example usage of handleFeasibilitySave (not active):
                         // handleFeasibilitySave({ key: "feasibility", title: feasibilityTitle, blocks: feasibilityBlocks, setEditing: setEditingFeasibility, setState: setFeasibility, adminToken });
                       }}
-                      className="px-4 py-2 rounded bg-[#444444] text-white"
+                      className="px-4 py-2 rounded bg-indigo-600 text-white"
                     >
                       Save
                     </button>

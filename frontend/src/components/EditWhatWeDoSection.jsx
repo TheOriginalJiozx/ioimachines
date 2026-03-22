@@ -63,10 +63,10 @@ export default function EditWhatWeDoSection({
         rows={2}
         className="w-full text-sm mb-2 border rounded p-2 focus:outline-none focus:border-[#444444]"
       />
-      <div className="flex gap-2 mt-4">
-        <button className="bg-[#444444] text-white px-4 py-2 rounded" onClick={onCancel} disabled={saving}>Cancel</button>
+      <div className="flex justify-start gap-3 mt-4">
+        <button className="px-4 py-2 rounded bg-[#444444] text-white" onClick={onCancel} disabled={saving}>Cancel</button>
         <button
-          className="bg-indigo-600 text-white px-4 py-2 rounded"
+          className="px-4 py-2 rounded bg-indigo-600 text-white"
           disabled={saving}
           onClick={async () => {
             setTitle(localTitle);

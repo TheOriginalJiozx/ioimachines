@@ -1,5 +1,3 @@
-// Utilities for About section save/cancel
-
 export async function saveAboutSection(key, title, blocks, setEditing, setState, adminToken) {
   try {
     const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;

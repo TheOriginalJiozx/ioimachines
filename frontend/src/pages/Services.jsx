@@ -61,7 +61,9 @@ export default function Services() {
   const [card3Title, setCard3Title] = useState("");
   const [card3Text, setCard3Text] = useState("");
   const [card3Icon, setCard3Icon] = useState("");
-  const [editMode, setEditMode] = useState(null); 
+  const [editSiteSection, setEditSiteSection] = useState(false);
+  const [editCards, setEditCards] = useState(false);
+  const [editMaintenanceOwnership, setEditMaintenanceOwnership] = useState(false);
 
   useEffect(() => {
     fetchSection({
@@ -245,7 +247,7 @@ export default function Services() {
           {/* LEFT SIDE */}
           <div className="text-white">
             <button
-              className="mt-2 mb-4 bg-white text-[#444444] border border-[#444444] px-4 py-2 rounded"
+              className="mt-2 mb-4 bg-white text-[#444444] border border-[#444444] px-4 py-2 rounded self-start"
               onClick={() => {
                 setOriginalSiteSection({
                   title: siteSectionTitle,
@@ -253,13 +255,38 @@ export default function Services() {
                   body1: siteSectionBody1,
                   body2: Array.isArray(siteSectionBody2) ? [...siteSectionBody2] : [],
                 });
-                setEditMode("siteSection");
+                setEditSiteSection((prev) => !prev);
               }}
             >
               Edit section
             </button>
-
-            {editMode === "siteSection" ? (
+            {!editSiteSection && (
+              <>
+                <h2 className="text-3xl font-bold">{siteSectionTitle}</h2>
+                <h3 className="text-xl font-semibold mt-4">
+                  {siteSectionSubtitle}
+                </h3>
+                <p className="mt-6 max-w-xl whitespace-pre-line">
+                  {siteSectionBody1}
+                </p>
+                <div className="mt-6 bg-white text-black rounded-lg p-4">
+                  <ul className="mt-2 space-y-2 text-sm">
+                    {Array.isArray(siteSectionBody2) &&
+                      siteSectionBody2.map((item, idx) => (
+                        <li key={idx} className="flex items-start">
+                          <i
+                            className={
+                              item.icon + " mr-3 mt-1 text-[#0471AB]"
+                            }
+                          ></i>
+                          {item.text}
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              </>
+            )}
+            {editSiteSection && (
               <EditServicesSiteSection
                 title={siteSectionTitle}
                 subtitle={siteSectionSubtitle}
@@ -279,22 +306,19 @@ export default function Services() {
                       ? [...originalSiteSection.body2]
                       : []
                   );
-                  setEditMode(null);
+                  setEditSiteSection(false);
                 }}
                 onSave={async (title, subtitle, body1, body2) => {
                   const API_BASE =
                     import.meta.env.VITE_API_BASE ||
                     import.meta.env.VITE_API_BASE_ONLINE;
-
                   const adminToken =
                     window.adminToken || localStorage.getItem("adminToken") || "";
-
                   const sectionData = {
                     title,
                     content: JSON.stringify({ title, subtitle, body1, body2 }),
                     adminToken,
                   };
-
                   await fetch(`${API_BASE}/sections/services-vision`, {
                     method: "PUT",
                     headers: {
@@ -305,103 +329,28 @@ export default function Services() {
                     },
                     body: JSON.stringify(sectionData),
                   });
-
-                  setEditMode(null);
+                  setEditSiteSection(false);
                 }}
               />
-            ) : (
-              <>
-                <h2 className="text-3xl font-bold">{siteSectionTitle}</h2>
-                <h3 className="text-xl font-semibold mt-4">
-                  {siteSectionSubtitle}
-                </h3>
-                <p className="mt-6 max-w-xl whitespace-pre-line">
-                  {siteSectionBody1}
-                </p>
-
-                <div className="mt-6 bg-white text-black rounded-lg p-4">
-                  <ul className="mt-2 space-y-2 text-sm">
-                    {Array.isArray(siteSectionBody2) &&
-                      siteSectionBody2.map((item, idx) => (
-                        <li key={idx} className="flex items-start">
-                          <i
-                            className={
-                              item.icon + " mr-3 mt-1 text-[#0471AB]"
-                            }
-                          ></i>
-                          {item.text}
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              </>
             )}
           </div>
 
           {/* RIGHT SIDE */}
           <div className="space-y-4">
             <button
-              className="mb-4 bg-white text-[#444444] border border-[#444444] px-4 py-2 rounded"
+              className="mb-4 bg-white text-[#444444] border border-[#444444] px-4 py-2 rounded self-start"
               onClick={() => {
                 setOriginalCards({
                   card1: { title: card1Title, text: card1Text, icon: card1Icon },
                   card2: { title: card2Title, text: card2Text, icon: card2Icon },
                   card3: { title: card3Title, text: card3Text, icon: card3Icon },
                 });
-                setEditMode("cards");
+                setEditCards((prev) => !prev);
               }}
             >
               Edit cards
             </button>
-
-            {editMode === "cards" ? (
-              <EditServicesCards
-                card1={{ title: card1Title, text: card1Text, icon: card1Icon }}
-                card2={{ title: card2Title, text: card2Text, icon: card2Icon }}
-                card3={{ title: card3Title, text: card3Text, icon: card3Icon }}
-                onCancel={() => {
-                  setCard1Title(originalCards.card1.title);
-                  setCard1Text(originalCards.card1.text);
-                  setCard1Icon(originalCards.card1.icon);
-
-                  setCard2Title(originalCards.card2.title);
-                  setCard2Text(originalCards.card2.text);
-                  setCard2Icon(originalCards.card2.icon);
-
-                  setCard3Title(originalCards.card3.title);
-                  setCard3Text(originalCards.card3.text);
-                  setCard3Icon(originalCards.card3.icon);
-
-                  setEditMode(null);
-                }}
-                onSave={async (card1, card2, card3) => {
-                  const API_BASE =
-                    import.meta.env.VITE_API_BASE ||
-                    import.meta.env.VITE_API_BASE_ONLINE;
-
-                  const adminToken =
-                    window.adminToken || localStorage.getItem("adminToken") || "";
-
-                  const payload = {
-                    title: "Services cards",
-                    content: JSON.stringify({ card1, card2, card3 }),
-                  };
-
-                  await fetch(`${API_BASE}/sections/services-cards`, {
-                    method: "PUT",
-                    headers: {
-                      "Content-Type": "application/json",
-                      ...(adminToken
-                        ? { Authorization: "Bearer " + adminToken }
-                        : {}),
-                    },
-                    body: JSON.stringify(payload),
-                  });
-
-                  setEditMode(null);
-                }}
-              />
-            ) : (
+            {!editCards && (
               <>
                 {[ 
                   { title: card1Title, text: card1Text, icon: card1Icon },
@@ -423,6 +372,47 @@ export default function Services() {
                 ))}
               </>
             )}
+            {editCards && (
+              <EditServicesCards
+                card1={{ title: card1Title, text: card1Text, icon: card1Icon }}
+                card2={{ title: card2Title, text: card2Text, icon: card2Icon }}
+                card3={{ title: card3Title, text: card3Text, icon: card3Icon }}
+                onCancel={() => {
+                  setCard1Title(originalCards.card1.title);
+                  setCard1Text(originalCards.card1.text);
+                  setCard1Icon(originalCards.card1.icon);
+                  setCard2Title(originalCards.card2.title);
+                  setCard2Text(originalCards.card2.text);
+                  setCard2Icon(originalCards.card2.icon);
+                  setCard3Title(originalCards.card3.title);
+                  setCard3Text(originalCards.card3.text);
+                  setCard3Icon(originalCards.card3.icon);
+                  setEditCards(false);
+                }}
+                onSave={async (card1, card2, card3) => {
+                  const API_BASE =
+                    import.meta.env.VITE_API_BASE ||
+                    import.meta.env.VITE_API_BASE_ONLINE;
+                  const adminToken =
+                    window.adminToken || localStorage.getItem("adminToken") || "";
+                  const payload = {
+                    title: "Services cards",
+                    content: JSON.stringify({ card1, card2, card3 }),
+                  };
+                  await fetch(`${API_BASE}/sections/services-cards`, {
+                    method: "PUT",
+                    headers: {
+                      "Content-Type": "application/json",
+                      ...(adminToken
+                        ? { Authorization: "Bearer " + adminToken }
+                        : {}),
+                    },
+                    body: JSON.stringify(payload),
+                  });
+                  setEditCards(false);
+                }}
+              />
+            )}
           </div>
         </div>
       </section>
@@ -431,7 +421,7 @@ export default function Services() {
 
       <section className="max-w-6xl mx-auto px-6 py-12">
         <button
-          className="mt-4 bg-white text-[#444444] border border-[#444444] px-4 py-2 rounded"
+          className="mt-4 bg-white text-[#444444] border border-[#444444] px-4 py-2 rounded self-start"
           onClick={() => {
             setOriginalMaintenance({
               maintenanceTitle,
@@ -446,11 +436,45 @@ export default function Services() {
               ownershipList: [...ownershipList],
               ownershipFooter,
             });
-            setEditMode("maintenanceOwnership");
+            setEditMaintenanceOwnership((prev) => !prev);
           }}>
           Edit section
         </button>
-        {editMode === "maintenanceOwnership" ? (
+        {!editMaintenanceOwnership && (
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="max-w-xl">
+              <h3 className="text-2xl font-bold text-[#444444]">
+                {maintenanceTitle.split("\n").map((line, idx) => (
+                  <span key={idx}>
+                    {line}
+                    {idx < maintenanceTitle.split("\n").length - 1 ? <br /> : null}
+                  </span>
+                ))}
+              </h3>
+              <p className="font-semibold mt-4 text-gray-600">{maintenanceBody}</p>
+              <div className="mt-6">
+                <ul className="mt-3 text-gray-600 space-y-2 pl-5 list-disc">
+                  {maintenanceList.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <p className="mt-4 text-gray-700">{maintenanceFooter}</p>
+            </div>
+            <aside className="bg-white border border-gray-100 rounded-lg p-6 shadow-sm">
+              <h4 className="text-xl font-semibold text-gray-800">{ownershipTitle}</h4>
+              <p className="mt-3 text-gray-600">{ownershipBody}</p>
+              <p className="mt-4 font-semibold text-gray-700">{ownershipListTitle}</p>
+              <ul className="mt-3 text-gray-600 space-y-2 pl-5 list-disc">
+                {ownershipList.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+              <p className="mt-4 text-gray-700">{ownershipFooter}</p>
+            </aside>
+          </div>
+        )}
+        {editMaintenanceOwnership && (
           <EditMaintenanceOwnership
             maintenance={{
               maintenanceTitle,
@@ -489,7 +513,7 @@ export default function Services() {
               setOwnershipListTitle(originalOwnership.ownershipListTitle || "");
               setOwnershipList(Array.isArray(originalOwnership.ownershipList) ? [...originalOwnership.ownershipList] : []);
               setOwnershipFooter(originalOwnership.ownershipFooter || "");
-              setEditMode(null);
+              setEditMaintenanceOwnership(false);
             }}
             onSave={async (m, o) => {
               const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
@@ -517,42 +541,9 @@ export default function Services() {
                 },
                 body: JSON.stringify(payload),
               });
-              setEditMode(null);
+              setEditMaintenanceOwnership(false);
             }}
           />
-        ) : (
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="max-w-xl">
-              <h3 className="text-2xl font-bold text-[#444444]">
-                {maintenanceTitle.split("\n").map((line, idx) => (
-                  <span key={idx}>
-                    {line}
-                    {idx < maintenanceTitle.split("\n").length - 1 ? <br /> : null}
-                  </span>
-                ))}
-              </h3>
-              <p className="font-semibold mt-4 text-gray-600">{maintenanceBody}</p>
-              <div className="mt-6">
-                <ul className="mt-3 text-gray-600 space-y-2 pl-5 list-disc">
-                  {maintenanceList.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-              <p className="mt-4 text-gray-700">{maintenanceFooter}</p>
-            </div>
-            <aside className="bg-white border border-gray-100 rounded-lg p-6 shadow-sm">
-              <h4 className="text-xl font-semibold text-gray-800">{ownershipTitle}</h4>
-              <p className="mt-3 text-gray-600">{ownershipBody}</p>
-              <p className="mt-4 font-semibold text-gray-700">{ownershipListTitle}</p>
-              <ul className="mt-3 text-gray-600 space-y-2 pl-5 list-disc">
-                {ownershipList.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
-              <p className="mt-4 text-gray-700">{ownershipFooter}</p>
-            </aside>
-          </div>
         )}
       </section>
 

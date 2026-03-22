@@ -161,7 +161,7 @@ export default function IPCoreLicensing() {
                     )}
                   </div>
 
-                  <div className="flex justify-end gap-3 mt-4">
+                  <div className="flex justify-start gap-3 mt-4">
                     <button
                       onClick={() => handleIPCoreCancel(setEditingIPCore)}
                       className="px-4 py-2 rounded border"

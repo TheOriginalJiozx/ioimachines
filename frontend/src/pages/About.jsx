@@ -7,7 +7,7 @@ import { genId, blocksToPlainText } from "../lib/blocks.jsx";
 import HeroEditor from "../components/HeroEditor";
 import { saveAboutSection, handleAboutCancel } from "../utils/aboutSaveCancelUtils";
 import AboutBlockEditor from "../components/AboutBlockEditor";
-import { renderBlockAbout } from "../utils/aboutBlockRenderUtils";
+import { renderBlockAbout } from "../utils/aboutBlockRenderUtils.jsx";
 import { renderBlockMission } from "../utils/aboutMissionBlockRender.jsx";
 
 export default function About() {

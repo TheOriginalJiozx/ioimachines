@@ -96,9 +96,9 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
           Add image
         </button>
       </div>
-      <div className="flex justify-end gap-3 mt-4">
-        <button onClick={onCancel} className="px-4 py-2 rounded border">Cancel</button>
-        <button onClick={onSave} className="px-4 py-2 rounded bg-[#444444] text-white">Save</button>
+      <div className="flex justify-start gap-3 mt-4">
+        <button onClick={onCancel} className="px-4 py-2 rounded bg-[#444444] text-white">Cancel</button>
+        <button onClick={onSave} className="px-4 py-2 rounded bg-indigo-600 text-white">Save</button>
       </div>
     </div>
   );

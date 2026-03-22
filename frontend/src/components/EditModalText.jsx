@@ -44,10 +44,10 @@ export default function EditModalText({
         placeholder="Font Awesome icon class (fx: fas fa-lock)"
         className="mt-4 w-full text-sm text-gray-700 border rounded p-2 focus:outline-none focus:border-[#444444]"
       />
-      <div className="mt-6 flex justify-end gap-2">
+      <div className="flex justify-start gap-3 mt-4">
         <button
           onClick={onCancel}
-          className="bg-[#444444] text-white px-4 py-2 rounded"
+          className="px-4 py-2 rounded border bg-[#444444] text-white"
           disabled={saving}
         >Cancel</button>
         <button
@@ -57,7 +57,7 @@ export default function EditModalText({
             setModalIconClass(localIconClass);
             await onSave(localTitle, localBody, localIconClass);
           }}
-          className="bg-indigo-600 text-white px-4 py-2 rounded"
+          className="px-4 py-2 rounded bg-indigo-600 text-white"
           disabled={saving}
         >Save</button>
       </div>

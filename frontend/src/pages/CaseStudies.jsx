@@ -179,9 +179,12 @@ export default function CaseStudies() {
                     <textarea id="case-content" value={contentEditor} onChange={(event) => setContentEditor(event.target.value)} rows={10} className="w-full p-3 border rounded text-sm font-mono" />
                   )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex justify-start gap-3 mt-4">
+                  <button className="px-4 py-2 rounded border bg-[#444444] text-white" onClick={() => handleCancel(setIsEditing, setSaving)} disabled={saving}>
+                    Cancel
+                  </button>
                   <button
-                    className="bg-indigo-600 text-white px-4 py-2 rounded"
+                    className="px-4 py-2 rounded bg-indigo-600 text-white"
                     disabled={saving}
                     onClick={() => handleSave({
                       caseData,
@@ -205,9 +208,6 @@ export default function CaseStudies() {
                     })}
                   >
                     Save
-                  </button>
-                  <button className="px-4 py-2 rounded border" onClick={() => handleCancel(setIsEditing, setSaving)} disabled={saving}>
-                    Cancel
                   </button>
                 </div>
               </div>

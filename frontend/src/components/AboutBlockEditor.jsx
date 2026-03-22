@@ -74,9 +74,9 @@ export default function AboutBlockEditor({ blocks, setBlocks, title, setTitle, c
           <textarea value={contentEditor} onChange={e => setContentEditor(e.target.value)} rows={6} className="w-full px-4 py-2 border rounded" />
         )}
       </div>
-      <div className="flex justify-end gap-3 mt-4">
-        <button onClick={onCancel} className="px-4 py-2 rounded border">Cancel</button>
-        <button onClick={onSave} className="px-4 py-2 rounded bg-[#444444] text-white">Save</button>
+      <div className="flex justify-start gap-3 mt-4">
+        <button onClick={onCancel} className="px-4 py-2 rounded bg-[#444444] text-white">Cancel</button>
+        <button onClick={onSave} className="px-4 py-2 rounded bg-indigo-600 text-white">Save</button>
       </div>
     </div>
   );
