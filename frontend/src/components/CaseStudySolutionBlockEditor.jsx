@@ -1,14 +1,6 @@
 import React from "react";
+import PropTypes from "prop-types";
 
-/**
- * Editor for a single solution block (paragraph or image) in a case study.
- * Props:
- *   block: The block object (must have type, _id, etc.)
- *   onChange: (id, newBlock) => void
- *   onMoveUp: (id) => void
- *   onMoveDown: (id) => void
- *   onDelete: (id) => void
- */
 export default function CaseStudySolutionBlockEditor({ block, onChange, onMoveUp, onMoveDown, onDelete, index }) {
   if (!block) return null;
   return (
@@ -35,10 +27,9 @@ export default function CaseStudySolutionBlockEditor({ block, onChange, onMoveUp
               onChange={e => {
                 const file = e.target.files && e.target.files[0];
                 if (!file) return;
-                const preview = URL.createObjectURL(file);
                 let alt = block.alt || '';
-                if (!alt && file.name) alt = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ');
-                onChange(block._id, { ...block, _file: file, src: preview, alt, _autoAlt: true });
+                if (!alt && file.name) alt = file.name.replace(/\.[^/.]+$/, '').replaceAll('-', ' ').replaceAll('_', ' ');
+                onChange(block._id, { ...block, _file: file, alt, _autoAlt: true });
               }}
             />
           </label>
@@ -49,7 +40,14 @@ export default function CaseStudySolutionBlockEditor({ block, onChange, onMoveUp
             className="w-full p-2 border rounded text-sm font-mono"
             placeholder="Image URL"
           />
-          {(block.src || block.url) && (
+          {block._file ? (
+            <img
+              src={URL.createObjectURL(block._file)}
+              alt={block.alt || ''}
+              className="object-contain w-full max-h-40 rounded border"
+              style={{ marginTop: 8 }}
+            />
+          ) : (block.src || block.url) && (
             <img
               src={block.src || block.url}
               alt={block.alt || ''}
@@ -74,3 +72,12 @@ export default function CaseStudySolutionBlockEditor({ block, onChange, onMoveUp
     </div>
   );
 }
+
+CaseStudySolutionBlockEditor.propTypes = {
+  block: PropTypes.object,
+  onChange: PropTypes.func,
+  onMoveUp: PropTypes.func,
+  onMoveDown: PropTypes.func,
+  onDelete: PropTypes.func,
+  index: PropTypes.number,
+};

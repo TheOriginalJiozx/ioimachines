@@ -8,12 +8,12 @@ import {
 import { canAddBlock, addBlock } from "../utils/turnkeyBlockAddUtils";
 import { getListBlockEditorValue, parseListBlockEditorValue } from "../utils/turnkeyListBlockUtils";
 
+import PropTypes from "prop-types";
 export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hideMoveDown }) {
   const blockCount = blocks.length;
 
   if (!block) return null;
 
-  // Paragraph (normal)
   if (block.type === "paragraph" && !(block.title && (String(block.title).toLowerCase().includes("signature") || String(block.title).toLowerCase().includes("image")))) {
     return (
       <div className="border rounded p-3">
@@ -26,7 +26,7 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
           rows={6}
           className="w-full p-2 border rounded text-sm font-mono"
         />
-        {/* ...image logic if present... */}
+
         <div className="mt-2 flex gap-2 flex-wrap">
           <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
             Add image
@@ -99,7 +99,6 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
     );
   }
 
-  // Paragraph (image text)
   if (block.type === "paragraph" && block.title && String(block.title).toLowerCase().includes("image text")) {
     return (
       <div className="border rounded p-3">
@@ -112,7 +111,7 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
           rows={6}
           className="w-full p-2 border rounded text-sm font-mono"
         />
-        {/* ...image logic if present... */}
+
         <div className="mt-2 flex gap-2 flex-wrap">
           {index > 0 && (
             <button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(blocks => moveBlockUp(blocks, block._id))}>Move up</button>
@@ -126,7 +125,6 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
     );
   }
 
-  // Heading
   if (block.type === "heading") {
     return (
       <div className="border rounded p-3">
@@ -150,7 +148,6 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
     );
   }
 
-  // List
   if (block.type === "list") {
     return (
       <div className="border rounded p-3">
@@ -180,7 +177,6 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
     );
   }
 
-  // Image
   if (block.type === "image") {
     return (
       <div className="border rounded p-3">
@@ -232,6 +228,14 @@ export default function TurnkeyBlockEditor({ block, index, blocks, setBlocks, hi
   return null;
 }
 
+TurnkeyBlockEditor.propTypes = {
+  block: PropTypes.object,
+  index: PropTypes.number,
+  blocks: PropTypes.array,
+  setBlocks: PropTypes.func,
+  hideMoveDown: PropTypes.bool,
+};
+
 export function TurnkeyBlockAddButtons({ blocks, setBlocks }) {
   const disabledClass = "opacity-50 cursor-not-allowed";
   return (
@@ -281,3 +285,8 @@ export function TurnkeyBlockAddButtons({ blocks, setBlocks }) {
     </div>
   );
 }
+
+TurnkeyBlockAddButtons.propTypes = {
+  blocks: PropTypes.array,
+  setBlocks: PropTypes.func,
+};

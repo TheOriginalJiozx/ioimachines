@@ -1,15 +1,16 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { moveUpBlock, moveDownBlock, removeBlock } from "../utils/aboutEditingUtils";
 
 export default function AboutBlockEditor({ blocks, setBlocks, title, setTitle, contentEditor, setContentEditor, onCancel, onSave }) {
   return (
     <div className="editing-feasibility">
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-        <input value={title} onChange={e => setTitle(e.target.value)} className="w-full p-2 border rounded" />
+        <label htmlFor="about-title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+        <input id="about-title" value={title} onChange={e => setTitle(e.target.value)} className="w-full p-2 border rounded" />
       </div>
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+        <label htmlFor="about-content" className="block text-sm font-medium text-gray-700 mb-1">Content</label>
         {blocks && Array.isArray(blocks) ? (
           <div className="space-y-4">
             {blocks.map((block, index) => (
@@ -17,7 +18,7 @@ export default function AboutBlockEditor({ blocks, setBlocks, title, setTitle, c
                 <div className="mb-2 text-sm text-gray-600">Block #{index + 1} — <span className="font-mono">{block.type}</span></div>
                 {block.type === 'paragraph' && (
                   <>
-                    <textarea value={block.text || ''} onChange={e => {
+                    <textarea id={`about-block-text-${index}`} value={block.text || ''} onChange={e => {
                       const arr = [...blocks];
                       arr[index] = { ...arr[index], text: e.target.value };
                       setBlocks(arr);
@@ -26,19 +27,35 @@ export default function AboutBlockEditor({ blocks, setBlocks, title, setTitle, c
                 )}
                 {block.type === 'image' && (
                   <div className="grid grid-cols-1 gap-2">
-                    <label className="text-xs text-gray-600">Image URL</label>
-                    <input value={block.src || ''} onChange={e => {
+                    <label htmlFor={`about-block-image-upload-${index}`} className="text-xs text-gray-600">Upload image</label>
+                    <input id={`about-block-image-upload-${index}`} type="file" accept="image/*" onChange={e => {
+                      const file = e.target.files && e.target.files[0];
+                      if (!file) return;
+                      const arr = [...blocks];
+                      arr[index] = { ...arr[index], _file: file };
+                      setBlocks(arr);
+                    }} className="w-full p-2 border rounded text-sm" />
+                    <label htmlFor={`about-block-image-url-${index}`} className="text-xs text-gray-600">Image URL</label>
+                    <input id={`about-block-image-url-${index}`} value={block.src || ''} onChange={e => {
                       const arr = [...blocks];
                       arr[index] = { ...arr[index], src: e.target.value };
                       setBlocks(arr);
                     }} className="w-full p-2 border rounded text-sm" />
-                    <label className="text-xs text-gray-600">Alt text</label>
-                    <input value={block.alt || ''} onChange={e => {
+                    <label htmlFor={`about-block-image-alt-${index}`} className="text-xs text-gray-600">Alt text</label>
+                    <input id={`about-block-image-alt-${index}`} value={block.alt || ''} onChange={e => {
                       const arr = [...blocks];
                       arr[index] = { ...arr[index], alt: e.target.value };
                       setBlocks(arr);
                     }} className="w-full p-2 border rounded text-sm" />
-                    <div className="mt-2">{block.src ? <img src={block.src} alt={block.alt || ''} className="object-contain w-full h-36" /> : <div className="text-sm text-gray-400">No image</div>}</div>
+                    <div className="mt-2">
+                      {block._file ? (
+                        <img src={URL.createObjectURL(block._file)} alt={block.alt || ''} className="object-contain w-full h-36" />
+                      ) : block.src ? (
+                        <img src={block.src} alt={block.alt || ''} className="object-contain w-full h-36" />
+                      ) : (
+                        <div className="text-sm text-gray-400">No image</div>
+                      )}
+                    </div>
                   </div>
                 )}
                 <div className="mt-2 flex gap-2">
@@ -64,3 +81,14 @@ export default function AboutBlockEditor({ blocks, setBlocks, title, setTitle, c
     </div>
   );
 }
+
+AboutBlockEditor.propTypes = {
+  blocks: PropTypes.array,
+  setBlocks: PropTypes.func,
+  title: PropTypes.string,
+  setTitle: PropTypes.func,
+  contentEditor: PropTypes.string,
+  setContentEditor: PropTypes.func,
+  onCancel: PropTypes.func,
+  onSave: PropTypes.func,
+};

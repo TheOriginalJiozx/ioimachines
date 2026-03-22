@@ -1,9 +1,10 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { canAddBlock, addBlock } from "../utils/feasibilityBlockAddUtils";
 import { updateBlock, moveBlockUp, moveBlockDown, deleteBlock } from "../utils/feasibilityBlockEditingUtils";
 import { getListBlockEditorValue, parseListBlockEditorValue } from "../utils/feasibilityListBlockUtils";
 
-export default function FeasibilityBlockEditor({ blocks, setBlocks }) {
+export default function FeasibilityBlockEditor({ block, index, blocks, setBlocks, hideMoveDown }) {
   if (!blocks || !Array.isArray(blocks)) return null;
   return (
     <div className="space-y-4">
@@ -20,19 +21,15 @@ export default function FeasibilityBlockEditor({ blocks, setBlocks }) {
                 rows={6}
                 className="w-full p-2 border rounded text-sm font-mono"
               />
-              {block.images && block.images.length > 0 && (
-                <div className="mt-2 space-y-2">
-                  {block.images.map((img, imgIndex) => (
-                    <div key={imgIndex} className="border rounded p-2 bg-gray-50">
-                      {img && <img src={img} alt="uploaded" className="w-full h-24 object-cover rounded mb-1" />}
-                      <button
-                        className="px-2 py-1 rounded border text-xs"
-                        onClick={() => setBlocks(prev => updateBlock(prev, block._id, { ...block, images: (block.images || []).filter((_, i) => i !== imgIndex) }))}
-                      >
-                        Remove image
-                      </button>
-                    </div>
-                  ))}
+              {block._file && (
+                <div className="mt-2">
+                  <img src={URL.createObjectURL(block._file)} alt="uploaded" className="w-full h-24 object-cover rounded mb-1" />
+                  <button
+                    className="px-2 py-1 rounded border text-xs"
+                    onClick={() => setBlocks(prev => updateBlock(prev, block._id, { ...block, _file: undefined }))}
+                  >
+                    Remove image
+                  </button>
                 </div>
               )}
               <div className="mt-2 flex gap-2">
@@ -44,12 +41,7 @@ export default function FeasibilityBlockEditor({ blocks, setBlocks }) {
                     onChange={event => {
                       const file = event.target.files && event.target.files[0];
                       if (!file) return;
-                      const reader = new FileReader();
-                      reader.onload = e => {
-                        const dataUrl = e.target.result;
-                        setBlocks(prev => updateBlock(prev, block._id, { ...block, images: [...(block.images || []), dataUrl] }));
-                      };
-                      reader.readAsDataURL(file);
+                      setBlocks(prev => updateBlock(prev, block._id, { ...block, _file: file }));
                     }}
                     className="hidden"
                   />
@@ -93,10 +85,11 @@ export default function FeasibilityBlockEditor({ blocks, setBlocks }) {
                     Move up
                   </button>
                 )}
-                {index < blocks.length - 1 && (
+                {!hideMoveDown && (
                   <button
                     className="px-2 py-1 rounded border text-sm"
                     onClick={() => setBlocks(prev => moveBlockDown(prev, block._id))}
+                    disabled={index === blocks.length - 1}
                   >
                     Move down
                   </button>
@@ -170,43 +163,62 @@ export default function FeasibilityBlockEditor({ blocks, setBlocks }) {
           )}
         </div>
       ))}
-      <div className="flex gap-2 flex-wrap mt-4">
-        <button
-          className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={!canAddBlock(blocks, "image")}
-          onClick={() => setBlocks(prev => addBlock(prev, "image"))}
-        >
-          Add image
-        </button>
-        <button
-          className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={!canAddBlock(blocks, "paragraph-image-text")}
-          onClick={() => setBlocks(prev => addBlock(prev, "paragraph-image-text"))}
-        >
-          Add image text
-        </button>
-        <button
-          className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={!canAddBlock(blocks, "list-process")}
-          onClick={() => setBlocks(prev => addBlock(prev, "list-process"))}
-        >
-          Add process
-        </button>
-        <button
-          className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={!canAddBlock(blocks, "list-scope")}
-          onClick={() => setBlocks(prev => addBlock(prev, "list-scope"))}
-        >
-          Add scope & approach
-        </button>
-        <button
-          className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={!canAddBlock(blocks, "list-deliverables")}
-          onClick={() => setBlocks(prev => addBlock(prev, "list-deliverables"))}
-        >
-          Add deliverables
-        </button>
-      </div>
+      <FeasibilityBlockAddButtons blocks={blocks} setBlocks={setBlocks} />
     </div>
   );
 }
+
+FeasibilityBlockEditor.propTypes = {
+  block: PropTypes.object,
+  index: PropTypes.number,
+  blocks: PropTypes.array,
+  setBlocks: PropTypes.func,
+  hideMoveDown: PropTypes.bool,
+};
+
+function FeasibilityBlockAddButtons({ blocks, setBlocks }) {
+  return (
+    <div className="flex gap-2 flex-wrap mt-4">
+      <button
+        className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={!canAddBlock(blocks, "image")}
+        onClick={() => setBlocks(prev => addBlock(prev, "image"))}
+      >
+        Add image
+      </button>
+      <button
+        className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={!canAddBlock(blocks, "paragraph-image-text")}
+        onClick={() => setBlocks(prev => addBlock(prev, "paragraph-image-text"))}
+      >
+        Add image text
+      </button>
+      <button
+        className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={!canAddBlock(blocks, "list-process")}
+        onClick={() => setBlocks(prev => addBlock(prev, "list-process"))}
+      >
+        Add process
+      </button>
+      <button
+        className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={!canAddBlock(blocks, "list-scope")}
+        onClick={() => setBlocks(prev => addBlock(prev, "list-scope"))}
+      >
+        Add scope & approach
+      </button>
+      <button
+        className="bg-white border px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={!canAddBlock(blocks, "list-deliverables")}
+        onClick={() => setBlocks(prev => addBlock(prev, "list-deliverables"))}
+      >
+        Add deliverables
+      </button>
+    </div>
+  );
+}
+
+FeasibilityBlockAddButtons.propTypes = {
+  blocks: PropTypes.array,
+  setBlocks: PropTypes.func,
+};

@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { updateBlock, moveBlockUp, moveBlockDown, deleteBlock } from "../utils/contactEditingUtils";
 import { canAddBlock, addBlock } from "../utils/contactBlockAddUtils";
 
@@ -54,11 +55,7 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
                   <input type="file" accept="image/*" onChange={event => {
                     const file = event.target.files && event.target.files[0];
                     if (!file) return;
-                    const reader = new FileReader();
-                    reader.onload = e => {
-                      setBlocks(prev => updateBlock(prev, block._id, { ...block, src: e.target.result }));
-                    };
-                    reader.readAsDataURL(file);
+                    setBlocks(prev => updateBlock(prev, block._id, { ...block, _file: file }));
                   }} className="hidden" />
                 </label>
                 <div className="text-sm text-gray-600">or paste URL below</div>
@@ -67,7 +64,15 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
               <input value={block.src || ''} onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, src: event.target.value }))} className="w-full p-2 border rounded text-sm" />
               <label className="text-xs text-gray-600">Alt text</label>
               <input value={block.alt||''} onChange={event => setBlocks(prev => updateBlock(prev, block._id, { ...block, alt: event.target.value }))} className="w-full p-2 border rounded text-sm" />
-              <div className="mt-2">{block.src ? <img src={block.src} alt={block.alt||''} className="object-contain w-full h-36" /> : <div className="text-sm text-gray-400">No image</div>}</div>
+              <div className="mt-2">
+                {block._file ? (
+                  <img src={URL.createObjectURL(block._file)} alt={block.alt||''} className="object-contain w-full h-36" />
+                ) : block.src ? (
+                  <img src={block.src} alt={block.alt||''} className="object-contain w-full h-36" />
+                ) : (
+                  <div className="text-sm text-gray-400">No image</div>
+                )}
+              </div>
               <div className="mt-2"><button className="px-2 py-1 rounded border text-sm" onClick={() => setBlocks(prev => deleteBlock(prev, block._id))}>Remove block</button></div>
             </div>
           )}
@@ -96,3 +101,12 @@ export default function ContactBlockEditor({ blocks, setBlocks, setTitle, title,
     </div>
   );
 }
+
+ContactBlockEditor.propTypes = {
+  blocks: PropTypes.array,
+  setBlocks: PropTypes.func,
+  setTitle: PropTypes.func,
+  title: PropTypes.string,
+  onCancel: PropTypes.func,
+  onSave: PropTypes.func,
+};

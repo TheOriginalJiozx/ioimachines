@@ -5,11 +5,14 @@ import {
   deleteBlock,
   updateBlock,
 } from "../utils/ipcoreBlockEditingUtils";
+import PropTypes from "prop-types";
 import { canAddBlock, addBlock } from "../utils/ipcoreBlockAddUtils";
 import { getListBlockEditorValue, parseListBlockEditorValue } from "../utils/ipcoreListBlockUtils";
 
-export default function IPCoreBlockEditor({ block, index, blocks, setBlocks }) {
+export default function IPCoreBlockEditor({ block, index, blocks, setBlocks, hideMoveDown }) {
   if (!block) return null;
+
+
 
   return (
     <div className="border rounded p-3 mb-4">
@@ -49,28 +52,10 @@ export default function IPCoreBlockEditor({ block, index, blocks, setBlocks }) {
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={async (e) => {
+                onChange={(e) => {
                   const file = e.target.files && e.target.files[0];
                   if (!file) return;
-                  const formData = new FormData();
-                  formData.append("file", file);
-                  const API_BASE =
-                    import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
-                  try {
-                    const res = await fetch(`${API_BASE}/uploads`, {
-                      method: "POST",
-                      body: formData,
-                    });
-                    if (res.ok) {
-                      const data = await res.json();
-                      const url = data.url || data.path;
-                      setBlocks(updateBlock(blocks, block._id, { ...block, src: url }));
-                    } else {
-                      alert("Image upload failed");
-                    }
-                  } catch (err) {
-                    console.error("Error uploading image", err);
-                  }
+                  setBlocks(updateBlock(blocks, block._id, { ...block, _file: file }));
                 }}
               />
             </label>
@@ -92,7 +77,13 @@ export default function IPCoreBlockEditor({ block, index, blocks, setBlocks }) {
             className="w-full p-2 border rounded text-sm mb-1"
           />
           <div className="mt-2">
-            {block.src ? (
+            {block._file ? (
+              <img
+                src={URL.createObjectURL(block._file)}
+                alt={block.alt || ""}
+                className="object-contain w-32 h-24 border rounded"
+              />
+            ) : block.src ? (
               <img
                 src={block.src}
                 alt={block.alt || ""}
@@ -161,10 +152,12 @@ export default function IPCoreBlockEditor({ block, index, blocks, setBlocks }) {
             Move up
           </button>
         )}
-        {index < blocks.length - 1 && (
+        {!hideMoveDown && (
           <button
             className="px-2 py-1 rounded border text-sm"
-            onClick={() => setBlocks(moveBlockDown(blocks, block._id))}>
+            onClick={() => setBlocks(moveBlockDown(blocks, block._id))}
+            disabled={index === blocks.length - 1}
+          >
             Move down
           </button>
         )}
@@ -178,9 +171,16 @@ export default function IPCoreBlockEditor({ block, index, blocks, setBlocks }) {
   );
 }
 
+IPCoreBlockEditor.propTypes = {
+  block: PropTypes.object,
+  index: PropTypes.number,
+  blocks: PropTypes.array,
+  setBlocks: PropTypes.func,
+  hideMoveDown: PropTypes.bool,
+};
+
 export function IPCoreBlockAddButtons({ blocks, setBlocks }) {
   const disabledClass = "opacity-50 cursor-not-allowed";
-  // Only allow one image block at a time, regardless of content
   const hasImageBlock = Array.isArray(blocks) && blocks.some(b => b.type === "image" && (!b.title || b.title === "Image"));
   return (
     <div className="mt-4 flex flex-wrap gap-2 border-t pt-4">
@@ -229,3 +229,8 @@ export function IPCoreBlockAddButtons({ blocks, setBlocks }) {
     </div>
   );
 }
+
+IPCoreBlockAddButtons.propTypes = {
+  blocks: PropTypes.array,
+  setBlocks: PropTypes.func,
+};
