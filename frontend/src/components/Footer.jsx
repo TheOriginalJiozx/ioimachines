@@ -1,11 +1,11 @@
 import { useState } from "react";
-
-export default function Footer() {
+function NewsletterForm() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
 
-  async function handleSubscribe() {
+  async function handleSubscribe(e) {
+    e.preventDefault();
     setStatus("");
     if (!email || !email.includes("@")) {
       setStatus("Please enter a valid email");
@@ -14,8 +14,7 @@ export default function Footer() {
     setLoading(true);
     try {
       const API_BASE = import.meta.env?.VITE_API_BASE || import.meta.env?.VITE_API_BASE_ONLINE;
-        const res = await fetch(`${API_BASE}/newsletter`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
-      
+      const res = await fetch(`${API_BASE}/newsletter`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
       const text = await res.text();
       let json = {};
       try {
@@ -33,6 +32,23 @@ export default function Footer() {
     }
   }
 
+  return (
+    <>
+      <form
+        className="flex items-center mt-2 sm:mt-0"
+        onSubmit={handleSubscribe}
+      >
+        <input id="newsletter-email" type="email" aria-label="email" placeholder="Your email address" value={email} onChange={(event) => setEmail(event.target.value)} className="px-3 py-2 border border-gray-300 rounded-l-md w-full sm:w-56 focus:outline-none text-sm" />
+        <button disabled={loading} className="bg-[#444444] text-white px-3 py-2 font-semi-bold rounded-r-md text-sm">
+          {loading ? "Sending..." : "Subscribe"}
+        </button>
+      </form>
+      {status && <div className="mt-2 text-sm text-[#444444]">{status}</div>}
+    </>
+  );
+}
+
+export default function Footer() {
   return (
     <footer className="bg-[#F7F6F6] font-source-sans-pro">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
@@ -59,19 +75,7 @@ export default function Footer() {
             <label htmlFor="newsletter-email" className="text-sm text-[#929292] font-medium block sm:inline">
               Get the Newsletter
             </label>
-            <form
-              className="flex items-center mt-2 sm:mt-0"
-              onSubmit={async (error) => {
-                error.preventDefault();
-                await handleSubscribe();
-              }}
-            >
-              <input id="newsletter-email" type="email" aria-label="email" placeholder="Your email address" value={email} onChange={(event) => setEmail(event.target.value)} className="px-3 py-2 border border-gray-300 rounded-l-md w-full sm:w-56 focus:outline-none text-sm" />
-              <button disabled={loading} className="bg-[#444444] text-white px-3 py-2 font-semi-bold rounded-r-md text-sm">
-                {loading ? "Sending..." : "Subscribe"}
-              </button>
-            </form>
-            {status && <div className="mt-2 text-sm text-[#444444]">{status}</div>}
+            <NewsletterForm />
           </div>
         </div>
 
