@@ -13,14 +13,14 @@ export default function Footer() {
     }
     setLoading(true);
     try {
-      const API_BASE = import.meta.env.VITE_API_BASE || "https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api";
+      const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
       const res = await fetch(`${API_BASE}/newsletter`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
       const text = await res.text();
       let json = {};
       try {
         json = text ? JSON.parse(text) : {};
       } catch (error) {
-        
+        console.error("Failed to parse newsletter response", error);
       }
       if (!res.ok) throw new Error(json.error || text || "Failed");
       setStatus("Subscribed — thank you!");

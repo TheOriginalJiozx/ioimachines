@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useAppState } from "../state/AppState";
+import { useState } from "react";
+import { useAppState } from "../state/useAppState";
 import { useNavigate, useLocation } from "react-router-dom";
 import logo from '../assets/ioimachines_logo.png'
 
@@ -12,62 +12,36 @@ const navDropdown = {
   ],
 };
 
+
 export default function Nav() {
-  const [active, setActive] = useState(0);
   const [open, setOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const { adminToken, setToken } = useAppState();
   const navigate = useNavigate();
-
   const location = useLocation();
 
-  useEffect(() => {
-    try {
-      const pathname = location.pathname.replace(/^\/+|\/+$/g, "");
-      const slug = pathname.split("/")[0];
+  // Derive isAdmin directly from adminToken
+  const isAdmin = !!adminToken;
 
-      const index = navLinks.findIndex((nav) => {
-        const linkSlug = nav === "Home" ? "" : nav.toLowerCase().replace(/\s+/g, "-").replace(/\/+$/g, "");
-        return linkSlug === slug;
-      });
-      setActive(index >= 0 ? index : 0);
-    } catch (error) {
-      alert("Navigation error: " + error.message);
-    }
-  }, [location]);
-
-  useEffect(() => {
-    try {
-      const pathname = location.pathname.replace(/^\/+|\/+$/g, "");
-      const slug = pathname.split("/")[0];
-
-      const serviceIndex = navDropdown["Services"].findIndex((item) => {
-        const itemSlug = item.path.replace(/^\/+|\/+$/g, "").split("/")[0];
-        return itemSlug === slug;
-      });
-      if (serviceIndex >= 0) {
-        setActive(navLinks.indexOf("Services"));
-        return;
-      }
-
-      const index = navLinks.findIndex((nav) => {
-        const linkSlug = nav === "Home" ? "" : nav.toLowerCase().replace(/\s+/g, "-").replace(/\/+$/g, "");
-        return linkSlug === slug;
-      });
-      setActive(index >= 0 ? index : 0);
-    } catch (error) {
-      alert("Navigation error: " + error.message);
-    }
-  }, [location]);
-
-  useEffect(() => {
-
-    setIsAdmin(!!adminToken);
-  }, [adminToken]);
+  // Derive active index from location synchronously
+  const pathname = location.pathname.replace(/^\/+|\/+$/g, "");
+  const slug = pathname.split("/")[0];
+  let active = 0;
+  const serviceIndex = navDropdown["Services"].findIndex((item) => {
+    const itemSlug = item.path.replace(/^\/+|\/+$/g, "").split("/")[0];
+    return itemSlug === slug;
+  });
+  if (serviceIndex >= 0) {
+    active = navLinks.indexOf("Services");
+  } else {
+    const index = navLinks.findIndex((nav) => {
+      const linkSlug = nav === "Home" ? "" : nav.toLowerCase().replace(/\s+/g, "-").replace(/\/+$/g, "");
+      return linkSlug === slug;
+    });
+    active = index >= 0 ? index : 0;
+  }
 
   function logout() {
     setToken(null);
-    setActive(0);
     navigate("/");
   }
 
@@ -91,7 +65,7 @@ export default function Nav() {
             if (link === "Services") {
               return (
                 <span key={link} className="relative group flex items-center">
-                  <a href={path} onClick={() => setActive(index)} className={`py-2 px-8 ${active === index ? "bg-black text-white" : "text-[#444444] hover:text-[#444444]"}`}>
+                  <a href={path} className={`py-2 px-8 ${active === index ? "bg-black text-white" : "text-[#444444] hover:text-[#444444]"}`}>
                     {link}
                   </a>
                   <div className="absolute left-0 top-full mt-0 bg-white border shadow-lg w-56 invisible opacity-0 pointer-events-none group-hover:visible group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-10">
@@ -112,7 +86,7 @@ export default function Nav() {
 
             return (
               <span key={link} className="flex items-center">
-                <a href={path} onClick={() => setActive(index)} className={`py-2 px-8 ${active === index ? "bg-black text-white" : "text-[#444444] hover:text-[#444444]"}`}>
+                <a href={path} className={`py-2 px-8 ${active === index ? "bg-black text-white" : "text-[#444444] hover:text-[#444444]"}`}>
                   {link}
                 </a>
                 {index < navLinks.length - 1 && (
@@ -134,7 +108,7 @@ export default function Nav() {
       {open && (
         <div className="md:hidden bg-white border-t">
           <div className="px-4 py-3 space-y-1">
-            {navLinks.map((link, index) => {
+            {navLinks.map((link) => {
               const path = link === "Home" ? "/" : `/${link.toLowerCase().replace(/\s+/g, "-").replace(/\/+$/, "")}`;
               return (
                 <a
@@ -142,7 +116,6 @@ export default function Nav() {
                   href={path}
                   onClick={() => {
                     setOpen(false);
-                    setActive(index);
                   }}
                   className="block px-3 py-2 rounded text-base font-medium text-gray-700 hover:bg-gray-100"
                 >

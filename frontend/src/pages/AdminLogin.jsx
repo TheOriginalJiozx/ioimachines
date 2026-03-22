@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
-import { useAppState } from "../state/AppState";
+import { useAppState } from "../state/useAppState";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -20,7 +20,7 @@ export default function AdminLogin() {
     }
     setLoading(true);
     try {
-      const API_BASE = import.meta.env.VITE_API_BASE || 'https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api';
+      const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
       const res = await fetch(`${API_BASE}/admins/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -29,7 +29,11 @@ export default function AdminLogin() {
       const content = res.headers.get('content-type') || ''
       if (!res.ok) {
         let msg = await res.text()
-        try { if (content.includes('application/json')) msg = JSON.parse(msg).error || JSON.parse(msg) } catch (error) {}
+        try {
+          if (content.includes('application/json')) msg = JSON.parse(msg).error || JSON.parse(msg)
+        } catch (error) {
+          console.error("Failed to parse error message", error);
+        }
         throw new Error(typeof msg === 'string' ? msg : JSON.stringify(msg))
       }
       const data = content.includes('application/json') ? await res.json() : null

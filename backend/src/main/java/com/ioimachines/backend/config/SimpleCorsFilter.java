@@ -19,7 +19,7 @@ public class SimpleCorsFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
 
         String origin = request.getHeader("Origin");
-        if ("http://localhost:5173".equals(origin) || "https://jolly-moss-0569eee03.4.azurestaticapps.net".equals(origin)) {
+        if ("http://localhost:5173".equals(origin) || "https://ioimachines.com".equals(origin)) {
             response.setHeader("Access-Control-Allow-Origin", origin);
         }
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");

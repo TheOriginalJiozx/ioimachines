@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.ioimachines.backend.util.AdminSessionStore;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/admins")
@@ -25,7 +26,7 @@ public class AdminsController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Admins> getAdmin(@PathVariable Long id) {
-        return adminRepository.findById(id).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return adminRepository.findById(Objects.requireNonNull(id)).map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/login")

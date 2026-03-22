@@ -29,7 +29,9 @@ public class UploadController {
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
         if (file == null || file.isEmpty()) return ResponseEntity.badRequest().body(Map.of("error", "file required"));
         try {
-            String original = StringUtils.cleanPath(file.getOriginalFilename());
+            String original = file.getOriginalFilename();
+            if (original == null) original = "";
+            original = StringUtils.cleanPath(original);
             String external = "";
             int index = original.lastIndexOf('.');
             if (index >= 0) external = original.substring(index);

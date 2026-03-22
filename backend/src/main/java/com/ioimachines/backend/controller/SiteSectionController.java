@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/sections")
 public class SiteSectionController {
@@ -58,6 +57,7 @@ public class SiteSectionController {
         LOGGER.info("Payload keys: {}", payload == null ? null : payload.keySet());
         if (adminId == null) return ResponseEntity.status(401).body(Map.of("error","invalid token"));
 
+        if (payload == null) return ResponseEntity.badRequest().body(Map.of("error", "Missing payload"));
         String title = (String) payload.getOrDefault("title", null);
         Object content = payload.getOrDefault("content", payload.getOrDefault("contentJson", payload.get("content_json")));
         Object email = payload.getOrDefault("email", payload.getOrDefault("emailJson", payload.get("email_json")));

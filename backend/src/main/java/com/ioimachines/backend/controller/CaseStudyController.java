@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Objects;
 
 import java.net.URI;
 import java.text.Normalizer;
@@ -59,7 +60,7 @@ public class CaseStudyController {
         try {
             CaseStudy caseStudy = new CaseStudy(slug, title, contentJson, solutionTitle, solutionContentJson);
             caseStudy = repo.save(caseStudy);
-            return ResponseEntity.created(URI.create("/api/case-studies/" + caseStudy.getSlug())).body(Map.of("ok", true, "slug", caseStudy.getSlug()));
+            return ResponseEntity.created(Objects.requireNonNull(URI.create("/api/case-studies/" + caseStudy.getSlug()))).body(Map.of("ok", true, "slug", caseStudy.getSlug()));
         } catch (DataIntegrityViolationException dive) {
             return ResponseEntity.status(409).body(Map.of("error", "slug already exists"));
         } catch (Exception e) {
@@ -102,7 +103,7 @@ public class CaseStudyController {
             if (solutionTitle != null) caseStudy.setSolutionTitle(solutionTitle);
             if (solutionContentJson != null) caseStudy.setSolutionContentJson(solutionContentJson);
 
-            repo.save(caseStudy);
+            repo.save(Objects.requireNonNull(caseStudy));
             return ResponseEntity.ok(Map.of("ok", true, "slug", caseStudy.getSlug()));
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }

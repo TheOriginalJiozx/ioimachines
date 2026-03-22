@@ -1,8 +1,17 @@
 import { useEffect, useState } from "react";
-import { useAppState } from "../state/AppState";
+import { useAppState } from "../state/useAppState";
 import ContactCase from "../components/ContactCase";
 import Features from "../components/Features";
 import GetAdvice from "../components/GetAdvice";
+import HeroEditor from "../components/HeroEditor";
+import { updateImageBlockAlts, renderBlock } from "../utils/caseStudyBlockUtils.jsx";
+import { blocksToPlainText } from "../lib/blocks";
+import { fetchHeroData, normalizeEntry } from "../utils/caseStudiesUtils";
+import CaseStudyBlockEditor from "../components/CaseStudyBlockEditor";
+import { moveBlockUp, moveBlockDown, deleteBlock } from "../utils/caseStudiesEditingUtils";
+import CaseStudySolutionBlockEditor from "../components/CaseStudySolutionBlockEditor";
+import { addParagraphBlock, addImageBlock } from "../utils/caseStudiesBlockAddUtils";
+import { handleSave, handleCancel } from "../utils/caseStudiesSaveCancelUtils";
 
 export default function CaseStudies() {
   const [loading, setLoading] = useState(true);
@@ -20,35 +29,24 @@ export default function CaseStudies() {
   const [saving, setSaving] = useState(false);
   const { adminToken } = useAppState();
   const [isCreating, setIsCreating] = useState(false);
-  const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+  const [hero, setHero] = useState({ title: "", imageUrl: "" });
 
-  function normalizeEntry(entry) {
-    const title = entry.title || "";
-    const image = entry.image || entry.hero_image || "";
-    let content = entry.content || entry.contentJson || entry.content_json || "";
-    try {
-      content = typeof content === "string" ? JSON.parse(content) : content;
-    } catch (error) {}
-    let solutionContent = entry.solution_content_json || entry.solutionContentJson || entry.solutionContent || "";
-    try {
-      solutionContent = typeof solutionContent === "string" ? JSON.parse(solutionContent) : solutionContent;
-    } catch (error) {}
-    const solutionTitle = entry.solution_title || entry.solutionTitle || "";
-    return { slug: entry.slug, title, image, content, solutionTitle, solutionContent };
-  }
+  useEffect(() => {
+    const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
+    fetchHeroData(API_BASE).then(setHero);
+  }, []);
+  const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
 
   useEffect(() => {
     if (typeof window !== "undefined" && typeof window.setPageTitle === "function") {
       window.setPageTitle("Case Studies");
     }
 
-
-
     async function load() {
       setLoading(true);
       setError("");
       try {
-        const API_BASE = import.meta.env.VITE_API_BASE || "https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api";
+        const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
         const res = await fetch(`${API_BASE}/case-studies`);
         if (!res.ok) throw new Error(`Status ${res.status}`);
         const json = await res.json();
@@ -87,123 +85,44 @@ export default function CaseStudies() {
   useEffect(() => {
     if (!titleEditor) return;
     if (editingBlocks && Array.isArray(editingBlocks)) {
-      const copy = editingBlocks.slice();
-      let changed = false;
-      for (let i = 0; i < copy.length; i++) {
-        const block = copy[i];
-        if (block && block.type === 'image' && block._autoAlt) {
-          const newAlt = `${titleEditor} image`;
-          if (block.alt !== newAlt) {
-            copy[i] = { ...block, alt: newAlt };
-            changed = true;
-          }
-        }
-      }
-      if (changed) setEditingBlocks(copy);
+      const updated = updateImageBlockAlts(editingBlocks, titleEditor);
+      if (updated !== editingBlocks) setEditingBlocks(updated);
     }
     if (editingSolutionBlocks && Array.isArray(editingSolutionBlocks)) {
-      const copy2 = editingSolutionBlocks.slice();
-      let changed2 = false;
-      for (let i = 0; i < copy2.length; i++) {
-        const block = copy2[i];
-        if (block && block.type === 'image' && block._autoAlt) {
-          const newAlt = `${titleEditor} image`;
-          if (block.alt !== newAlt) {
-            copy2[i] = { ...block, alt: newAlt };
-            changed2 = true;
-          }
-        }
-      }
-      if (changed2) setEditingSolutionBlocks(copy2);
+      const updated2 = updateImageBlockAlts(editingSolutionBlocks, titleEditor);
+      if (updated2 !== editingSolutionBlocks) setEditingSolutionBlocks(updated2);
     }
   }, [titleEditor, editingBlocks, editingSolutionBlocks]);
-
-  function blocksToPlainText(content) {
-    if (!content && content !== "") return "";
-    let array = content;
-    if (typeof content === "string") {
-      try {
-        array = JSON.parse(content);
-      } catch (error) {
-        alert("Content is not valid JSON. Please fix it before editing. Error: " + error.message);
-      }
-    }
-    if (Array.isArray(array)) {
-      return array
-        .map((block) => {
-          try {
-            return block && block.type === "paragraph" && block.text ? block.text : "";
-          } catch (error) {
-            return "";
-          }
-        })
-        .filter((string) => string && string.length > 0)
-        .join("\n");
-    }
-    return typeof content === "string" ? content : "";
-  }
-
-  function renderBlock(block, index) {
-    if (!block) return null;
-    switch (block.type) {
-      case "paragraph":
-        return (
-          <p key={index} className="text-sm text-[#606060] mb-4">
-            {block.text}
-          </p>
-        );
-      case "heading":
-        if (block.level === 2)
-          return (
-            <h2 key={index} className="text-2xl font-bold mb-3">
-              {block.text}
-            </h2>
-          );
-        if (block.level === 3)
-          return (
-            <h3 key={index} className="text-xl font-semibold mb-2">
-              {block.text}
-            </h3>
-          );
-        return (
-          <h4 key={index} className="font-semibold mb-2">
-            {block.text}
-          </h4>
-        );
-      case "image":
-        return (
-          <div key={index} className="w-full max-w-xs md:max-w-sm mb-4">
-            <img src={block.src} alt={block.alt || ""} className="object-contain w-full h-auto" />
-          </div>
-        );
-      case "list":
-        return (
-          <ul key={index} className={`list-${block.style || "disc"} pl-5 text-sm text-[#606060] mb-4`}>
-            {(block.items || []).map((it, i) => (
-              <li key={i}>{it}</li>
-            ))}
-          </ul>
-        );
-      default:
-        return <div key={index} dangerouslySetInnerHTML={{ __html: block.html || "" }} />;
-    }
-  }
 
   return (
     <div className="min-h-screen bg-white text-[#444444] font-sans" aria-label="Case studies page">
       <section className="relative w-full mb-16">
-        <div className="w-full h-80 sm:h-96 md:h-[34rem] bg-gray-100 overflow-hidden">
-          <img src="/success_stories.jpg" alt="Case hero" className="object-cover w-full h-full" />
-        </div>
-        <div className="absolute inset-0 flex items-center">
-          <div className="max-w-6xl mx-auto px-6 w-full flex items-center">
-            <div className="lg:pl-0 -mt-80">
-              <h1 className="lg:text-[38px] font-extrabold text-white uppercase" style={{ filter: "drop-shadow(0 8px 8px rgba(0,0,0,0.50))" }}>
-                Case Studies
-              </h1>
-            </div>
-          </div>
-        </div>
+        <HeroEditor
+          hero={hero}
+          adminToken={adminToken}
+          onSave={async (heroDraft) => {
+            try {
+              const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
+              const res = await fetch(`${API_BASE}/page-heros/case-studies`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...(adminToken ? { Authorization: 'Bearer ' + adminToken } : {}),
+                },
+                body: JSON.stringify({
+                  title: heroDraft.title,
+                  imageUrl: heroDraft.imageUrl,
+                }),
+              });
+              if (res.ok) {
+                const data = await res.json();
+                setHero({ title: data.title || heroDraft.title, imageUrl: data.imageUrl || heroDraft.imageUrl });
+              }
+            } catch (e) {
+              error("Failed to save hero data", e);
+            }
+          }}
+        />
       </section>
 
       <section className="relative w-full">
@@ -231,283 +150,26 @@ export default function CaseStudies() {
                   {editingBlocks && Array.isArray(editingBlocks) ? (
                     <div className="space-y-4">
                       {editingBlocks.map((block, index) => (
-                        <div key={block._id || index} className="border rounded p-3">
-                          <div className="mb-2 text-sm text-gray-600">
-                            Block #{index + 1} — <span className="font-mono">{block.type}</span>
-                          </div>
-                            {block.type === "paragraph" && (
-                            <>
-                            <textarea
-                              value={block.text || ""}
-                              onChange={(event) => {
-                                const id = block._id;
-                                const val = event.target.value;
-                                setEditingBlocks((previous) => {
-                                  const array = (previous || []).slice();
-                                  const index = array.findIndex((block) => block._id === id);
-                                  if (index === -1) return previous;
-                                  array[index] = { ...array[index], text: val };
-                                  return array;
-                                });
-                              }}
-                              rows={4}
-                              className="w-full p-2 border rounded text-sm font-mono"
-                            />
-                            <div className="mt-2 flex gap-2">
-                              <button
-                                className="px-2 py-1 rounded border text-sm"
-                                onClick={() => {
-                                  const id = block._id;
-                                  setEditingBlocks((previous) => {
-                                    const array = (previous || []).slice();
-                                    const index = array.findIndex((block) => block._id === id);
-                                    if (index <= 0) return previous;
-                                    const temporary = array[index - 1];
-                                    array[index - 1] = array[index];
-                                    array[index] = temporary;
-                                    return array;
-                                  });
-                                }}
-                                disabled={index === 0}
-                              >
-                                Move up
-                              </button>
-                              <button
-                                className="px-2 py-1 rounded border text-sm"
-                                onClick={() => {
-                                  const id = block._id;
-                                  setEditingBlocks((previous) => {
-                                    const array = (previous || []).slice();
-                                    const index = array.findIndex((block) => block._id === id);
-                                    if (index === -1 || index >= array.length - 1) return previous;
-                                    const temporary = array[index + 1];
-                                    array[index + 1] = array[index];
-                                    array[index] = temporary;
-                                    return array;
-                                  });
-                                }}
-                                disabled={index >= (editingBlocks ? editingBlocks.length - 1 : 0)}
-                              >
-                                Move down
-                              </button>
-                              <button
-                                className="px-2 py-1 rounded border text-sm"
-                                onClick={() => {
-                                  const id = editingBlocks && editingBlocks[index] && editingBlocks[index]._id;
-                                  if (!id) {
-                                    setEditingBlocks((previous) => {
-                                      const copy = (previous || []).slice();
-                                      copy.splice(index, 1);
-                                      return copy;
-                                    });
-                                    return;
-                                  }
-                                  setEditingBlocks((previous) => (previous || []).filter((block) => block._id !== id));
-                                }}
-                              >
-                                Remove block
-                              </button>
-                            </div>
-                            </>
-                          )}
-                          {block.type === "image" && (
-                            <div className="grid grid-cols-1 gap-2">
-                              <label className="text-xs text-gray-600">Replace image (upload)</label>
-                              <div className="flex items-center gap-2">
-                                <label className="bg-white border px-3 py-1 rounded text-sm cursor-pointer">
-                                  Choose image
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(event) => {
-                                      const file = event.target.files && event.target.files[0];
-                                      if (!file) return;
-                                      const id = block._id;
-                                      try {
-                                        const preview = URL.createObjectURL(file);
-                                        let alt = "";
-                                        if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
-                                        else alt = (file.name || "").replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
-                                        setEditingBlocks((previous) => {
-                                          const array = (previous || []).slice();
-                                          const index = array.findIndex((block) => block._id === id);
-                                          if (index === -1) return previous;
-                                          array[index] = { ...array[index], _file: file, src: preview, alt, _autoAlt: true };
-                                          return array;
-                                        });
-                                      } catch (error) {
-                                        let alt = "";
-                                        if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
-                                        else alt = (file.name || "").replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
-                                        setEditingBlocks((previous) => {
-                                          const array = (previous || []).slice();
-                                          const index = array.findIndex((block) => block._id === id);
-                                          if (index === -1) return previous;
-                                          array[index] = { ...array[index], _file: file, alt, _autoAlt: true };
-                                          return array;
-                                        });
-                                      }
-                                    }}
-                                    className="hidden"
-                                  />
-                                </label>
-                                <div className="text-sm text-gray-600">or paste URL below</div>
-                              </div>
-
-                              <label className="text-xs text-gray-600">Or image URL</label>
-                              <input
-                                value={block.src || block.url || ""}
-                                onChange={(event) => {
-                                  const copy = editingBlocks.slice();
-                                  const val = event.target.value || "";
-                                  let alt = "";
-                                  if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
-                                  else {
-                                    try {
-                                      const p = val.split("?")[0].split("#")[0];
-                                      const parts = p.split('/');
-                                      let fileName = parts[parts.length - 1] || p;
-                                      fileName = fileName.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
-                                      alt = fileName;
-                                    } catch (error) {
-                                      alt = "";
-                                    }
-                                  }
-                                  copy[index] = { ...copy[index], src: val, url: undefined, alt, _autoAlt: true };
-                                  setEditingBlocks(copy);
-                                }}
-                                className="w-full p-2 border rounded text-sm"
-                              />
-
-                              <label className="text-xs text-gray-600">Alt text</label>
-                              <input
-                                value={block.alt || ""}
-                                onChange={(event) => {
-                                  const copy = editingBlocks.slice();
-                                  copy[index] = { ...copy[index], alt: event.target.value, _autoAlt: false };
-                                  setEditingBlocks(copy);
-                                }}
-                                className="w-full p-2 border rounded text-sm"
-                              />
-
-                              <div className="mt-2">{block.src || block.url ? <img src={block.src || block.url} alt={block.alt || ""} className="object-contain w-full h-36" /> : <div className="text-sm text-gray-400">No image</div>}</div>
-                              <div className="mt-2">
-                                <button
-                                  className="px-2 py-1 rounded border text-sm"
-                                  onClick={() => {
-                                    const copy = editingBlocks.slice();
-                                    copy.splice(index, 1);
-                                    setEditingBlocks(copy);
-                                  }}
-                                >
-                                  Remove block
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                          {block.type !== "paragraph" && block.type !== "image" && (
-                            <>
-                              <input
-                                value={block.src || block.url || ""}
-                                onChange={(event) => {
-                                  const val = event.target.value || "";
-                                  const id = block._id;
-                                  let alt = "";
-                                  if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
-                                  else {
-                                    try {
-                                      const p = val.split("?")[0].split("#")[0];
-                                      const parts = p.split('/');
-                                      let fname = parts[parts.length - 1] || p;
-                                      fname = fname.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
-                                      alt = fname;
-                                    } catch (error) {
-                                      alt = "";
-                                    }
-                                  }
-                                  setEditingBlocks((previous) => {
-                                    const array = (previous || []).slice();
-                                    const index = array.findIndex((block) => block._id === id);
-                                    if (index === -1) return previous;
-                                    array[index] = { ...array[index], src: val, url: undefined, alt, _autoAlt: true };
-                                    return array;
-                                  });
-                                }}
-                                className="w-full p-2 border rounded text-sm"
-                              />
-                              <div className="mt-2 flex gap-2">
-                                <button
-                                  className="px-2 py-1 rounded border text-sm"
-                                  onClick={() => {
-                                    const id = block._id;
-                                    setEditingBlocks((previous) => {
-                                      const array = (previous || []).slice();
-                                      const index = array.findIndex((block) => block._id === id);
-                                      if (index <= 0) return previous;
-                                      const temporary = array[index - 1];
-                                      array[index - 1] = array[index];
-                                      array[index] = temporary;
-                                      return array;
-                                    });
-                                  }}
-                                  disabled={index === 0}
-                                >
-                                  Move up
-                                </button>
-                                <button
-                                  className="px-2 py-1 rounded border text-sm"
-                                  onClick={() => {
-                                    if (!editingBlocks || index >= editingBlocks.length - 1) return;
-                                    const copy = editingBlocks.slice();
-                                    const temporary = copy[index + 1];
-                                    copy[index + 1] = copy[index];
-                                    copy[index] = temporary;
-                                    setEditingBlocks(copy);
-                                  }}
-                                  disabled={index >= (editingBlocks ? editingBlocks.length - 1 : 0)}
-                                >
-                                  Move down
-                                </button>
-                                <button
-                                  className="px-2 py-1 rounded border text-sm"
-                                  onClick={() => {
-                                    const id = editingBlocks && editingBlocks[index] && editingBlocks[index]._id;
-                                    if (!id) {
-                                      setEditingBlocks((previous) => {
-                                        const copy = (previous || []).slice();
-                                        copy.splice(index, 1);
-                                        return copy;
-                                      });
-                                      return;
-                                    }
-                                    setEditingBlocks((previous) => (previous || []).filter((block) => block._id !== id));
-                                  }}
-                                >
-                                  Remove block
-                                </button>
-                              </div>
-                            </>
-                          )}
-                        </div>
+                        <CaseStudyBlockEditor
+                          key={block._id || index}
+                          block={block}
+                          index={index}
+                          onChange={(id, newBlock) => setEditingBlocks((prev) => prev.map(b => b._id === id ? newBlock : b))}
+                          onMoveUp={id => setEditingBlocks(prev => moveBlockUp(prev, id))}
+                          onMoveDown={id => setEditingBlocks(prev => moveBlockDown(prev, id))}
+                          onDelete={id => setEditingBlocks(prev => deleteBlock(prev, id))}
+                        />
                       ))}
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 mt-2">
                         <button
                           className="bg-indigo-600 text-white px-3 py-1 rounded"
-                          onClick={() => {
-                            const copy = (editingBlocks || []).slice();
-                            copy.push({ _id: genId(), type: "paragraph", text: "" });
-                            setEditingBlocks(copy);
-                          }}
+                          onClick={() => setEditingBlocks(blocks => addParagraphBlock(blocks, genId))}
                         >
                           Add paragraph
                         </button>
                         <button
                           className="bg-white border px-3 py-1 rounded"
-                          onClick={() => {
-                            const copy = (editingBlocks || []).slice();
-                            copy.push({ _id: genId(), type: "image", src: "", alt: "", _autoAlt: true });
-                            setEditingBlocks(copy);
-                          }}
+                          onClick={() => setEditingBlocks(blocks => addImageBlock(blocks, genId))}
                         >
                           Add image
                         </button>
@@ -521,158 +183,30 @@ export default function CaseStudies() {
                   <button
                     className="bg-indigo-600 text-white px-4 py-2 rounded"
                     disabled={saving}
-                    onClick={async () => {
-                      if (!caseData) return;
-                      function toJsonString(text) {
-                        if (typeof text !== "string") return JSON.stringify([]);
-                        try {
-                          const parsed = JSON.parse(text);
-                          return JSON.stringify(parsed, null, 2);
-                        } catch (error) {
-                          const lines = text
-                            .split(/\r?\n/)
-                            .map((s) => s.trim())
-                            .filter((s) => s.length > 0);
-                          if (lines.length === 0) return JSON.stringify([]);
-                          const blocks = lines.map((l) => ({ type: "paragraph", text: l }));
-                          return JSON.stringify(blocks, null, 2);
-                        }
-                      }
-
-                      let contentPayload;
-                      if (editingBlocks && Array.isArray(editingBlocks)) {
-                        const API_BASE = import.meta.env.VITE_API_BASE || "https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api";
-                        const blocksCopy = editingBlocks.slice();
-                        for (let i = 0; i < blocksCopy.length; i++) {
-                          const block = blocksCopy[i];
-                          if (block && block._file) {
-                            try {
-                              const formData = new FormData();
-                              formData.append("file", block._file);
-                              const headers = {};
-                              if (adminToken) headers["Authorization"] = "Bearer " + adminToken;
-                              const upRes = await fetch(`${API_BASE}/uploads`, { method: "POST", body: formData, headers });
-                              if (!upRes.ok) throw new Error("upload failed");
-                              const upJson = await upRes.json();
-                              const url = upJson.url || upJson.path || "";
-                              blocksCopy[i] = { ...blocksCopy[i], src: url };
-                              delete blocksCopy[i]._file;
-                            } catch (error) {
-                              console.error("upload failed", error);
-                              alert("Image upload failed: " + (error.message || error));
-                            }
-                          }
-                        }
-                        setEditingBlocks(blocksCopy);
-                        contentPayload = JSON.stringify(blocksCopy, null, 2);
-                      } else {
-                        const paragraphJson = toJsonString(contentEditor);
-                        let paragraphBlocks = [];
-                        try {
-                          paragraphBlocks = JSON.parse(paragraphJson);
-                        } catch (error) {
-                          paragraphBlocks = [];
-                        }
-
-                        contentPayload = JSON.stringify(paragraphBlocks, null, 2);
-                      }
-
-                      let solutionPayload;
-                      if (editingSolutionBlocks && Array.isArray(editingSolutionBlocks)) {
-                        const API_BASE = import.meta.env.VITE_API_BASE || "https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api";
-                        const solCopy = editingSolutionBlocks.slice();
-                        for (let i = 0; i < solCopy.length; i++) {
-                          const block = solCopy[i];
-                          if (block && block._file) {
-                            try {
-                              const formData = new FormData();
-                              formData.append("file", block._file);
-                              const headers = {};
-                              if (adminToken) headers["Authorization"] = "Bearer " + adminToken;
-                              const upRes = await fetch(`${API_BASE}/uploads`, { method: "POST", body: formData, headers });
-                              if (!upRes.ok) throw new Error("upload failed");
-                              const upJson = await upRes.json();
-                              const url = upJson.url || upJson.path || "";
-                              solCopy[i] = { ...solCopy[i], src: url };
-                              delete solCopy[i]._file;
-                            } catch (error) {
-                              console.error("upload failed", error);
-                              alert("Solution image upload failed: " + (error.message || error));
-                            }
-                          }
-                        }
-                        setEditingSolutionBlocks(solCopy);
-                        solutionPayload = JSON.stringify(solCopy, null, 2);
-                      } else {
-                        const solutionParagraphJson = toJsonString(solutionEditor);
-                        let solutionParagraphBlocks = [];
-                        try {
-                          solutionParagraphBlocks = JSON.parse(solutionParagraphJson);
-                        } catch (error) {
-                          solutionParagraphBlocks = [];
-                        }
-                        solutionPayload = JSON.stringify(solutionParagraphBlocks, null, 2);
-                      }
-
-                      setSaving(true);
-                      try {
-                        const API_BASE = import.meta.env.VITE_API_BASE || "https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api";
-                        const headers = { "Content-Type": "application/json" };
-                        if (adminToken) headers["Authorization"] = "Bearer " + adminToken;
-                          const payload = { content: contentPayload, solution_content_json: solutionPayload, title: titleEditor, solution_title: solutionTitleEditor };
-                          let res;
-                          if (isCreating) {
-                            const slug = titleEditor ? titleEditor.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-') : '';
-                            const createBody = { ...payload, slug };
-                            res = await fetch(`${API_BASE}/case-studies`, {
-                              method: "POST",
-                              headers,
-                              body: JSON.stringify(createBody),
-                            });
-                            if (!res.ok) {
-                              const txt = await res.text();
-                              throw new Error("Create failed: " + res.status + " " + txt);
-                            }
-                            const result = await res.json().catch(() => ({}));
-                            const created = {
-                              slug: result.slug || (titleEditor ? titleEditor.toLowerCase().replace(/[^a-z0-9]+/g, '-') : ''),
-                              title: titleEditor,
-                              content: JSON.parse(contentPayload),
-                              solutionContent: JSON.parse(solutionPayload),
-                              solutionTitle: solutionTitleEditor,
-                            };
-                            const newList = (caseList || []).slice();
-                            newList.push(created);
-                            setCaseList(newList);
-                            setSelectedIndex(newList.length - 1);
-                            setCaseData(created);
-                            setIsCreating(false);
-                            setIsEditing(false);
-                          } else {
-                            res = await fetch(`${API_BASE}/case-studies/${caseData.slug}`, {
-                              method: "PUT",
-                              headers,
-                              body: JSON.stringify(payload),
-                            });
-                            if (!res.ok) {
-                              const txt = await res.text();
-                              throw new Error("Save failed: " + res.status + " " + txt);
-                            }
-                            const result = await res.json().catch(() => ({}));
-                            setCaseData((previous) => ({ ...previous, title: titleEditor, content: JSON.parse(contentPayload), solutionContent: JSON.parse(solutionPayload), solutionTitle: solutionTitleEditor, slug: result.slug || previous.slug }));
-                            setCaseList((previousList) => previousList.map((it, index) => (index === selectedIndex ? { ...it, title: titleEditor, slug: result.slug || it.slug } : it)));
-                            setIsEditing(false);
-                          }
-                        } catch (error) {
-                          alert(error.message || "Save failed");
-                        } finally {
-                          setSaving(false);
-                        }
-                    }}
+                    onClick={() => handleSave({
+                      caseData,
+                      isCreating,
+                      editingBlocks,
+                      editingSolutionBlocks,
+                      contentEditor,
+                      solutionEditor,
+                      titleEditor,
+                      solutionTitleEditor,
+                      adminToken,
+                      setEditingBlocks,
+                      setEditingSolutionBlocks,
+                      setCaseList,
+                      setCaseData,
+                      setIsEditing,
+                      setIsCreating,
+                      setSelectedIndex,
+                      setSaving,
+                      selectedIndex,
+                    })}
                   >
                     Save
                   </button>
-                  <button className="px-4 py-2 rounded border" onClick={() => setIsEditing(false)} disabled={saving}>
+                  <button className="px-4 py-2 rounded border" onClick={() => handleCancel(setIsEditing, setSaving)} disabled={saving}>
                     Cancel
                   </button>
                 </div>
@@ -711,26 +245,26 @@ export default function CaseStudies() {
                             if (!caseData) return;
                             try {
                               setContentEditor(blocksToPlainText(caseData.content));
-                            } catch (error) {
-                              setContentEditor(caseData.content || "");
+                            } catch {
+                              setContentEditor(caseData.content);
                             }
                             try {
                               setSolutionEditor(blocksToPlainText(caseData.solutionContent));
-                            } catch (error) {
-                              setSolutionEditor(caseData.solutionContent || "");
+                            } catch {
+                              setSolutionEditor(caseData.solutionContent);
                             }
 
                             try {
                               const array = Array.isArray(caseData.content) ? caseData.content : typeof caseData.content === "string" ? JSON.parse(caseData.content || "[]") : [];
                               setEditingBlocks(array.map((block) => ({ ...block, _id: block._id || genId() })));
-                            } catch (error) {
+                            } catch {
                               setEditingBlocks(null);
                             }
 
                             try {
                               const sArr = Array.isArray(caseData.solutionContent) ? caseData.solutionContent : typeof caseData.solutionContent === "string" ? JSON.parse(caseData.solutionContent || "[]") : [];
                               setEditingSolutionBlocks(sArr.map((block) => ({ ...block, _id: block._id || genId() })));
-                            } catch (error) {
+                            } catch {
                               setEditingSolutionBlocks(null);
                             }
                             setTitleEditor(caseData.title || "");
@@ -764,7 +298,7 @@ export default function CaseStudies() {
                 {isEditing && (
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Solution Title</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Solution title</label>
                       <input value={solutionTitleEditor} onChange={(event) => setSolutionTitleEditor(event.target.value)} className="w-full p-2 border rounded" />
                     </div>
 
@@ -773,209 +307,26 @@ export default function CaseStudies() {
                         <label className="block text-sm font-medium text-gray-700 mb-1">Solution blocks</label>
                         <div className="space-y-3">
                           {editingSolutionBlocks.map((block, studyIndex) => (
-                            <div key={block._id || studyIndex} className="border rounded p-2">
-                              <div className="mb-1 text-sm text-gray-600">
-                                Block #{studyIndex + 1} — <span className="font-mono">{block.type}</span>
-                              </div>
-                              {block.type === "paragraph" && (
-                                <textarea
-                                  value={block.text || ""}
-                                  onChange={(event) => {
-                                    const id = block._id;
-                                    const val = event.target.value;
-                                    setEditingSolutionBlocks((previous) => {
-                                      const array = (previous || []).slice();
-                                      const index = array.findIndex((block) => block._id === id);
-                                      if (index === -1) return previous;
-                                      array[index] = { ...array[index], text: val };
-                                      return array;
-                                    });
-                                  }}
-                                  rows={3}
-                                  className="w-full p-2 border rounded text-sm font-mono"
-                                />
-                              )}
-                              {block.type === "image" && (
-                                <div>
-                                  <label className="text-xs text-gray-600">Replace image (upload)</label>
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(event) => {
-                                        const file = event.target.files && event.target.files[0];
-                                        if (!file) return;
-                                        const id = block._id;
-                                        try {
-                                          const preview = URL.createObjectURL(file);
-                                          let alt = "";
-                                          if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
-                                          else alt = (file.name || "").replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
-                                          setEditingSolutionBlocks((previous) => {
-                                            const array = (previous || []).slice();
-                                            const index = array.findIndex((block) => block._id === id);
-                                            if (index === -1) return previous;
-                                            array[index] = { ...array[index], _file: file, src: preview, alt, _autoAlt: true };
-                                            return array;
-                                          });
-                                        } catch (error) {
-                                          let alt = "";
-                                          if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
-                                          else alt = (file.name || "").replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
-                                          setEditingSolutionBlocks((previous) => {
-                                            const array = (previous || []).slice();
-                                            const index = array.findIndex((block) => block._id === id);
-                                            if (index === -1) return previous;
-                                            array[index] = { ...array[index], _file: file, alt, _autoAlt: true };
-                                            return array;
-                                          });
-                                        }
-                                      }}
-                                  />
-                                  <label className="text-xs text-gray-600 mt-2 block">Or image URL</label>
-                                  <input
-                                    value={block.src || block.url || ""}
-                                    onChange={(event) => {
-                                      const val = event.target.value || "";
-                                      const id = block._id;
-                                      let alt = "";
-                                      if (titleEditor && titleEditor.trim()) alt = `${titleEditor} image`;
-                                      else {
-                                        try {
-                                          const p = val.split("?")[0].split("#")[0];
-                                          const parts = p.split('/');
-                                          let fileName = parts[parts.length - 1] || p;
-                                          fileName = fileName.replace(/\.[^/.]+$/, "").replace(/[-_]+/g, " ");
-                                          alt = fileName;
-                                        } catch (error) {
-                                          alt = "";
-                                        }
-                                      }
-                                      setEditingSolutionBlocks((previous) => {
-                                        const array = (previous || []).slice();
-                                        const index = array.findIndex((block) => block._id === id);
-                                        if (index === -1) return previous;
-                                        array[index] = { ...array[index], src: val, url: undefined, alt, _autoAlt: true };
-                                        return array;
-                                      });
-                                    }}
-                                    className="w-full p-2 border rounded text-sm"
-                                  />
-                                  <label className="text-xs text-gray-600 mt-2 block">Alt text</label>
-                                  <input
-                                    value={block.alt || ""}
-                                    onChange={(event) => {
-                                      const id = block._id;
-                                      const val = event.target.value;
-                                      setEditingSolutionBlocks((previous) => {
-                                        const array = (previous || []).slice();
-                                        const index = array.findIndex((block) => block._id === id);
-                                        if (index === -1) return previous;
-                                        array[index] = { ...array[index], alt: val, _autoAlt: false };
-                                        return array;
-                                      });
-                                    }}
-                                    className="w-full p-2 border rounded text-sm"
-                                  />
-                                  <div className="mt-2">{block.src || block.url ? <img src={block.src || block.url} alt={block.alt || ""} className="object-contain w-full h-28" /> : <div className="text-sm text-gray-400">No image</div>}</div>
-                                </div>
-                              )}
-                              {block.type !== "paragraph" && block.type !== "image" && (
-                                <textarea
-                                  value={JSON.stringify(block, null, 2)}
-                                  onChange={(event) => {
-                                    try {
-                                      const parsed = JSON.parse(event.target.value);
-                                      const copy = editingSolutionBlocks.slice();
-                                      copy[studyIndex] = parsed;
-                                      setEditingSolutionBlocks(copy);
-                                    } catch (error) {
-                                      const copy = editingSolutionBlocks.slice();
-                                      copy[studyIndex] = { ...copy[studyIndex], _raw: event.target.value };
-                                      setEditingSolutionBlocks(copy);
-                                    }
-                                  }}
-                                  rows={3}
-                                  className="w-full p-2 border rounded text-sm font-mono"
-                                />
-                              )}
-
-                              <div className="mt-2 flex gap-2">
-                                <button
-                                  className="px-2 py-1 rounded border text-sm"
-                                  onClick={() => {
-                                    const id = block._id;
-                                    setEditingSolutionBlocks((previous) => {
-                                      const array = (previous || []).slice();
-                                      const index = array.findIndex((block) => block._id === id);
-                                      if (index <= 0) return previous;
-                                      const temporary = array[index - 1];
-                                      array[index - 1] = array[index];
-                                      array[index] = temporary;
-                                      return array;
-                                    });
-                                  }}
-                                  disabled={studyIndex === 0}
-                                >
-                                  Move up
-                                </button>
-                                <button
-                                  className="px-2 py-1 rounded border text-sm"
-                                  onClick={() => {
-                                    const id = block._id;
-                                    setEditingSolutionBlocks((previous) => {
-                                      const array = (previous || []).slice();
-                                      const index = array.findIndex((block) => block._id === id);
-                                      if (index === -1 || index >= array.length - 1) return previous;
-                                      const temporary = array[index + 1];
-                                      array[index + 1] = array[index];
-                                      array[index] = temporary;
-                                      return array;
-                                    });
-                                  }}
-                                  disabled={studyIndex >= (editingSolutionBlocks ? editingSolutionBlocks.length - 1 : 0)}
-                                >
-                                  Move down
-                                </button>
-                                    <button
-                                      className="px-2 py-1 rounded border text-sm"
-                                      onClick={() => {
-                                        const id = editingSolutionBlocks && editingSolutionBlocks[studyIndex] && editingSolutionBlocks[studyIndex]._id;
-                                        if (!id) {
-                                          setEditingSolutionBlocks((previous) => {
-                                            const copy = (previous || []).slice();
-                                            copy.splice(studyIndex, 1);
-                                            return copy;
-                                          });
-                                          return;
-                                        }
-                                        setEditingSolutionBlocks((previous) => (previous || []).filter((block) => block._id !== id));
-                                      }}
-                                    >
-                                      Remove block
-                                    </button>
-                              </div>
-                            </div>
+                            <CaseStudySolutionBlockEditor
+                              key={block._id || studyIndex}
+                              block={block}
+                              index={studyIndex}
+                              onChange={(id, newBlock) => setEditingSolutionBlocks((prev) => prev.map(b => b._id === id ? newBlock : b))}
+                              onMoveUp={id => setEditingSolutionBlocks(prev => moveBlockUp(prev, id))}
+                              onMoveDown={id => setEditingSolutionBlocks(prev => moveBlockDown(prev, id))}
+                              onDelete={id => setEditingSolutionBlocks(prev => deleteBlock(prev, id))}
+                            />
                           ))}
                           <div className="flex gap-2 mt-2">
                             <button
                               className="bg-indigo-600 text-white px-3 py-1 rounded"
-                              onClick={() => {
-                                const copy = (editingSolutionBlocks || []).slice();
-                                copy.push({ _id: genId(), type: "paragraph", text: "" });
-                                setEditingSolutionBlocks(copy);
-                              }}
+                              onClick={() => setEditingSolutionBlocks(blocks => addParagraphBlock(blocks, genId))}
                             >
                               Add paragraph
                             </button>
                             <button
                               className="bg-white border px-3 py-1 rounded"
-                              onClick={() => {
-                                setEditingSolutionBlocks((previous) => {
-                                  const array = (previous || []).slice();
-                                  array.push({ _id: genId(), type: "image", src: "", alt: "", _autoAlt: true });
-                                  return array;
-                                });
-                              }}
+                              onClick={() => setEditingSolutionBlocks(blocks => addImageBlock(blocks, genId))}
                             >
                               Add image
                             </button>
@@ -1004,8 +355,8 @@ export default function CaseStudies() {
                     isEditing
                       ? undefined
                       : () => {
-                          setSelectedIndex(study);
-                        }
+                        setSelectedIndex(study);
+                      }
                   }
                   disabled={isEditing}
                   aria-disabled={isEditing}

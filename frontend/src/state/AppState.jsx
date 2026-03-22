@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
 
-const AppStateContext = createContext(null);
+import React, { useEffect, useState } from 'react';
+import { AppStateContext } from './AppStateContext.js';
 
 export function AppStateProvider({ children }) {
   const [adminToken, setAdminToken] = useState(() => {
@@ -24,7 +24,9 @@ export function AppStateProvider({ children }) {
       try {
         if (token) window.localStorage.setItem('adminToken', token);
         else window.localStorage.removeItem('adminToken');
-      } catch (error) {}
+      } catch (error) {
+        console.error("Failed to update admin token in localStorage", error);
+      }
       window.dispatchEvent(new Event('admin-auth-changed'));
     }
   };
@@ -34,10 +36,4 @@ export function AppStateProvider({ children }) {
       {children}
     </AppStateContext.Provider>
   );
-}
-
-export function useAppState() {
-  const ctx = useContext(AppStateContext);
-  if (!ctx) throw new Error('useAppState must be used within AppStateProvider');
-  return ctx;
 }

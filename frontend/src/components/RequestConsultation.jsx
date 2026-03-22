@@ -23,7 +23,7 @@ export default function RequestConsultation({ onClose, modal = false, variant = 
     }
     setSending(true);
     try {
-      const API_BASE = import.meta.env.VITE_API_BASE || "https://ioimachines-cqbjftddhcfphebp.canadacentral-01.azurewebsites.net/api";
+      const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
       const res = await fetch(`${API_BASE}/consultation`, {
         method: "POST",
         headers: {
