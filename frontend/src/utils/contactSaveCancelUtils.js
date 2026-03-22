@@ -5,7 +5,7 @@ export async function saveContactSection(sectionKey, title, blocks, setEditing, 
     if (adminToken) headers["Authorization"] = "Bearer " + adminToken;
 
     let blocksResult = null;
-    if (blocks && Array.isArray(blocks)) {
+    if (Array.isArray(blocks) && blocks.length > 0) {
       const blocksCopy = blocks.slice();
       for (let i = 0; i < blocksCopy.length; i++) {
         const b = blocksCopy[i];
@@ -28,7 +28,7 @@ export async function saveContactSection(sectionKey, title, blocks, setEditing, 
         }
       }
 
-      if (blocksCopy.length === 0 || blocksCopy[0].type !== 'title') {
+      if (blocksCopy[0].type !== 'title') {
         blocksCopy.unshift({ _id: (typeof crypto !== 'undefined' ? crypto.randomUUID() : Math.random().toString()), type: 'title', text: title });
       } else {
         blocksCopy[0] = { ...blocksCopy[0], text: title };
@@ -46,7 +46,7 @@ export async function saveContactSection(sectionKey, title, blocks, setEditing, 
 
     const findContact = (type) => {
       const b = (blocksResult || []).find((x) => x.contactType === type);
-      return b ? b.text : null;
+      return b && b.text ? b.text : null;
     };
 
     const addressVal = findContact('address') || editAddress || null;

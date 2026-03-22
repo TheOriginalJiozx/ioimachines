@@ -77,7 +77,7 @@ export default function IPCoreLicensing() {
           if (entry.isIntersecting) entry.target.classList.add("in-view");
         });
       },
-      { threshold: 0.18 },
+      { threshold: 0.18 }
     );
 
     const els = Array.from(document.querySelectorAll(".enter-up"));
