@@ -42,6 +42,7 @@ export default function CaseStudyBlockEditor({ block, onChange, onMoveUp, onMove
             className="w-full p-2 border rounded text-sm font-mono"
             placeholder="Image URL"
           />
+          {/* sonar: prefer-optional-chain L28 */}
           {(() => {
             if (block?._file) {
               return <img src={URL.createObjectURL(block._file)} alt={block.alt || ''} className="object-contain w-full max-h-40 rounded border" style={{ marginTop: 8 }} />;
