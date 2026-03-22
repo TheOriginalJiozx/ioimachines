@@ -223,7 +223,7 @@ export function IPCoreBlockAddButtons({ blocks, setBlocks }) {
         Add Signature Algorithm Images
       </button>
       <button
-        className={`px-2 py-1 rounded border text-sm ${!canAddBlock(blocks, "paragraph-signature-algorithm") ? disabledClass : ""}`}
+        className={`px-2 py-1 rounded border text-sm ${canAddBlock(blocks, "paragraph-signature-algorithm") ? "" : disabledClass}`}
         disabled={!canAddBlock(blocks, "paragraph-signature-algorithm")}
         onClick={() => setBlocks(addBlock(blocks, "paragraph-signature-algorithm"))}>
         Add Signature Algorithm

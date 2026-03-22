@@ -1,9 +1,8 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import ContactCase from "../components/ContactCase";
 import Features from "../components/Features";
 import GetAdvice from "../components/GetAdvice";
 import RequestConsultation from "../components/RequestConsultation";
-import { useState } from "react";
 import { useAppState } from "../state/useAppState";
 import { genId, blocksToPlainText } from "../lib/blocks.jsx";
 import ContactBlockEditor from "../components/ContactBlockEditor";
@@ -102,28 +101,26 @@ export default function Contact() {
           <div className={editing ? "justify-center" : ""}>
             <div className={editing ? "md:col-span-1" : ""}>
               {editing ? (
-                <>
-                  <ContactBlockEditor
-                    blocks={editingBlocks}
-                    setBlocks={setEditingBlocks}
-                    title={editTitle}
-                    setTitle={setEditTitle}
-                    onCancel={() => handleContactCancel(setEditing)}
-                    onSave={() => saveContactSection(
-                      'contact',
-                      editTitle,
-                      editingBlocks,
-                      setEditing,
-                      setSection,
-                      adminToken,
-                      editAddress,
-                      editEmail,
-                      editTiming,
-                      editPhone,
-                      contentEditor
-                    )}
-                  />
-                </>
+                <ContactBlockEditor
+                  blocks={editingBlocks}
+                  setBlocks={setEditingBlocks}
+                  title={editTitle}
+                  setTitle={setEditTitle}
+                  onCancel={() => handleContactCancel(setEditing)}
+                  onSave={() => saveContactSection(
+                    'contact',
+                    editTitle,
+                    editingBlocks,
+                    setEditing,
+                    setSection,
+                    adminToken,
+                    editAddress,
+                    editEmail,
+                    editTiming,
+                    editPhone,
+                    contentEditor
+                  )}
+                />
               ) : (
                 <>
                   {(() => {

@@ -130,7 +130,7 @@ export default function HeroEditor({ hero, adminToken, onSave, hideTitleInput })
             <h1
               className="lg:text-[48px] text-3xl font-extrabold text-white uppercase"
               style={{ filter: "drop-shadow(0 8px 8px rgba(0,0,0,0.50))" }}>
-              {!editHero ? hero.title : heroDraft.title}
+              {editHero ? heroDraft.title : hero.title}
             </h1>
           </div>
         </div>

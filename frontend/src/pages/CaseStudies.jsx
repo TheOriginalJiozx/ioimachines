@@ -56,7 +56,7 @@ export default function CaseStudies() {
           setCaseList(list);
           setSelectedIndex(0);
           setCaseData(list[0]);
-        } else if (!Array.isArray(json)) {
+        } else if (Array.isArray(json) === false) {
           const item = normalizeEntry(json);
           setCaseList([item]);
           setCaseData(item);
