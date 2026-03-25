@@ -25,19 +25,29 @@ public class SiteSectionController {
 
     @GetMapping("/{key}")
     public ResponseEntity<?> get(@PathVariable String key) {
-        return repo.findByKey(key).map(s -> {
-            return ResponseEntity.ok(Map.of(
-                "id", s.getId(),
-                "key", s.getKey(),
-                "title", s.getTitle(),
-                "content", s.getContentJson(),
-                "email", s.getEmailJson(),
-                "phone", s.getPhoneJson(),
-                "address", s.getAddressJson(),
-                "timing", s.getTimingJson(),
-                "createdAt", s.getCreatedAt()
-            ));
-        }).orElseGet(() -> ResponseEntity.notFound().build());
+        LOGGER.info("[DEBUG] GET /api/sections/{} - repo.findByKey CALLED", key);
+        try {
+            return repo.findByKey(key).map(s -> {
+                LOGGER.info("[DEBUG] SiteSection found for key={}", key);
+                return ResponseEntity.ok(Map.of(
+                    "id", s.getId(),
+                    "key", s.getKey(),
+                    "title", s.getTitle(),
+                    "content", s.getContentJson(),
+                    "email", s.getEmailJson(),
+                    "phone", s.getPhoneJson(),
+                    "address", s.getAddressJson(),
+                    "timing", s.getTimingJson(),
+                    "createdAt", s.getCreatedAt()
+                ));
+            }).orElseGet(() -> {
+                LOGGER.warn("[DEBUG] No SiteSection found for key={}", key);
+                return ResponseEntity.notFound().build();
+            });
+        } catch (Exception e) {
+            LOGGER.error("[DEBUG] Exception in GET /api/sections/{}", key, e);
+            throw e;
+        }
     }
 
     @PutMapping("/{key}")

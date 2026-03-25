@@ -19,23 +19,6 @@ async function uploadBlockFile(b, API_BASE, adminToken) {
   }
 }
 
-export async function saveSection(key, title, blocks, setEditing, setState, extraParsed = {}, adminToken = null) {
-  const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;
-  const headers = { "Content-Type": "application/json" };
-  if (adminToken) headers["Authorization"] = "Bearer " + adminToken;
-
-  let blocksCopy = blocks && Array.isArray(blocks) ? await Promise.all(blocks.map(b => uploadBlockFile(b, API_BASE, adminToken))) : null;
-  const parsedPayload = { ...extraParsed, intro: blocksCopy || [] };
-  const payload = { title: title, content: JSON.stringify(parsedPayload) };
-  try {
-    const res = await fetch(`${API_BASE}/sections/${key}`, { method: "PUT", headers, body: JSON.stringify(payload) });
-    if (!res.ok) throw new Error("save failed");
-    setState((prev) => ({ ...prev, title: title, content: JSON.stringify(parsedPayload), parsedContent: parsedPayload }));
-    setEditing(false);
-  } catch (error) {
-    alert("Save failed: " + (error.message || error));
-  }
-}
 export async function saveSection(key, title, blocks, setEditing, setState, extraParsed = null, adminToken = null) {
   try {
     const API_BASE = import.meta.env.VITE_API_BASE || import.meta.env.VITE_API_BASE_ONLINE;

@@ -204,7 +204,7 @@ const [perfBody2, setPerfBody2] = useState("");
    }
   }
   fetchCards();
- }, [card1Title, card1Body, card1Icon, card2Title, card2Body, card2Icon, card3Title, card3Body, card3Icon, card4Title, card4Body, card4Icon, card4List, card4ListIcons, card4Footer]);
+}, []);
 
  useEffect(() => {
   async function fetchModalTexts() {
